@@ -193,12 +193,12 @@ function mixAudio(v, cues, T, outWav, K) {
   if (process.env.MUTE === 'bed') labels.slice(1).forEach((l) => fc.push(`${l}anullsink`));
   fc.push(`${lab2.join('')}amix=inputs=${lab2.length}:normalize=0:duration=longest,atrim=0:${T.toFixed(3)},alimiter=limit=0.9:attack=3:release=40[mix]`);
   const pre = outWav.replace(/\.wav$/, '.pre.wav');
-  execFileSync(FF, [...args, '-filter_complex', fc.join(';'), '-map', '[mix]', '-ar', '48000', pre], { stdio: 'inherit' });
+  execFileSync(FF, [...args, '-filter_complex', fc.join(';'), '-map', '[mix]', '-ar', '48000', '-ac', '2', '-c:a', 'pcm_s16le', pre], { stdio: 'inherit' });
   // two-pass loudnorm to -14 LUFS
   const m = ffErr(['-hide_banner', '-i', pre, '-af', 'loudnorm=I=-14:TP=-1.5:LRA=9:print_format=json', '-f', 'null', '-']);
   const j = JSON.parse(m.slice(m.lastIndexOf('{'), m.lastIndexOf('}') + 1));
   const ln = `loudnorm=I=-14:TP=-1.5:LRA=9:measured_I=${j.input_i}:measured_TP=${j.input_tp}:measured_LRA=${j.input_lra}:measured_thresh=${j.input_thresh}:offset=${j.target_offset}:linear=true`;
-  execFileSync(FF, ['-y', '-hide_banner', '-loglevel', 'error', '-i', pre, '-af', `${ln},aresample=48000`, outWav], { stdio: 'inherit' });
+  execFileSync(FF, ['-y', '-hide_banner', '-loglevel', 'error', '-i', pre, '-af', `${ln},aresample=48000,aformat=sample_fmts=s16:channel_layouts=stereo`, '-ac', '2', '-c:a', 'pcm_s16le', outWav], { stdio: 'inherit' });
   return j;
 }
 
