@@ -1824,7 +1824,7 @@
       cam.lookAt(LOOK);
       G.r.render(scene, cam);
     });
-    const hk = el('div', 'x4hk', `<div class="h"><span>4</span>${S.head}</div><div class="s">${S.sub}</div>`);
+    const hk = el('div', 'x4hk', `<div class="h"${de ? '' : ' style="font-size:58px"'}><span>4</span>${S.head}</div><div class="s">${S.sub}</div>`);
     tl.fromTo(hk.querySelector('.h'), { autoAlpha: 0, y: -60, rotation: -3 }, { autoAlpha: 1, y: 0, rotation: -2, duration: 0.45, ease: 'back.out(2)' }, 0.2);
     tl.fromTo(hk.querySelector('.s'), { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2.4)' }, K.sub - 0.1);
     tl.to(hk, { autoAlpha: 0, y: -60, duration: 0.25, ease: 'power2.in' }, NT[0] - 0.3);
@@ -1908,7 +1908,7 @@
     tl.fromTo(q, { autoAlpha: 0, scale: 2.2, rotation: -6 }, { autoAlpha: 1, scale: 1, rotation: -3, duration: 0.25, ease: 'power4.in', immediateRender: false }, K.wo - 0.1);
     tl.to(q, { autoAlpha: 0, scale: 0.8, duration: 0.2 }, K.turn - 0.15);
     const qs = [...Array(12)].map((_, i) => el('i', 'x5qm', '?', stage, { left: `${(i * 89) % 1000 + 20}px`, fontSize: `${70 + (i * 37) % 90}px` }));
-    qs.forEach((m, i) => { tl.set(m, { autoAlpha: 0 }, 0); tl.fromTo(m, { autoAlpha: 0, y: -200, rotation: (i % 2 ? 1 : -1) * 20 }, { autoAlpha: 1, y: 1200 + (i * 53) % 500, rotation: (i % 2 ? -1 : 1) * 30, duration: 1.0, ease: 'power1.in', immediateRender: false }, K.wo - 0.1 + i * 0.05); tl.to(m, { autoAlpha: 0, duration: 0.15 }, K.turn - 0.15); });
+    qs.forEach((m, i) => { const t0 = K.wo - 0.1 + i * 0.05, d = Math.max(0.35, Math.min(1.0, K.turn - 0.2 - t0)); tl.set(m, { autoAlpha: 0 }, 0); tl.fromTo(m, { autoAlpha: 0, y: -200, rotation: (i % 2 ? 1 : -1) * 20 }, { autoAlpha: 1, y: 1200 + (i * 53) % 500, rotation: (i % 2 ? -1 : 1) * 30, duration: d, ease: 'power1.in', immediateRender: false }, t0); tl.to(m, { autoAlpha: 0, duration: 0.12 }, Math.max(t0 + d - 0.12, K.turn - 0.15)); tl.set(m, { autoAlpha: 0 }, K.turn + 0.05); });
     sfx('sting', K.wo - 0.05, -11);
     // tracking card
     const card = el('div', 'x5trk', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.trk}</b><small>${S.id}</small></div></div><div class="ln"><i class="fill"></i><i class="dot"></i></div>` + S.steps.map((st, i) => `<div class="st" style="top:${170 + i * 170}px"><span class="nd"></span><div><b>${st[0]}</b><small>${st[1]}</small></div><em>✓</em></div>`).join(''));
