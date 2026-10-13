@@ -2826,7 +2826,96 @@
     return { T, K };
   }
 
+  // ================= X24 (feature): requests + approval — question bubbles, fading hallway "yes", request card, years later =================
+  function X24() {
+    const de = lang === 'de';
+    const S = de ? {
+      q1: 'Darf ich eine Katze halten?', q2: 'Darf ich die Wand streichen?', ja: 'Ja, klar!', req: 'Anfrage · Wohnung 3', reqT: 'Katze halten', reqS: 'Mieterin · 14.10.2026', sent: 'gesendet',
+      no: 'Ablehnen', yes: 'Zustimmen', ok: '✓ Zugestimmt', doc: 'Zusage_Katze.pdf', docS: 'für beide archiviert', stamp: 'DOKUMENTIERT', r1: 'Mieterin', r2: 'Vermieter', later: 'Zusage noch da ✓', tag: 'für Mieter & Vermieter',
+    } : {
+      q1: 'Can I get a cat?', q2: 'Can I paint the wall?', ja: 'Yeah, sure!', req: 'Request · Unit 3', reqT: 'Get a cat', reqS: 'Tenant · Oct 14, 2026', sent: 'sent',
+      no: 'Decline', yes: 'Approve', ok: '✓ Approved', doc: 'Approval_cat.pdf', docS: 'archived for both', stamp: 'ON RECORD', r1: 'Tenant', r2: 'Landlord', later: 'approval still there ✓', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.q2 = W(['Darf', 'Can'], 0).start;
+    K.ja = W(['Ja', 'yes']).start;
+    K.verg = W(['vergessen', 'forgotten']).start;
+    const it = W(['Mit', 'With']); K.turn = it.start;
+    K.send = W(['stellt', 'sends'], it.i).start;
+    K.app = W(['App', 'app'], it.i).start;
+    K.ll = W(['Vermieter', 'landlord'], it.i).start;
+    K.tap = W(['Tipp', 'tap'], it.i).start;
+    K.ok = W(['Zusage', 'approval'], it.i).start;
+    K.doc = W(['dokumentiert', 'record'], it.i).start;
+    K.klar = W(['Klar', 'Clear'], it.i).start;
+    K.yrs = W(['Jahren', 'years'], it.i).start;
+    const T = END + 2.1;
+    el('div', 'x24bg', '<i class="g"></i>');
+    // hook: two question bubbles
+    const b1 = el('div', 'x24bub l', `<i>🐱</i><b>${S.q1}</b>`), b2 = el('div', 'x24bub r', `<i>🎨</i><b>${S.q2}</b>`);
+    tl.fromTo(b1, { autoAlpha: 0, scale: 0.4, y: 40 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.35, ease: 'back.out(2.2)' }, 0.02);
+    tl.fromTo(b2, { autoAlpha: 0, scale: 0.4, y: 40 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.35, ease: 'back.out(2.2)' }, K.q2 - 0.08);
+    sfx('pop', 0.05, -9); sfx('pop', K.q2 - 0.05, -9);
+    tl.to([b1, b2], { autoAlpha: 0, y: -120, scale: 0.85, duration: 0.35, ease: 'power2.in', stagger: 0.05 }, K.ja - 0.55);
+    // hallway yes that evaporates
+    const ja = el('div', 'x24ja', `<b>${S.ja.split('').map((ch) => `<span>${ch === ' ' ? '&nbsp;' : ch}</span>`).join('')}</b><i>👋</i>`);
+    const chars = ja.querySelectorAll('span');
+    tl.set(ja, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(ja, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, K.ja - 0.1);
+    sfx('pop', K.ja, -10);
+    chars.forEach((c, i) => { tl.to(c, { autoAlpha: 0, y: -60 - (i % 3) * 30, x: (i % 2 ? 1 : -1) * (20 + i * 6), filter: 'blur(8px)', duration: 0.7, ease: 'power2.in' }, K.verg - 0.5 + i * 0.04); });
+    tl.to(ja.querySelector('i'), { autoAlpha: 0, duration: 0.4 }, K.verg - 0.3);
+    const qm = el('div', 'x24qm', '?');
+    tl.set(qm, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(qm, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(3)', immediateRender: false }, K.verg + 0.2);
+    tl.to([qm, ja], { autoAlpha: 0, duration: 0.2 }, K.turn - 0.2);
+    sfx('vortex', K.verg - 0.45, -14);
+    // request card
+    const rq = el('div', 'x24req', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.req}</b><small>${S.reqS}</small></div><em class="sp">${S.sent}</em></div>
+      <div class="tt"><i>🐱</i><b>${S.reqT}</b></div>
+      <div class="bt"><span class="no">${S.no}</span><span class="yes">${S.yes}</span><span class="ok">${S.ok}</span></div>
+      <div class="dc"><i>📎</i><div><b>${S.doc}</b><small>${S.docS}</small></div></div><div class="stp">${S.stamp}</div>`);
+    tl.set(rq, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(rq, { autoAlpha: 0, y: 260 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -9);
+    const sp = rq.querySelector('.sp'), okb = rq.querySelector('.ok'), dc = rq.querySelector('.dc'), stp = rq.querySelector('.stp'), bt = rq.querySelector('.bt');
+    tl.set([sp, okb, dc, stp, bt], { autoAlpha: 0 }, 0);
+    tl.fromTo(sp, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(3)', immediateRender: false }, K.app);
+    sfx('send', K.app, -10);
+    tl.fromTo(bt, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power3.out', immediateRender: false }, K.ll - 0.1);
+    const tapc = el('div', 'x24tap', '<i></i>');
+    tl.set(tapc, { autoAlpha: 0 }, 0);
+    tl.fromTo(tapc, { autoAlpha: 0, x: 900, y: 1300 }, { autoAlpha: 1, x: 750, y: 636, duration: 0.55, ease: 'power3.inOut', immediateRender: false }, K.tap - 0.6);
+    tl.fromTo(tapc.querySelector('i'), { scale: 0.3, autoAlpha: 0.9 }, { scale: 2.6, autoAlpha: 0, duration: 0.5, immediateRender: false }, K.tap);
+    tl.to(tapc, { autoAlpha: 0, duration: 0.2 }, K.tap + 0.45);
+    tl.fromTo(okb, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, K.tap + 0.1);
+    sfx('pop', K.tap, -9); sfx('chime', K.tap + 0.15, -11);
+    tl.fromTo(dc, { autoAlpha: 0, x: 60 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power3.out', immediateRender: false }, K.ok - 0.1);
+    tl.fromTo(stp, { autoAlpha: 0, scale: 2.2, rotation: -2 }, { autoAlpha: 1, scale: 1, rotation: -8, duration: 0.22, ease: 'power4.in', immediateRender: false }, K.doc - 0.1);
+    sfx('thud', K.doc + 0.1, -8);
+    // ending: clear for both, still there years later
+    const roles = el('div', 'x24roles', `<span><i>✓</i>${S.r1}</span><span><i>✓</i>${S.r2}</span>`);
+    tl.set(roles.children, { autoAlpha: 0 }, 0);
+    tl.fromTo(roles.children, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.3, stagger: 0.12, ease: 'back.out(2)', immediateRender: false }, K.klar - 0.05);
+    sfx('pop', K.klar, -12); sfx('pop', K.klar + 0.12, -12);
+    const yr = el('div', 'x24yr', `<b>2026</b><span>${S.later}</span>`);
+    const yb = yr.querySelector('b'), ys = yr.querySelector('span');
+    tl.set(yr, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(yr, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.3, immediateRender: false }, K.yrs - 0.6);
+    perFrame((t) => { const v = String(Math.round(2026 + 5 * E.io(seg(t, K.yrs - 0.5, 0.9)))); if (yb.textContent !== v) yb.textContent = v; });
+    tl.set(ys, { autoAlpha: 0 }, 0);
+    tl.fromTo(ys, { autoAlpha: 0, scale: 0.7 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.4)', immediateRender: false }, K.yrs + 0.45);
+    sfx('counter', K.yrs - 0.5, -14); sfx('chime', K.yrs + 0.5, -12);
+    const lk = el('div', 'x24lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
   const GR = {
+    X24: [[5, 5, 3, 2, 3, 2, 3, 5, 3, 3, 3, 2, 3, 4], [5, 5, 3, 3, 3, 2, 3, 5, 3, 3, 3, 3, 3, 4]],
     X23: [[3, 4, 5, 2, 3, 2, 4, 3, 2, 3, 3, 3], [5, 3, 3, 2, 2, 3, 2, 2, 4, 3, 2, 2, 2, 3, 3]],
     X22: [[4, 3, 5, 2, 3, 2, 3, 4, 4, 4, 2, 2], [4, 3, 4, 2, 5, 3, 3, 3, 3, 3, 4, 2, 2]],
     X10: [[2, 4, 3, 1, 3, 1, 3, 1, 1, 4, 1, 3, 1, 2, 3, 2, 3], [3, 3, 2, 1, 4, 1, 3, 1, 2, 4, 1, 2, 3, 1, 3, 2, 3, 4]],
@@ -2843,7 +2932,7 @@
     W2: [[2, 3, 4, 3, 3, 1, 2, 3, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 3, 2, 3], [3, 4, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 2, 3, 3, 2, 2, 2, 2]],
     W3: [[2, 4, 4, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 3, 2], [3, 4, 4, 1, 3, 3, 1, 3, 1, 4, 1, 4, 1, 3, 3, 2, 3, 2]],
   };
-  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X22, X23 }[C]();
+  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X22, X23, X24 }[C]();
   captions(GR[C][lang === 'de' ? 0 : 1]);
   stage.appendChild(document.getElementById('cap'));
   stage.appendChild(document.querySelector('.grain'));
