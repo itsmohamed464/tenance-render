@@ -3026,7 +3026,102 @@
     return { T, K };
   }
 
+  // ================= X26 (feature): insurance-ready report — rising water, insurer checklist, one-tap PDF export =================
+  function X26() {
+    const de = lang === 'de';
+    const S = de ? {
+      hd: 'WASSERSCHADEN', ins: 'Versicherung · Schadenmeldung', items: [['📷', 'Fotos'], ['📅', 'Datum'], ['🧾', 'Verlauf']], miss: 'fehlt',
+      app: 'Meldung #318 · Wasserschaden Bad', appS: 'Wohnung 3 · seit 02.10.', tl: [['02.10. · 07:12', 'Fleck an der Decke, Foto'], ['02.10. · 07:40', 'Vermieter: Installateur kommt'], ['03.10. · 10:05', 'Leck gefunden, Foto']], btn: 'Als PDF exportieren',
+      pdf: 'Schadensbericht', chips: ['Fotos', 'Zeitstempel', 'Nachrichten'], done: 'Alles drin ✓', r1: 'Mieter', r2: 'Vermieter', saved: 'Wochen gespart', tag: 'für Mieter & Vermieter',
+    } : {
+      hd: 'WATER DAMAGE', ins: 'Insurer · Damage claim', items: [['📷', 'Photos'], ['📅', 'Dates'], ['🧾', 'History']], miss: 'missing',
+      app: 'Report #318 · Bathroom leak', appS: 'Unit 3 · since Oct 2', tl: [['Oct 2 · 7:12 am', 'Stain on the ceiling, photo'], ['Oct 2 · 7:40 am', 'Landlord: plumber on the way'], ['Oct 3 · 10:05 am', 'Leak found, photo']], btn: 'Export as PDF',
+      pdf: 'Damage report', chips: ['Photos', 'Timestamps', 'Messages'], done: 'All included ✓', r1: 'Tenant', r2: 'Landlord', saved: 'weeks saved', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.ins = W(['Versicherung', 'insurer']).start;
+    const IT = [W(['Fotos', 'photos']).start, W(['Datum', 'dates']).start, W(['Verlauf', 'history']).start];
+    const it = W(['Mit', 'With']); K.turn = it.start;
+    K.exp = W(['exportiert', 'exports'], it.i).start;
+    K.tap = W(['Tipp', 'tap'], it.i).start;
+    K.pdf = W(['PDF', 'PDF'], it.i).start;
+    K.pdfAt = Math.max(K.pdf, K.tap + 0.2);
+    const ip = W(['Fotos', 'photos'], it.i);
+    const CT = [ip.start, W(['Zeitstempel', 'timestamps'], it.i).start, W(['Nachrichten', 'messages'], it.i).start];
+    K.all = W(['alles', 'all'], it.i).start;
+    const ir = W(['Mieter', 'Tenant'], it.i); K.roles = ir.start;
+    K.weeks = W(['Wochen', 'weeks'], ir.i).start;
+    const T = END + 2.1;
+    el('div', 'x26bg', '');
+    // rising water
+    const wave = el('div', 'x26wave', `<svg viewBox="0 0 2160 200" preserveAspectRatio="none"><path d="M0 60 Q135 0 270 60 T540 60 T810 60 T1080 60 T1350 60 T1620 60 T1890 60 T2160 60 L2160 200 L0 200Z" fill="#4cc9f0" opacity=".55"/><path d="M0 90 Q135 40 270 90 T540 90 T810 90 T1080 90 T1350 90 T1620 90 T1890 90 T2160 90 L2160 200 L0 200Z" fill="#1f9ed1"/></svg><i></i>`);
+    const wsvg = wave.querySelector('svg');
+    perFrame((t) => { const h = 380 * E.oc(seg(t, 0.0, 1.6)) * (1 - E.io(seg(t, K.turn - 0.4, 0.7))) + 40; wave.style.height = `${h}px`; wsvg.style.transform = `translateX(${-((t * 260) % 1080)}px)`; });
+    sfx('drip', 0.1, -8); sfx('wind', 0.2, -20);
+    const hd = el('div', 'x26hd', S.hd, stage, { fontSize: de ? '98px' : '104px' });
+    tl.set(hd, { xPercent: -50 }, 0);
+    tl.fromTo(hd, { autoAlpha: 0, scale: 1.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'power4.in' }, 0.02);
+    sfx('impact', 0.3, -9);
+    tl.to(hd, { autoAlpha: 0, y: -60, duration: 0.3 }, K.turn - 0.35);
+    // insurer checklist with missing items
+    const ins = el('div', 'x26ins', `<div class="hd"><i>🛡️</i><b>${S.ins}</b></div>` + S.items.map((x) => `<div class="rw"><span>${x[0]}</span><b>${x[1]}</b><em>${S.miss}</em></div>`).join(''));
+    tl.set(ins, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(ins, { autoAlpha: 0, y: 160 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power3.out', immediateRender: false }, K.ins - 0.25);
+    ins.querySelectorAll('.rw').forEach((r, i) => { tl.set(r, { autoAlpha: 0 }, 0); tl.fromTo(r, { autoAlpha: 0, x: 40 }, { autoAlpha: 1, x: 0, duration: 0.25, ease: 'power3.out', immediateRender: false }, IT[i] - 0.1); tl.fromTo(r.querySelector('em'), { scale: 0 }, { scale: 1, duration: 0.25, ease: 'back.out(3)', immediateRender: false }, IT[i] + 0.15); tl.set(r.querySelector('em'), { scale: 0 }, 0); sfx('pop', IT[i] + 0.15, -12); });
+    tl.to(ins, { autoAlpha: 0, y: -140, duration: 0.35, ease: 'power2.in' }, K.turn - 0.3);
+    // app report card with timeline + export button
+    const app = el('div', 'x26app', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.app}</b><small>${S.appS}</small></div></div>` + S.tl.map((x, i) => `<div class="ev"><i class="dot"></i><div><small>${x[0]}</small><b>${x[1]}</b></div>${i !== 1 ? '<span class="x26ph"></span>' : ''}</div>`).join('') + `<div class="x26btn">⤓ ${S.btn}</div>`);
+    const btn = app.querySelector('.x26btn');
+    tl.set(app, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(app, { autoAlpha: 0, y: 240 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    tl.fromTo(app.querySelectorAll('.ev'), { autoAlpha: 0, x: 40 }, { autoAlpha: 1, x: 0, duration: 0.25, stagger: 0.12, immediateRender: false }, K.turn + 0.25);
+    tl.set(app.querySelectorAll('.ev'), { autoAlpha: 0 }, 0);
+    sfx('whoosh', K.turn - 0.2, -9);
+    const tapc = el('div', 'x26tap', '<i></i>');
+    tl.set(tapc, { autoAlpha: 0 }, 0);
+    tl.fromTo(tapc, { autoAlpha: 0, x: 860, y: 1300 }, { autoAlpha: 1, x: 620, y: 772, duration: 0.5, ease: 'power3.inOut', immediateRender: false }, K.tap - 0.55);
+    tl.to(tapc, { scale: 0.8, duration: 0.08, yoyo: true, repeat: 1 }, K.tap);
+    tl.fromTo(tapc.querySelector('i'), { scale: 0.3, autoAlpha: 0.9 }, { scale: 2.6, autoAlpha: 0, duration: 0.5, immediateRender: false }, K.tap);
+    tl.to(tapc, { autoAlpha: 0, duration: 0.2 }, K.tap + 0.4);
+    tl.fromTo(btn, { backgroundColor: '#0b4f6c' }, { backgroundColor: '#1fbf72', duration: 0.2, immediateRender: false }, K.tap);
+    sfx('pop', K.tap, -9);
+    // the PDF flies out
+    const pdf = el('div', 'x26pdf', `<div class="tp"><em>PDF</em><b>${S.pdf}</b></div><div class="gr"><i></i><i></i><i></i><i></i></div>${[0, 1, 2, 3, 4].map(() => '<p></p>').join('')}`);
+    tl.set(pdf, { autoAlpha: 0 }, 0);
+    tl.fromTo(pdf, { autoAlpha: 0, x: 120, y: 300, scale: 0.3, rotation: -12 }, { autoAlpha: 1, x: 0, y: 0, scale: 1, rotation: -4, duration: 0.6, ease: 'back.out(1.6)', immediateRender: false }, K.pdfAt - 0.2);
+    tl.to(app, { autoAlpha: 0.0, scale: 0.92, y: -40, duration: 0.4 }, K.pdfAt - 0.2);
+    sfx('receipts', K.pdfAt - 0.15, -10); sfx('kaching', K.pdfAt + 0.2, -12);
+    // included chips
+    const chips = el('div', 'x26chips', S.chips.map((c) => `<span><i>✓</i>${c}</span>`).join('') + `<b>${S.done}</b>`);
+    const cs = chips.querySelectorAll('span'), cd = chips.querySelector('b');
+    tl.set([...cs, cd], { autoAlpha: 0 }, 0);
+    cs.forEach((c, i) => { tl.fromTo(c, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(3)', immediateRender: false }, CT[i]); sfx('pop', CT[i] + 0.02, -12); });
+    tl.fromTo(cd, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'back.out(2.4)', immediateRender: false }, K.all - 0.05);
+    sfx('chime', K.all, -11);
+    // ending: paper stack collapses, weeks saved
+    tl.to([pdf, chips], { autoAlpha: 0, y: -100, duration: 0.35, ease: 'power2.in', stagger: 0.05 }, K.roles - 0.35);
+    const stack = el('div', 'x26stack', [...Array(7)].map((_, i) => `<i style="transform:translate(${(i % 2 ? 1 : -1) * i * 7}px,${-i * 16}px) rotate(${(i % 3 - 1) * 5}deg)"></i>`).join('') + `<em>PDF</em>`);
+    const sp = stack.querySelectorAll('i'), se = stack.querySelector('em');
+    tl.set(stack, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.set(stack, { autoAlpha: 1 }, K.roles - 0.2);
+    tl.fromTo(sp, { autoAlpha: 0, y: -80 }, { autoAlpha: 1, y: 0, duration: 0.25, stagger: 0.05, immediateRender: false }, K.roles - 0.2);
+    tl.to(sp, { autoAlpha: 0, scale: 0.4, x: 0, y: 0, rotation: 0, duration: 0.3, stagger: 0.03, ease: 'power3.in' }, K.weeks - 0.2);
+    tl.set(se, { autoAlpha: 0 }, 0);
+    tl.fromTo(se, { autoAlpha: 0, scale: 0.3 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2.6)', immediateRender: false }, K.weeks + 0.15);
+    sfx('binder', K.roles - 0.15, -12); sfx('whoosh', K.weeks - 0.15, -11);
+    const roles = el('div', 'x26roles', `<span><i>✓</i>${S.r1}</span><span><i>✓</i>${S.r2}</span><b>${S.saved}</b>`);
+    tl.set(roles.children, { autoAlpha: 0 }, 0);
+    tl.fromTo(roles.children, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.3, stagger: 0.15, ease: 'back.out(2)', immediateRender: false }, K.roles);
+    const lk = el('div', 'x26lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
   const GR = {
+    X26: [[1, 4, 2, 4, 2, 3, 2, 3, 2, 1, 1, 2, 2, 3, 2, 2], [2, 4, 2, 4, 2, 3, 5, 3, 1, 1, 2, 2, 3, 4]],
     X25: [[2, 3, 4, 2, 2, 3, 2, 2, 3, 4, 3, 2, 3], [4, 4, 3, 2, 4, 4, 2, 3, 4, 4, 2, 3]],
     X24: [[5, 5, 3, 2, 3, 2, 3, 5, 3, 3, 3, 2, 3, 4], [5, 5, 3, 3, 3, 2, 3, 5, 3, 3, 3, 3, 3, 4]],
     X23: [[3, 4, 5, 2, 3, 2, 4, 3, 2, 3, 3, 3], [5, 3, 3, 2, 2, 3, 2, 2, 4, 3, 2, 2, 2, 3, 3]],
@@ -3045,7 +3140,7 @@
     W2: [[2, 3, 4, 3, 3, 1, 2, 3, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 3, 2, 3], [3, 4, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 2, 3, 3, 2, 2, 2, 2]],
     W3: [[2, 4, 4, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 3, 2], [3, 4, 4, 1, 3, 3, 1, 3, 1, 4, 1, 4, 1, 3, 3, 2, 3, 2]],
   };
-  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X22, X23, X24, X25 }[C]();
+  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X22, X23, X24, X25, X26 }[C]();
   captions(GR[C][lang === 'de' ? 0 : 1]);
   stage.appendChild(document.getElementById('cap'));
   stage.appendChild(document.querySelector('.grain'));

@@ -1000,3 +1000,51 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
 .X25 .cw{-webkit-text-stroke:16px rgba(20,17,14,.9)}
 .X25 .cw.on{color:#14110e;-webkit-text-stroke:0}
 .X25 .hlb{background:#d6b25e;box-shadow:0 10px 26px rgba(214,178,94,.3)}
+/* ---------- X26 insurance-ready report (aqua water, deep teal, paper white) ---------- */
+.X26{background:#e8f7fc!important}
+.x26bg{position:absolute;inset:0;background:radial-gradient(ellipse 85% 60% at 50% 40%,#ffffff 0%,#e5f6fc 60%,#c3e7f3 100%)}
+.x26wave{position:absolute;left:0;right:0;bottom:0;height:40px;overflow:hidden}
+.x26wave svg{position:absolute;left:0;top:0;width:2160px;height:200px}
+.x26wave i{position:absolute;left:0;right:0;top:120px;bottom:0;background:#1f9ed1}
+.x26hd{position:absolute;left:50%;top:230px;font:700 116px/1 Clash;color:#0b4f6c;white-space:nowrap;letter-spacing:.01em;visibility:hidden}
+.x26ins{position:absolute;left:50%;top:470px;width:880px;background:#fff;border-radius:34px;padding:28px 32px 18px;box-shadow:0 30px 70px rgba(11,79,108,.22);visibility:hidden}
+.x26ins .hd{display:flex;align-items:center;gap:16px;margin-bottom:10px}.x26ins .hd i{font-style:normal;font-size:52px}.x26ins .hd b{font:600 42px Clash;color:#0b4f6c}
+.x26ins .rw{display:flex;align-items:center;gap:20px;height:110px;border-top:2px solid #e3f1f6}
+.x26ins .rw span{font-size:50px;width:64px;text-align:center}.x26ins .rw b{flex:1;font:600 50px Clash;color:#0b4f6c}
+.x26ins .rw em{font:700 32px Gothic;font-style:normal;color:#fff;background:#e8432d;border-radius:30px;padding:8px 22px}
+.x26app{position:absolute;left:50%;top:240px;width:900px;background:#fff;border-radius:36px;padding:28px 30px 26px;box-shadow:0 34px 80px rgba(11,79,108,.25);visibility:hidden}
+.x26app .hd{display:flex;align-items:center;gap:18px;margin-bottom:14px}
+.x26app .ai{width:74px;height:74px;border-radius:22px;background:linear-gradient(150deg,#2a5540,#14261b);display:flex;align-items:center;justify-content:center;flex:none}.x26app .ai img{width:50px}
+.x26app .hd b{display:block;font:600 40px/1.1 Clash;color:#0b4f6c}.x26app .hd small{display:block;font:700 26px Gothic;color:#6c8c99;margin-top:4px}
+.x26app .ev{position:relative;display:flex;align-items:center;gap:20px;min-height:116px;padding-left:10px;border-left:4px solid #bfe6f3;margin-left:20px}
+.x26app .ev .dot{position:absolute;left:-14px;width:24px;height:24px;border-radius:50%;background:#1f9ed1;border:4px solid #fff}
+.x26app .ev div{flex:1;padding-left:22px}.x26app .ev small{display:block;font:700 26px Gothic;color:#6c8c99}.x26app .ev b{display:block;font:600 36px/1.15 Clash;color:#0b4f6c;margin-top:4px}
+.x26app .x26ph{width:110px;height:84px;border-radius:14px;background:linear-gradient(135deg,#a9d6e8,#5fb2d2);box-shadow:inset 0 -18px 0 rgba(11,79,108,.25)}
+.x26app .x26btn{margin-top:20px;height:104px;border-radius:28px;background:#0b4f6c;color:#fff;display:flex;align-items:center;justify-content:center;font:700 42px Clash}
+.x26tap{position:absolute;left:0;top:0;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;background:rgba(11,79,108,.85);border:6px solid #fff;box-shadow:0 12px 30px rgba(0,0,0,.3);visibility:hidden}
+.x26tap i{position:absolute;inset:-10px;border-radius:50%;border:6px solid #1fbf72}
+.x26pdf{position:absolute;left:250px;top:380px;width:580px;height:760px;background:#fff;border-radius:18px;padding:34px;box-shadow:0 40px 90px rgba(11,79,108,.35);visibility:hidden}
+.x26pdf .tp{display:flex;align-items:center;gap:18px;margin-bottom:26px}
+.x26pdf .tp em{font:700 28px Gothic;font-style:normal;color:#fff;background:#e8432d;border-radius:10px;padding:8px 14px}.x26pdf .tp b{font:700 48px Clash;color:#0b4f6c}
+.x26pdf .gr{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.x26pdf .gr i{height:150px;border-radius:12px;background:linear-gradient(135deg,#bfe6f3,#5fb2d2)}
+.x26pdf p{height:18px;border-radius:9px;background:#e3eef3;margin:0 0 20px}.x26pdf p:nth-child(odd){width:72%}
+.x26chips{position:absolute;left:0;right:0;top:1190px;display:flex;flex-wrap:wrap;justify-content:center;gap:16px}
+.x26chips span{display:flex;align-items:center;gap:12px;font:700 38px Clash;color:#0b4f6c;background:#fff;border-radius:50px;padding:12px 28px 12px 14px;box-shadow:0 12px 30px rgba(11,79,108,.18);visibility:hidden}
+.x26chips span i{width:50px;height:50px;border-radius:50%;background:#1fbf72;color:#fff;font:700 28px/50px Gothic;font-style:normal;text-align:center}
+.x26chips b{flex-basis:100%;text-align:center;font:700 48px Clash;color:#13955a;margin-top:10px;visibility:hidden}
+.x26stack{position:absolute;left:50%;top:560px;width:420px;height:520px;visibility:hidden}
+.x26stack i{position:absolute;left:30px;top:60px;width:360px;height:460px;border-radius:10px;background:#fff;box-shadow:0 10px 24px rgba(11,79,108,.2);border:2px solid #d8eaf1}
+.x26stack em{position:absolute;left:110px;top:150px;width:200px;height:260px;border-radius:16px;background:#fff;border:6px solid #0b4f6c;font:700 64px/260px Clash;font-style:normal;color:#e8432d;text-align:center;box-shadow:0 20px 50px rgba(11,79,108,.3);visibility:hidden}
+.x26roles{position:absolute;left:0;right:0;top:1150px;display:flex;flex-wrap:wrap;justify-content:center;gap:18px}
+.x26roles span{display:flex;align-items:center;gap:12px;font:700 40px Clash;color:#0b4f6c;background:#fff;border-radius:50px;padding:12px 30px 12px 14px;box-shadow:0 12px 30px rgba(11,79,108,.18);visibility:hidden}
+.x26roles span i{width:52px;height:52px;border-radius:50%;background:#1fbf72;color:#fff;font:700 30px/52px Gothic;font-style:normal;text-align:center}
+.x26roles b{flex-basis:100%;text-align:center;font:700 60px Clash;color:#0b4f6c;margin-top:16px;visibility:hidden}
+.x26lock{position:absolute;left:50%;top:1600px;display:flex;align-items:center;gap:18px;background:#0b4f6c;border-radius:70px;padding:14px 40px 14px 16px;box-shadow:0 22px 50px rgba(11,79,108,.35);visibility:hidden}
+.x26lock .ai{width:84px;height:84px;border-radius:50%;background:linear-gradient(150deg,#2a5540,#14261b);display:flex;align-items:center;justify-content:center}.x26lock .ai img{width:58px}
+.x26lock b{display:block;font:700 58px/1 Clash;color:#fff}.x26lock small{display:block;font:700 22px Gothic;color:#bfe6f3;margin-top:6px}
+.X26 #cap{top:1450px}
+.X26 .cw{color:#0b4f6c;-webkit-text-stroke:16px rgba(255,255,255,.95)}
+.X26 .cw.on{color:#fff;-webkit-text-stroke:0}
+.X26 .hlb{background:#1f9ed1;box-shadow:0 10px 26px rgba(31,158,209,.3)}
+.X26 .grain{opacity:.04;mix-blend-mode:multiply}
