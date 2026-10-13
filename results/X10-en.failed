@@ -1,24 +1,0 @@
-X10-en 0/1341X10-en 120/1341X10-en 240/1341X10-en 360/1341X10-en 480/1341X10-en 600/1341X10-en 720/1341X10-en 840/1341X10-en 960/1341X10-en 1080/1341X10-en 1200/1341X10-en 1320/1341[Parsed_aresample_1 @ 0x600001b04160] Cannot select channel layout for the link between filters Parsed_aresample_1 and format_out_0_0.
-Error reinitializing filters!
-Failed to inject frame into filter network: Invalid argument
-Error while processing the decoded data for stream #0:0
-node:internal/errors:985
-  const err = new Error(message);
-              ^
-
-Error: Command failed: /Users/mohamed/tenance-render/node_modules/ffmpeg-static/ffmpeg -y -hide_banner -loglevel error -i /Users/mohamed/tenance-render/v2/out/deadlines16-en.pre.wav -af loudnorm=I=-14:TP=-1.5:LRA=9:measured_I=-20.26:measured_TP=-5.80:measured_LRA=4.70:measured_thresh=-30.92:offset=0.61:linear=true,aresample=48000 /Users/mohamed/tenance-render/v2/out/deadlines16-en.wav
-    at genericNodeError (node:internal/errors:985:15)
-    at wrappedFn (node:internal/errors:539:14)
-    at checkExecSyncError (node:child_process:925:11)
-    at execFileSync (node:child_process:961:15)
-    at mixAudio (file:///Users/mohamed/tenance-render/v2/r2.mjs:201:3)
-    at file:///Users/mohamed/tenance-render/v2/r2.mjs:276:14 {
-  status: 1,
-  signal: null,
-  output: [ null, null, null ],
-  pid: 17530,
-  stdout: null,
-  stderr: null
-}
-
-Node.js v24.15.0
