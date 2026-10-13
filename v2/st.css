@@ -972,3 +972,31 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
 .X24 .cw.on{color:#fff;-webkit-text-stroke:0}
 .X24 .hlb{background:#5b3bd1;box-shadow:0 10px 26px rgba(91,59,209,.3)}
 .X24 .grain{opacity:.04;mix-blend-mode:multiply}
+/* ---------- X25 key register (warm graphite, brass, white card) ---------- */
+.X25{background:#1c1a17!important}
+.x25bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 55% at 50% 38%,#4a4238 0%,#2a2622 55%,#141210 100%)}
+.x25hd{position:absolute;left:50%;top:180px;display:flex;align-items:center;gap:20px;white-space:nowrap;font:700 74px/1 Clash;color:#f6efe4;visibility:hidden}
+.x25hd span{font-size:130px;line-height:.8;color:#d6b25e}
+.x25q{position:absolute;left:50%;top:1260px;display:flex;align-items:center;gap:16px;white-space:nowrap;font:700 56px Clash;color:#14110e;background:#f6efe4;border-radius:50px;padding:14px 34px;box-shadow:0 18px 44px rgba(0,0,0,.45);visibility:hidden}
+.x25q i{font-style:normal;font-size:48px}.x25q b{color:#e8432d;font-size:72px;line-height:1}
+.x25card{position:absolute;left:50%;top:430px;width:920px;background:#fffdf8;border-radius:36px;padding:28px 30px 18px;box-shadow:0 34px 90px rgba(0,0,0,.5);visibility:hidden}
+.x25card .hd{display:flex;align-items:center;gap:18px;margin-bottom:10px}
+.x25card .ai{width:74px;height:74px;border-radius:22px;background:linear-gradient(150deg,#2a5540,#14261b);display:flex;align-items:center;justify-content:center;flex:none}.x25card .ai img{width:50px}
+.x25card .hd b{display:block;font:600 46px/1.1 Clash;color:#14110e}.x25card .hd small{display:block;font:700 26px Gothic;color:#8a8073;margin-top:4px}
+.x25card .rw{position:relative;display:flex;align-items:center;gap:18px;min-height:110px;padding:8px 14px;border-top:2px solid #f0e9dd;border-radius:18px;flex-wrap:wrap}
+.x25card .rw .c{font-size:40px;width:52px;text-align:center}
+.x25card .rw>b{flex:1;font:600 40px Clash;color:#14110e}
+.x25card .rw em{font:700 30px Gothic;font-style:normal;color:#5b5247;background:#f3ede3;border-radius:30px;padding:8px 20px}
+.x25card .sg{flex-basis:100%;display:flex;align-items:center;gap:20px;padding:0 0 10px 70px;visibility:hidden}
+.x25card .sg svg{width:300px;height:60px}.x25card .sg path{fill:none;stroke:#2f5bff;stroke-width:5;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1}
+.x25card .sg small{font:700 28px Gothic;color:#13955a;visibility:hidden}
+.x25card .ls{flex-basis:100%;padding:0 0 10px 70px;font:700 32px Gothic;color:#d1371f;visibility:hidden}
+.x25tag{position:absolute;left:50%;top:0;transform-origin:50% 50%;font:700 34px Clash;color:#14110e;background:#f6efe4;border-radius:14px;padding:10px 20px;white-space:nowrap;box-shadow:0 12px 30px rgba(0,0,0,.45);visibility:hidden}
+.x25tag.t0{border-left:10px solid #e8432d}.x25tag.t1{border-left:10px solid #2f6fd6}.x25tag.t2{border-left:10px solid #1fbf72}
+.x25lock{position:absolute;left:50%;top:1600px;display:flex;align-items:center;gap:18px;background:#f6efe4;border-radius:70px;padding:14px 40px 14px 16px;box-shadow:0 22px 50px rgba(0,0,0,.45);visibility:hidden}
+.x25lock .ai{width:84px;height:84px;border-radius:50%;background:linear-gradient(150deg,#2a5540,#14261b);display:flex;align-items:center;justify-content:center}.x25lock .ai img{width:58px}
+.x25lock b{display:block;font:700 58px/1 Clash;color:#14110e}.x25lock small{display:block;font:700 22px Gothic;color:#8a8073;margin-top:6px}
+.X25 #cap{top:1460px}
+.X25 .cw{-webkit-text-stroke:16px rgba(20,17,14,.9)}
+.X25 .cw.on{color:#14110e;-webkit-text-stroke:0}
+.X25 .hlb{background:#d6b25e;box-shadow:0 10px 26px rgba(214,178,94,.3)}

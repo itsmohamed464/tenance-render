@@ -2914,7 +2914,120 @@
     return { T, K };
   }
 
+  // ================= X25 (feature): key register — 3D keys on a ring, key log card, signed handover, lost key, name tags =================
+  function X25() {
+    const de = lang === 'de';
+    const S = de ? {
+      hd: 'Schlüssel bei der Übergabe', keys: ['Haustür', 'Wohnung', 'Keller'], q: 'Wer hat ihn?',
+      log: 'Schlüsselbuch', logS: 'Wohnung 3 · 4 Schlüssel', rows: [['🔴', 'Haustür', 'Mieterin'], ['🔵', 'Wohnung', 'Mieterin'], ['🟢', 'Keller', 'Mieterin'], ['🟡', 'Briefkasten', 'Mieterin']],
+      sign: '✍ unterschrieben · 14.10.', lost: '⚠ Verloren · gemeldet 11:24', tags: ['Haustür · Mieterin', 'Wohnung · Mieterin', 'Keller · Mieterin'], tag: 'für Mieter & Vermieter',
+    } : {
+      hd: 'keys at handover', keys: ['Front door', 'Apartment', 'Basement'], q: 'Who has it?',
+      log: 'Key log', logS: 'Unit 3 · 4 keys', rows: [['🔴', 'Front door', 'Tenant'], ['🔵', 'Apartment', 'Tenant'], ['🟢', 'Basement', 'Tenant'], ['🟡', 'Mailbox', 'Tenant']],
+      sign: '✍ signed · Oct 14', lost: '⚠ Lost · reported 11:24 am', tags: ['Front door · Tenant', 'Apartment · Tenant', 'Basement · Tenant'], tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.ho = W(['Übergabe', 'handover']).start;
+    K.who = W(['wer', 'who']).start;
+    K.cellar = W(['Kellerschlüssel', 'basement']).start;
+    const it = W(['Mit', 'With']); K.turn = it.start;
+    K.book = W(['Schlüsselbuch', 'log'], it.i).start;
+    K.sign = W(['unterschrieben', 'signed'], it.i).start;
+    K.lost = W(['verlorener', 'lost'], it.i).start;
+    K.rep = W(['gemeldet', 'reported'], it.i).start;
+    const ie = W(['Jeder', 'Every'], W(['gemeldet', 'reported'], it.i).i); K.name = ie.start;
+    const T = END + 2.1;
+    el('div', 'x25bg', '');
+    const G = gl3(stage, { fov: 30, envTop: '#fff3df', envBot: '#2a2622', envInt: 1.1 });
+    const { scene, cam } = G;
+    G.r.shadowMap.enabled = false;
+    const LOOK = new T3.Vector3(0, 0.25, 0);
+    scene.add(new T3.HemisphereLight('#fff1dc', '#3a332c', 0.9));
+    const key = new T3.DirectionalLight('#fff4e6', 2.4); key.position.set(-3, 5, 6); scene.add(key);
+    const rim = new T3.DirectionalLight('#9fc4ff', 1.2); rim.position.set(4, 2, -3); scene.add(rim);
+    const brass = M.std('#d6b25e', { metalness: 1, roughness: 0.28 }), steel = M.std('#c9ced4', { metalness: 1, roughness: 0.22 });
+    const capCol = ['#e8432d', '#2f6fd6', '#1fbf72'];
+    const bowShape = () => { const s = new T3.Shape(); s.absarc(0, 0, 0.62, 0, Math.PI * 2, false); const h = new T3.Path(); h.absarc(-0.18, 0, 0.2, 0, Math.PI * 2, true); s.holes.push(h); return s; };
+    const bladeShape = () => { const b = new T3.Shape(); b.moveTo(0.5, 0.17); b.lineTo(2.55, 0.17); b.lineTo(2.68, 0.02); b.lineTo(2.55, -0.17); [[2.4, -0.17], [2.34, -0.4], [2.18, -0.4], [2.08, -0.17], [1.96, -0.32], [1.8, -0.32], [1.7, -0.17], [1.6, -0.44], [1.44, -0.44], [1.34, -0.17], [0.5, -0.17]].forEach(([x, y]) => b.lineTo(x, y)); b.closePath(); return b; };
+    const ex = (shape, d) => { const g = new T3.ExtrudeGeometry(shape, { depth: d, bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 2, curveSegments: 28 }); g.translate(0, 0, -d / 2); return g; };
+    const bowG = ex(bowShape(), 0.14), bladeG = ex(bladeShape(), 0.1);
+    const ringG = new T3.TorusGeometry(0.75, 0.06, 12, 48);
+    const RIG = new T3.Group(); scene.add(RIG);
+    mesh(ringG, steel, RIG, [0, 2.1, 0]);
+    const KEYS = [0, 1, 2].map((k) => {
+      const piv = new T3.Group(); piv.position.set(-0.45 + k * 0.45, 1.45, (k - 1) * 0.12); RIG.add(piv);
+      const g = new T3.Group(); g.rotation.z = -Math.PI / 2; piv.add(g);
+      mesh(bowG, k === 1 ? steel : brass, g);
+      mesh(bladeG, k === 1 ? steel : brass, g);
+      const cap = mesh(new T3.TorusGeometry(0.5, 0.13, 14, 40), M.std(capCol[k], { roughness: 0.45 }), g); cap.scale.set(1, 1, 0.9);
+      return { piv, g, tip: new T3.Vector3(1.55, 0, 0) };
+    });
+    perFrame((t) => {
+      const drop = E.ob(seg(t, 0.0, 0.7), 1.2);
+      const tu = E.io(seg(t, K.turn - 0.1, 0.6)), back = E.io(seg(t, K.name - 0.5, 0.7));
+      const away = tu * (1 - back);
+      RIG.position.set(0, (1 - drop) * 4 + away * 0.6 + back * 0.85, -away * 6);
+      RIG.rotation.y = Math.sin(t * 0.6) * 0.25 + (t > K.name - 0.5 ? 0 : 0);
+      KEYS.forEach((kk, k) => {
+        const sw = Math.sin(t * 1.6 + k * 1.3) * 0.12 * (1 - 0.6 * tu) + (1 - drop) * 0.4 * Math.sin(k + t * 6);
+        const spread = back * (k - 1) * 0.55;
+        kk.piv.rotation.z = sw + spread;
+        // basement key comes forward when asked about
+        const hi = k === 2 ? E.io(seg(t, K.cellar - 0.25, 0.4)) * (1 - E.io(seg(t, K.turn - 0.2, 0.4))) : 0;
+        kk.piv.position.z = (k - 1) * 0.12 + hi * 1.6;
+        kk.g.scale.setScalar(1 + hi * 0.15);
+      });
+      cam.position.set(Math.sin(t * 0.3) * 0.4, 1.6, 16 - 1.0 * E.oc(seg(t, 0, 3)));
+      cam.lookAt(LOOK);
+      scene.updateMatrixWorld();
+      G.r.render(scene, cam);
+    });
+    sfx('keys', 0.35, -6);
+    // hook headline + who-has-it bubble
+    const hd = el('div', 'x25hd', `<span>3</span>${S.hd}`, stage, de ? { fontSize: '58px' } : {});
+    tl.set(hd, { xPercent: -50 }, 0);
+    tl.fromTo(hd, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'back.out(2)' }, 0.05);
+    tl.to(hd, { autoAlpha: 0, y: -40, duration: 0.25 }, K.turn - 0.3);
+    const qb = el('div', 'x25q', `<i>🟢</i>${S.keys[2]}<b>?</b>`);
+    tl.set(qb, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(qb, { autoAlpha: 0, scale: 0.6, y: 30 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, K.cellar - 0.1);
+    tl.to(qb, { autoAlpha: 0, duration: 0.2 }, K.turn - 0.25);
+    sfx('sting', K.cellar, -11);
+    // key log card
+    const card = el('div', 'x25card', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.log}</b><small>${S.logS}</small></div></div>` + S.rows.map((r, i) => `<div class="rw r${i}"><span class="c">${r[0]}</span><b>${r[1]}</b><em>${r[2]}</em>${i === 2 ? `<div class="sg"><svg viewBox="0 0 300 60"><path pathLength="1" d="M10 40 C40 5, 60 55, 90 30 S140 10, 160 38 S210 50, 230 22 S270 30, 290 26"/></svg><small>${S.sign}</small></div>` : ''}${i === 3 ? `<div class="ls">${S.lost}</div>` : ''}</div>`).join(''));
+    tl.set(card, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(card, { autoAlpha: 0, y: 260 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power4.out', immediateRender: false }, K.turn + 0.05);
+    sfx('whoosh', K.turn - 0.1, -9); sfx('binder', K.turn + 0.1, -12);
+    const rws = card.querySelectorAll('.rw');
+    tl.set(rws, { autoAlpha: 0 }, 0);
+    tl.fromTo(rws, { autoAlpha: 0, x: 50 }, { autoAlpha: 1, x: 0, duration: 0.28, stagger: 0.12, ease: 'power3.out', immediateRender: false }, K.book - 0.5);
+    rws.forEach((r, i) => sfx('pop', K.book - 0.45 + i * 0.12, -16));
+    const sgp = card.querySelector('.sg path'), sgs = card.querySelector('.sg small'), sg = card.querySelector('.sg');
+    tl.set(sg, { autoAlpha: 0 }, 0);
+    tl.set(sg, { autoAlpha: 1 }, K.sign - 0.7);
+    tl.fromTo(sgp, { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.8, ease: 'power1.inOut', immediateRender: false }, K.sign - 0.7);
+    tl.set(sgs, { autoAlpha: 0 }, 0);
+    tl.fromTo(sgs, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, immediateRender: false }, K.sign + 0.15);
+    sfx('typing', K.sign - 0.65, -16); sfx('chime', K.sign + 0.2, -13);
+    const ls = card.querySelector('.ls'), r3 = rws[3];
+    tl.set(ls, { autoAlpha: 0 }, 0);
+    tl.fromTo(r3, { backgroundColor: 'rgba(232,67,45,0)' }, { backgroundColor: 'rgba(232,67,45,0.1)', duration: 0.2, immediateRender: false }, K.lost);
+    tl.fromTo(ls, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, K.rep - 0.1);
+    sfx('buzz', K.lost + 0.05, -14); sfx('send', K.rep, -10);
+    tl.to(card, { autoAlpha: 0, y: 200, duration: 0.4, ease: 'power2.in' }, K.name - 0.55);
+    // name tags pinned to the 3D keys
+    const tags = S.tags.map((s, k) => el('div', `x25tag t${k}`, s, stage, { top: `${1130 + k * 92}px` }));
+    tags.forEach((tg, k) => { tl.set(tg, { autoAlpha: 0, xPercent: -50 }, 0); tl.fromTo(tg, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, K.name + 0.1 + k * 0.18); sfx('pop', K.name + 0.12 + k * 0.18, -13); });
+    const lk = el('div', 'x25lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
   const GR = {
+    X25: [[2, 3, 4, 2, 2, 3, 2, 2, 3, 4, 3, 2, 3], [4, 4, 3, 2, 4, 4, 2, 3, 4, 4, 2, 3]],
     X24: [[5, 5, 3, 2, 3, 2, 3, 5, 3, 3, 3, 2, 3, 4], [5, 5, 3, 3, 3, 2, 3, 5, 3, 3, 3, 3, 3, 4]],
     X23: [[3, 4, 5, 2, 3, 2, 4, 3, 2, 3, 3, 3], [5, 3, 3, 2, 2, 3, 2, 2, 4, 3, 2, 2, 2, 3, 3]],
     X22: [[4, 3, 5, 2, 3, 2, 3, 4, 4, 4, 2, 2], [4, 3, 4, 2, 5, 3, 3, 3, 3, 3, 4, 2, 2]],
@@ -2932,7 +3045,7 @@
     W2: [[2, 3, 4, 3, 3, 1, 2, 3, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 3, 2, 3], [3, 4, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 2, 3, 3, 2, 2, 2, 2]],
     W3: [[2, 4, 4, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 3, 2], [3, 4, 4, 1, 3, 3, 1, 3, 1, 4, 1, 4, 1, 3, 3, 2, 3, 2]],
   };
-  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X22, X23, X24 }[C]();
+  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X22, X23, X24, X25 }[C]();
   captions(GR[C][lang === 'de' ? 0 : 1]);
   stage.appendChild(document.getElementById('cap'));
   stage.appendChild(document.querySelector('.grain'));

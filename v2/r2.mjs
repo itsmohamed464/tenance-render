@@ -33,6 +33,7 @@ const MUSIC = {
   X4: { f: 'm2B2.mp3', segs: [{ src: 0, at: 0, db: -4 }, { src: 8.2, at: 'turn', lead: -0.05 }], db: -18, boost: 0.8 },
   X5: { f: 'm3D3.mp3', segs: [{ f: 'm2C3.mp3', src: 0, at: 0, db: -3 }, { src: 9.5, at: 'turn', lead: -0.05 }], db: -17, boost: 0.8 },
   X6: { f: 'm3D1.mp3', segs: [{ f: 'm2B2.mp3', src: 0, at: 0, db: -5 }, { src: 8.9, at: 'turn', lead: -0.05 }], db: -18, boost: 0.8 },
+  X25: { f: 'm3D2.mp3', segs: [{ f: 'm3E3.mp3', src: 0.8, at: 0, db: -5 }, { src: 19.75, at: 'turn', lead: -0.05 }], db: -18, boost: 0.8 },
   X24: { f: 'm2C2.mp3', segs: [{ f: 'm2A1.mp3', src: 0, at: 0, db: -5 }, { src: 11.72, at: 'turn', lead: -0.05 }], db: -18, boost: 0.8 },
   X23: { f: 'm3E1.mp3', segs: [{ f: 'm2B1.mp3', src: 0, at: 0, db: -4 }, { src: 14.95, at: 'turn', lead: -0.05 }], db: -18, boost: 0.8 },
   X22: { f: 'm3F2.mp3', segs: [{ f: 'm2B3.mp3', src: 0, at: 0, db: -4 }, { src: 11.2, at: 'turn', lead: -0.05 }], db: -18, boost: 0.8 },
