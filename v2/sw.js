@@ -2720,7 +2720,114 @@
     return { T, K };
   }
 
+  // ================= X23 (feature): away / frost mode — postcard, frost creeping in, away card, thermostat to ❄ =================
+  function X23() {
+    const de = lang === 'de';
+    const S = de ? {
+      hd: '2 Wochen Skiurlaub', pc: 'Grüße aus Tirol', tmp: '−10 °C', apt: 'Wohnung 3 · leer', t0: 19, t1: 9, unit: '°C',
+      app: 'Abwesenheit melden', appS: 'Wohnung 3', dates: '20.12. – 03.01.', away: 'Abwesend', ll: 'Vermieter informiert', seen: '✓ gesehen',
+      rem: 'Erinnerung an beide', remT: 'Heizung auf Frostschutz ❄', dial: 'Frostschutz an', pipe: 'Rohrbruch', back: 'Willkommen zurück · 19 °C', tag: 'für Mieter & Vermieter',
+    } : {
+      hd: '2 weeks of ski vacation', pc: 'Greetings from the Alps', tmp: '14 °F', apt: 'Unit 3 · empty', t0: 66, t1: 48, unit: '°F',
+      app: 'Report absence', appS: 'Unit 3', dates: 'Dec 20 – Jan 3', away: 'Away', ll: 'Landlord notified', seen: '✓ seen',
+      rem: 'Reminder to both', remT: 'Heating on frost protection ❄', dial: 'Frost protection on', pipe: 'Burst pipe', back: 'Welcome back · 66 °F', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.ski = W(['Skiurlaub', 'ski']).start;
+    K.minus = W(['minus', 'freezing']).start;
+    K.leer = W(['Wohnung', 'apartment']).start;
+    const it = W(['Mit', 'With']); K.turn = it.start;
+    K.rep = W(['meldet', 'reports'], it.i).start;
+    K.abs = W(['Abwesenheit', 'absence'], it.i).start;
+    K.ll = W(['Vermieter', 'landlord'], it.i).start;
+    K.both = W(['beide', 'both'], it.i).start;
+    K.rem = W(['Erinnerung', 'reminder'], it.i).start;
+    K.frost = W(['Frostschutz', 'frost'], it.i).start;
+    K.pipe = W(['Rohre', 'pipes'], it.i).start;
+    K.wake = W(['Erwachen', 'surprise'], it.i).start;
+    const T = END + 2.1;
+    const bg = el('div', 'x23bg', `<i class="fr">${[[60,140],[920,120],[40,700],[960,640],[80,1320],[930,1280],[500,60],[300,1560],[760,1580]].map(([x,y],i)=>`<b style="left:${x}px;top:${y}px;font-size:${60+(i%3)*24}px">❄</b>`).join('')}</i>`);
+    const fr = bg.querySelector('.fr');
+    tl.fromTo(fr, { opacity: 0 }, { opacity: 1, duration: 1.4, ease: 'power2.out' }, K.minus - 0.1);
+    tl.to(fr, { opacity: 0, duration: 1.0, ease: 'power2.inOut' }, K.frost);
+    sfx('wind', K.minus - 0.2, -16); sfx('shiver', K.minus + 0.2, -12);
+    // hook: headline + postcard
+    const hd = el('div', 'x23hd', S.hd, stage, de ? {} : { fontSize: '76px' });
+    tl.set(hd, { xPercent: -50 }, 0);
+    tl.fromTo(hd, { autoAlpha: 0, y: -50 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'back.out(2)' }, 0.05);
+    const pc = el('div', 'x23pc', `<svg viewBox="0 0 860 520"><defs><linearGradient id="x23sk" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#5aa9f0"/><stop offset="1" stop-color="#cfe8ff"/></linearGradient></defs><rect width="860" height="520" fill="url(#x23sk)"/><circle cx="690" cy="110" r="56" fill="#ffe27a"/>
+      <path d="M0 400 L180 170 L300 300 L450 120 L620 330 L720 230 L860 380 L860 520 L0 520Z" fill="#7d93b2"/><path d="M180 170 L225 228 L195 222 L160 250 L140 222Z M450 120 L505 190 L470 180 L440 205 L410 172Z M720 230 L760 278 L735 272 L705 290Z" fill="#fff"/>
+      <path d="M0 450 Q300 360 860 470 L860 520 L0 520Z" fill="#f4f8fc"/><g transform="translate(470 380) rotate(-18)"><rect x="-60" y="18" width="120" height="8" rx="4" fill="#e8432d"/><circle cx="0" cy="-34" r="12" fill="#12315e"/><path d="M-8 -22 L10 -22 L16 14 L-12 14Z" fill="#e8432d"/><path d="M-12 14 L-22 20 M16 14 L24 20" stroke="#12315e" stroke-width="6"/></g></svg><b>${S.pc}</b><i class="x23stmp"></i>`);
+    tl.set(pc, { xPercent: -50 }, 0);
+    tl.fromTo(pc, { autoAlpha: 0, y: 260, rotation: 6 }, { autoAlpha: 1, y: 0, rotation: -3, duration: 0.55, ease: 'power3.out' }, 0.1);
+    sfx('whoosh', 0.05, -10);
+    const tmp = el('div', 'x23tmp', S.tmp);
+    tl.set(tmp, { autoAlpha: 0 }, 0);
+    tl.fromTo(tmp, { autoAlpha: 0, scale: 2, rotation: 8 }, { autoAlpha: 1, scale: 1, rotation: 4, duration: 0.25, ease: 'power4.in', immediateRender: false }, K.minus - 0.05);
+    sfx('thud', K.minus + 0.2, -10);
+    tl.to([hd, pc, tmp], { autoAlpha: 0, y: -200, duration: 0.4, ease: 'power2.in', stagger: 0.04 }, K.leer - 0.35);
+    // empty apartment at night, temperature falling
+    const apt = el('div', 'x23apt', `<svg viewBox="0 0 860 560"><rect width="860" height="560" fill="#1a2440"/><rect x="0" y="420" width="860" height="140" fill="#2a3556"/>
+      <rect x="520" y="70" width="240" height="250" rx="8" fill="#0d1428" stroke="#3b4a72" stroke-width="12"/><circle cx="700" cy="120" r="22" fill="#e9eef8"/><g fill="#fff" opacity=".8"><circle cx="560" cy="110" r="3"/><circle cx="610" cy="160" r="2"/><circle cx="650" cy="250" r="3"/><circle cx="730" cy="210" r="2"/></g>
+      <rect x="80" y="290" width="260" height="130" rx="14" fill="#5d6a8c"/>${[0, 1, 2, 3, 4, 5, 6].map((i) => `<rect x="${96 + i * 34}" y="300" width="22" height="110" rx="10" fill="#7884a6"/>`).join('')}
+      <path d="M340 400 L460 400 L460 560" stroke="#8d97b3" stroke-width="18" fill="none"/><g fill="#d8ecff">${[0, 1, 2, 3].map((i) => `<path d="M${380 + i * 22} 392 l6 -10 l6 10z"/>`).join('')}</g></svg>
+      <div class="th"><i class="lv"></i></div><div class="tv"></div><small>${S.apt}</small>`);
+    const lv = apt.querySelector('.lv'), tv = apt.querySelector('.tv');
+    tl.set(apt, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(apt, { autoAlpha: 0, y: 200 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power3.out', immediateRender: false }, K.leer - 0.25);
+    perFrame((t) => { const u = E.io(seg(t, K.leer, K.turn - K.leer)); const v = Math.round(lerp(S.t0, S.t1, u)); const txt = v + ' ' + S.unit; if (tv.textContent !== txt) tv.textContent = txt; lv.style.transform = `scaleY(${lerp(0.75, 0.32, u)})`; });
+    tl.to(apt, { autoAlpha: 0, y: -160, duration: 0.35, ease: 'power2.in' }, K.turn - 0.25);
+    // away card
+    const app = el('div', 'x23app', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.app}</b><small>${S.appS}</small></div></div>
+      <div class="rw dt"><span>📅</span><b>${S.dates}</b><em class="tg"><i></i></em><small>${S.away}</small></div>
+      <div class="rw ll"><span>🏠</span><b>${S.ll}</b><em class="sn">${S.seen}</em></div>
+      <div class="rw rm"><span>🔔</span><div><b>${S.rem}</b><small>${S.remT}</small></div><em class="av"><i>M</i><i>V</i></em></div>`);
+    const tg = app.querySelector('.tg'), tgi = tg.querySelector('i');
+    tl.set(app, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(app, { autoAlpha: 0, y: 240 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -9);
+    tl.fromTo(tgi, { x: 0 }, { x: 46, duration: 0.25, ease: 'power3.out', immediateRender: false }, K.abs);
+    tl.fromTo(tg, { backgroundColor: '#cfd6e2' }, { backgroundColor: '#1fbf72', duration: 0.25, immediateRender: false }, K.abs);
+    sfx('pop', K.abs + 0.05, -10);
+    const ll = app.querySelector('.ll'), rm = app.querySelector('.rm');
+    tl.set([ll, rm], { autoAlpha: 0 }, 0);
+    tl.fromTo(ll, { autoAlpha: 0, x: 50 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power3.out', immediateRender: false }, K.ll - 0.1);
+    sfx('send', K.ll, -11);
+    tl.fromTo(rm, { autoAlpha: 0, x: 50 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power3.out', immediateRender: false }, K.both - 0.1);
+    sfx('chime', K.rem, -11);
+    // thermostat dial turns to frost protection
+    const marks = ['❄', '1', '2', '3', '4', '5'];
+    const dial = el('div', 'x23dial', `<div class="x23ring">${marks.map((m, i) => `<b style="transform:rotate(${-120 + i * 48}deg) translateY(-178px) rotate(${120 - i * 48}deg)">${m}</b>`).join('')}</div><div class="knob"><i></i></div><span>${S.dial}</span>`);
+    const knob = dial.querySelector('.knob'), dl = dial.querySelector('span');
+    tl.set(dial, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(dial, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: 'back.out(2)', immediateRender: false }, K.rem - 0.3);
+    tl.fromTo(knob, { rotation: 72 }, { rotation: -120, duration: 0.7, ease: 'power3.inOut', immediateRender: false }, K.frost - 0.45);
+    tl.set(knob, { rotation: 72 }, 0);
+    tl.set(dl, { autoAlpha: 0 }, 0);
+    tl.fromTo(dl, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.3, immediateRender: false }, K.frost + 0.2);
+    sfx('unfold', K.frost - 0.4, -10); sfx('pop', K.frost + 0.25, -10);
+    // ending: no burst pipe, welcome back
+    tl.to([app, dial], { autoAlpha: 0, y: -120, duration: 0.35, ease: 'power2.in', stagger: 0.05 }, K.pipe - 0.55);
+    const pp = el('div', 'x23pipe', `<svg viewBox="0 0 420 260"><path d="M20 130 L170 130 Q210 130 210 90 L210 20" stroke="#8d97b3" stroke-width="44" fill="none" stroke-linecap="round"/><path d="M210 20 L210 0" stroke="#6d7893" stroke-width="56"/><path d="M20 130 L0 130" stroke="#6d7893" stroke-width="56"/><path d="M160 100 l18 30 l-22 10 l20 26" stroke="#e8432d" stroke-width="8" fill="none"/></svg><b>${S.pipe}</b><i class="x"></i>`);
+    tl.set(pp, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(pp, { autoAlpha: 0, scale: 0.7 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.pipe - 0.35);
+    tl.fromTo(pp.querySelector('.x'), { scaleX: 0 }, { scaleX: 1, duration: 0.2, ease: 'power2.out', immediateRender: false }, K.pipe + 0.1);
+    tl.set(pp.querySelector('.x'), { scaleX: 0 }, 0);
+    sfx('thud', K.pipe + 0.15, -9);
+    const bk = el('div', 'x23back', S.back);
+    tl.set(bk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(bk, { autoAlpha: 0, y: 40, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(2.4)', immediateRender: false }, K.wake - 0.15);
+    sfx('chime', K.wake, -11);
+    const lk = el('div', 'x23lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
   const GR = {
+    X23: [[3, 4, 5, 2, 3, 2, 4, 3, 2, 3, 3, 3], [5, 3, 3, 2, 2, 3, 2, 2, 4, 3, 2, 2, 2, 3, 3]],
     X22: [[4, 3, 5, 2, 3, 2, 3, 4, 4, 4, 2, 2], [4, 3, 4, 2, 5, 3, 3, 3, 3, 3, 4, 2, 2]],
     X10: [[2, 4, 3, 1, 3, 1, 3, 1, 1, 4, 1, 3, 1, 2, 3, 2, 3], [3, 3, 2, 1, 4, 1, 3, 1, 2, 4, 1, 2, 3, 1, 3, 2, 3, 4]],
     X9: [[2, 2, 4, 3, 4, 3, 4, 1, 3, 1, 3, 4, 4], [2, 3, 4, 2, 2, 4, 4, 1, 3, 1, 4, 4, 3]],
@@ -2736,7 +2843,7 @@
     W2: [[2, 3, 4, 3, 3, 1, 2, 3, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 3, 2, 3], [3, 4, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 2, 3, 3, 2, 2, 2, 2]],
     W3: [[2, 4, 4, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 3, 2], [3, 4, 4, 1, 3, 3, 1, 3, 1, 4, 1, 4, 1, 3, 3, 2, 3, 2]],
   };
-  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X22 }[C]();
+  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X22, X23 }[C]();
   captions(GR[C][lang === 'de' ? 0 : 1]);
   stage.appendChild(document.getElementById('cap'));
   stage.appendChild(document.querySelector('.grain'));
