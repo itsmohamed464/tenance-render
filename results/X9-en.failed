@@ -1,0 +1,24 @@
+X9-en 0/1023X9-en 120/1023X9-en 240/1023X9-en 360/1023X9-en 480/1023X9-en 600/1023X9-en 720/1023X9-en 840/1023X9-en 960/1023[Parsed_aresample_1 @ 0x600000f70fd0] Cannot select channel layout for the link between filters Parsed_aresample_1 and format_out_0_0.
+Error reinitializing filters!
+Failed to inject frame into filter network: Invalid argument
+Error while processing the decoded data for stream #0:0
+node:internal/errors:985
+  const err = new Error(message);
+              ^
+
+Error: Command failed: /Users/mohamed/tenance-render/node_modules/ffmpeg-static/ffmpeg -y -hide_banner -loglevel error -i /Users/mohamed/tenance-render/v2/out/stairwell15-en.pre.wav -af loudnorm=I=-14:TP=-1.5:LRA=9:measured_I=-21.28:measured_TP=-5.53:measured_LRA=4.50:measured_thresh=-31.48:offset=0.31:linear=true,aresample=48000 /Users/mohamed/tenance-render/v2/out/stairwell15-en.wav
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execFileSync (node:child_process:961:15)
+    at mixAudio (file:///Users/mohamed/tenance-render/v2/r2.mjs:201:3)
+    at file:///Users/mohamed/tenance-render/v2/r2.mjs:276:14 {
+  status: 1,
+  signal: null,
+  output: [ null, null, null ],
+  pid: 17755,
+  stdout: null,
+  stderr: null
+}
+
+Node.js v24.15.0
