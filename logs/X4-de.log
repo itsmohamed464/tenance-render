@@ -1,0 +1,5 @@
+X4-de 0/1244X4-de 120/1244X4-de 240/1244X4-de 360/1244X4-de 480/1244X4-de 600/1244X4-de 720/1244X4-de 840/1244X4-de 960/1244X4-de 1080/1244X4-de 1200/1244
+Enter command: <target>|all <time>|-1 <command>[ <argument>]
+
+Parse error, at least 3 arguments were expected, only 1 given in string 'affeinate -i bash worker.sh'
+X4-de -> auszug14-de.mp4 T=20.73 frames=1244 render=48s inLUFS=-21.53 size=21524971
