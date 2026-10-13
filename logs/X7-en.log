@@ -1,24 +1,1 @@
-X7-en 0/1029X7-en 120/1029X7-en 240/1029X7-en 360/1029X7-en 480/1029X7-en 600/1029X7-en 720/1029X7-en 840/1029X7-en 960/1029[Parsed_aresample_1 @ 0x60000078cfd0] Cannot select channel layout for the link between filters Parsed_aresample_1 and format_out_0_0.
-Error reinitializing filters!
-Failed to inject frame into filter network: Invalid argument
-Error while processing the decoded data for stream #0:0
-node:internal/errors:985
-  const err = new Error(message);
-              ^
-
-Error: Command failed: /Users/mohamed/tenance-render/node_modules/ffmpeg-static/ffmpeg -y -hide_banner -loglevel error -i /Users/mohamed/tenance-render/v2/out/documents15-en.pre.wav -af loudnorm=I=-14:TP=-1.5:LRA=9:measured_I=-20.27:measured_TP=-4.32:measured_LRA=5.40:measured_thresh=-31.04:offset=0.46:linear=true,aresample=48000 /Users/mohamed/tenance-render/v2/out/documents15-en.wav
-    at genericNodeError (node:internal/errors:985:15)
-    at wrappedFn (node:internal/errors:539:14)
-    at checkExecSyncError (node:child_process:925:11)
-    at execFileSync (node:child_process:961:15)
-    at mixAudio (file:///Users/mohamed/tenance-render/v2/r2.mjs:201:3)
-    at file:///Users/mohamed/tenance-render/v2/r2.mjs:276:14 {
-  status: 1,
-  signal: null,
-  output: [ null, null, null ],
-  pid: 18198,
-  stdout: null,
-  stderr: null
-}
-
-Node.js v24.15.0
+X7-en 0/1029X7-en 120/1029X7-en 240/1029X7-en 360/1029X7-en 480/1029X7-en 600/1029X7-en 720/1029X7-en 840/1029X7-en 960/1029X7-en -> documents15-en.mp4 T=17.15 frames=1029 render=53s inLUFS=-20.27 size=18502964
