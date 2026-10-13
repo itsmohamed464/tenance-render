@@ -2617,7 +2617,111 @@
     return { T, K };
   }
 
+  // ================= X22 (feature): repair sign-off — work order stamp, dripping tap, before/after slider =================
+  function X22() {
+    const de = lang === 'de';
+    const S = de ? {
+      wo: 'Auftrag #2417 · Wohnung 3', woT: 'Wasserhahn Küche tropft', woS: 'Müller Sanitär · heute 10:40', stamp: 'ERLEDIGT', q: 'WIRKLICH?',
+      ph: 'Reparatur bestätigen', phS: 'Wasserhahn Küche · Wohnung 3', before: 'VORHER', after: 'NACHHER', btn: 'Bestätigen', ok: '✓ Bestätigt von Mieterin',
+      tk: 'Ticket', open: 'Offen', closed: '🔒 Geschlossen', inv: 'Rechnung 148,00 €', paid: '✓ Bezahlt',
+      e1: 'ERLEDIGT', e2: 'heißt', e3: 'WIRKLICH ERLEDIGT', tag: 'für Mieter & Vermieter',
+    } : {
+      wo: 'Work order #2417 · Unit 3', woT: 'Kitchen tap dripping', woS: 'Miller Plumbing · today 10:40 am', stamp: 'DONE', q: 'REALLY?',
+      ph: 'Confirm repair', phS: 'Kitchen tap · Unit 3', before: 'BEFORE', after: 'AFTER', btn: 'Confirm', ok: '✓ Confirmed by tenant',
+      tk: 'Ticket', open: 'Open', closed: '🔒 Closed', inv: 'Invoice $148.00', paid: '✓ Paid',
+      e1: 'DONE', e2: 'means', e3: 'ACTUALLY DONE', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.done = W(['erledigt', 'done']).start;
+    K.hw = W(['Handwerker', 'contractor']).start;
+    K.aber = W(['Aber', 'But']).start;
+    K.wirk = W(['wirklich', 'really']).start;
+    const it = W(['Mit', 'With']); K.turn = it.start;
+    K.conf = W(['bestätigt', 'confirms'], it.i).start;
+    K.photo = W(['Vorher-Nachher-Foto', 'before'], it.i).start;
+    K.close = W(['schließt', 'close'], it.i).start;
+    K.ticket = W(['Ticket', 'ticket'], it.i).start;
+    K.pay = W(['zahlt', 'pay'], it.i).start;
+    K.inv = W(['Rechnung', 'invoice'], it.i).start;
+    const ie = W(['Erledigt', 'Done'], it.i); K.e1 = ie.start;
+    K.e2 = W(['wirklich', 'actually'], ie.i).start;
+    K.e3 = W(['erledigt', 'done'], ie.i).start;
+    const T = END + 2.1;
+    el('div', 'x22bg', '<i class="pg"></i>');
+    // tap illustration (SVG) used in the hook and in the before/after photos
+    const tap = (wet) => `<svg viewBox="0 0 400 320" class="x22tap"><defs><linearGradient id="ch${wet ? 1 : 0}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f4f6f8"/><stop offset=".5" stop-color="#aab3bd"/><stop offset="1" stop-color="#7d8792"/></linearGradient></defs>
+      <rect x="0" y="0" width="400" height="320" fill="${wet ? '#dfe7ee' : '#e9f2f6'}"/>${[0, 1, 2, 3, 4, 5].map((i) => `<rect x="${(i % 3) * 134}" y="${Math.floor(i / 3) * 110}" width="132" height="108" fill="none" stroke="#c7d2db" stroke-width="3"/>`).join('')}
+      <rect x="0" y="236" width="400" height="84" fill="#b9c3cc"/><rect x="60" y="236" width="280" height="22" rx="8" fill="#9aa6b2"/>
+      <rect x="182" y="70" width="36" height="70" rx="10" fill="url(#ch${wet ? 1 : 0})"/><path d="M200 78 Q200 40 250 40 L300 40 Q318 40 318 58 L318 96 L292 96 L292 66 L250 66 Q226 66 226 88 Z" fill="url(#ch${wet ? 1 : 0})"/>
+      <rect x="160" y="52" width="80" height="16" rx="8" fill="#8f99a4"/><rect x="286" y="96" width="38" height="12" rx="4" fill="#7d8792"/>
+      ${wet ? '<path d="M0 0 Q70 30 60 110 Q50 170 110 236 L0 236Z" fill="#8a7d5a" opacity=".32"/><ellipse cx="300" cy="268" rx="130" ry="20" fill="#3d8ef0" opacity=".75"/><ellipse cx="270" cy="264" rx="60" ry="7" fill="#bfe0ff" opacity=".8"/><g fill="#3d8ef0"><ellipse cx="305" cy="140" rx="7" ry="10"/><ellipse cx="305" cy="185" rx="6" ry="9" opacity=".8"/><ellipse cx="305" cy="226" rx="5" ry="8" opacity=".6"/></g><rect x="14" y="180" width="150" height="44" rx="22" fill="#e8432d"/><text x="89" y="210" font-family="Gothic" font-weight="700" font-size="24" fill="#fff" text-anchor="middle">' + (de ? 'tropft' : 'dripping') + '</text>' : '<g stroke="#fff" stroke-width="10" opacity=".5"><path d="M40 20 L120 100"/><path d="M200 10 L260 70"/></g><g fill="#fff"><path d="M120 150 l9 -27 l9 27 l27 9 l-27 9 l-9 27 l-9 -27 l-27 -9z"/><path d="M335 165 l6 -18 l6 18 l18 6 l-18 6 l-6 18 l-6 -18 l-18 -6z"/><path d="M250 205 l4 -12 l4 12 l12 4 l-12 4 l-4 12 l-4 -12 l-12 -4z"/></g><circle cx="350" cy="44" r="30" fill="#1fbf72"/><path d="M336 44 l10 10 l20 -20" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round"/>'}</svg>`;
+    // hook: work order with DONE stamp
+    const wo = el('div', 'x22wo', `<small>${S.wo}</small><b>${S.woT}</b><span>${S.woS}</span><div class="stp">${S.stamp} <i>✓</i></div>`);
+    const stp = wo.querySelector('.stp'), sti = stp.querySelector('i');
+    tl.set(wo, { xPercent: -50 }, 0);
+    tl.fromTo(wo, { autoAlpha: 0, y: 80, rotation: 3 }, { autoAlpha: 1, y: 0, rotation: -1.5, duration: 0.4, ease: 'power3.out' }, 0.02);
+    tl.set(stp, { autoAlpha: 0 }, 0);
+    tl.fromTo(stp, { autoAlpha: 0, scale: 2.6, rotation: -4 }, { autoAlpha: 1, scale: 1, rotation: -9, duration: 0.2, ease: 'power4.in', immediateRender: false }, K.done - 0.1);
+    sfx('thud', K.done + 0.1, -7);
+    tl.to(stp, { filter: 'grayscale(1)', opacity: 0.45, duration: 0.3 }, K.aber - 0.05);
+    tl.to(sti, { rotationY: 90, duration: 0.15 }, K.wirk - 0.25);
+    tl.call(() => {}, null, K.wirk - 0.1);
+    const qm = el('div', 'x22q', S.q);
+    tl.set(qm, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(qm, { autoAlpha: 0, scale: 2, rotation: 8 }, { autoAlpha: 1, scale: 1, rotation: 4, duration: 0.22, ease: 'power4.in', immediateRender: false }, K.wirk - 0.1);
+    sfx('sting', K.wirk - 0.05, -11);
+    // dripping tap (still broken)
+    const drip = el('div', 'x22drip', `${tap(true)}<div class="dr">${[0, 1, 2].map(() => '<i></i>').join('')}</div>`);
+    const drops = drip.querySelectorAll('.dr i');
+    tl.set(drip, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(drip, { autoAlpha: 0, y: 120 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power3.out', immediateRender: false }, K.aber - 0.1);
+    perFrame((t) => { drops.forEach((d, i) => { const u = ((t * 1.3 + i / 3) % 1); d.style.transform = `translateY(${E.ic(u) * 150}px) scale(${0.6 + 0.4 * Math.min(1, u * 4)})`; d.style.opacity = u > 0.92 ? 0 : 1; }); });
+    [0, 1, 2, 3].forEach((i) => sfx('drip', K.aber + 0.1 + i * 0.75, -12));
+    tl.to([wo, qm, drip], { autoAlpha: 0, y: -160, duration: 0.35, ease: 'power2.in', stagger: 0.04 }, K.turn - 0.3);
+    // phone panel with before/after slider
+    const ph = el('div', 'x22ph', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.ph}</b><small>${S.phS}</small></div></div>
+      <div class="ba"><div class="pb">${tap(true)}<em>${S.before}</em></div><div class="pa">${tap(false)}<em>${S.after}</em></div><div class="hn"><i></i></div></div>
+      <div class="bt"><span class="b0">${S.btn}</span><span class="b1">${S.ok}</span></div>
+      <div class="x22st"><div class="r"><span>${S.tk}</span><b class="o">${S.open}</b><b class="c">${S.closed}</b></div><div class="r"><span>${S.inv}</span><b class="o">—</b><b class="c pd">${S.paid}</b></div></div>`);
+    const pa = ph.querySelector('.pa'), hn = ph.querySelector('.hn'), b0 = ph.querySelector('.b0'), b1 = ph.querySelector('.b1');
+    tl.set(ph, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(ph, { autoAlpha: 0, y: 260, scale: 0.94 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -9);
+    const s0 = K.photo - 0.35, s1 = s0 + 1.3;
+    perFrame((t) => { const u = E.io(seg(t, s0, s1 - s0)); const x = 4 + u * 92; pa.style.clipPath = `inset(0 0 0 ${100 - x}%)`; hn.style.left = `${100 - x}%`; hn.style.opacity = t > s0 - 0.3 && t < s1 + 0.6 ? 1 : 0; });
+    sfx('unfold', s0, -12); sfx('shutter', K.conf, -9);
+    tl.set(b1, { autoAlpha: 0 }, 0);
+    tl.to(b0, { autoAlpha: 0, duration: 0.15 }, s1 + 0.15);
+    tl.fromTo(b1, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, s1 + 0.2);
+    sfx('chime', s1 + 0.25, -11);
+    const rows = ph.querySelectorAll('.x22st .r');
+    tl.set(rows, { autoAlpha: 0 }, 0);
+    tl.fromTo(rows, { autoAlpha: 0, x: 40 }, { autoAlpha: 1, x: 0, duration: 0.3, stagger: 0.12, ease: 'power3.out', immediateRender: false }, K.close - 0.4);
+    const flip = (r, tt) => { tl.set(r.querySelector('.c'), { autoAlpha: 0 }, 0); tl.to(r.querySelector('.o'), { autoAlpha: 0, duration: 0.12 }, tt); tl.fromTo(r.querySelector('.c'), { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(3)', immediateRender: false }, tt + 0.05); };
+    flip(rows[0], K.ticket); flip(rows[1], K.inv);
+    sfx('pop', K.ticket + 0.05, -10); sfx('kaching', K.inv, -9);
+    // ending: DONE means ACTUALLY DONE
+    tl.to(ph, { autoAlpha: 0, scale: 0.9, y: -80, duration: 0.35, ease: 'power2.in' }, K.e1 - 0.4);
+    const end = el('div', 'x22end', `<b class="a">${S.e1}</b><span>${S.e2}</span><b class="c" style="font-size:${S.e3.length > 12 ? 70 : S.e3.length > 9 ? 86 : 104}px">${S.e3}<i>✓</i></b>`);
+    const [ea, eb, ec] = end.children;
+    tl.set(end, { xPercent: -50 }, 0);
+    tl.set([ea, eb, ec], { autoAlpha: 0 }, 0);
+    tl.fromTo(ea, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power3.out', immediateRender: false }, K.e1 - 0.1);
+    tl.fromTo(eb, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, immediateRender: false }, K.e1 + 0.45);
+    tl.fromTo(ec, { autoAlpha: 0, scale: 1.8 }, { autoAlpha: 1, scale: 1, duration: 0.24, ease: 'power4.in', immediateRender: false }, K.e2 - 0.1);
+    tl.fromTo(ec.querySelector('i'), { scale: 0 }, { scale: 1, duration: 0.3, ease: 'back.out(3)', immediateRender: false }, K.e3);
+    tl.set(ec.querySelector('i'), { scale: 0 }, 0);
+    sfx('thud', K.e2 + 0.06, -9); sfx('impact', K.e3 + 0.05, -10);
+    const lk = el('div', 'x22lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('chime', END + 0.33, -12);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
   const GR = {
+    X22: [[4, 3, 5, 2, 3, 2, 3, 4, 4, 4, 2, 2], [4, 3, 4, 2, 5, 3, 3, 3, 3, 3, 4, 2, 2]],
     X10: [[2, 4, 3, 1, 3, 1, 3, 1, 1, 4, 1, 3, 1, 2, 3, 2, 3], [3, 3, 2, 1, 4, 1, 3, 1, 2, 4, 1, 2, 3, 1, 3, 2, 3, 4]],
     X9: [[2, 2, 4, 3, 4, 3, 4, 1, 3, 1, 3, 4, 4], [2, 3, 4, 2, 2, 4, 4, 1, 3, 1, 4, 4, 3]],
     X8: [[1, 1, 3, 4, 3, 2, 3, 3, 4, 1, 3, 2, 2, 2], [1, 1, 3, 1, 4, 2, 2, 3, 4, 4, 4, 2, 2, 2]],
@@ -2632,7 +2736,7 @@
     W2: [[2, 3, 4, 3, 3, 1, 2, 3, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 3, 2, 3], [3, 4, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 2, 3, 3, 2, 2, 2, 2]],
     W3: [[2, 4, 4, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 3, 2], [3, 4, 4, 1, 3, 3, 1, 3, 1, 4, 1, 4, 1, 3, 3, 2, 3, 2]],
   };
-  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10 }[C]();
+  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X22 }[C]();
   captions(GR[C][lang === 'de' ? 0 : 1]);
   stage.appendChild(document.getElementById('cap'));
   stage.appendChild(document.querySelector('.grain'));
