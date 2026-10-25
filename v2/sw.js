@@ -3120,8 +3120,2607 @@
     return { T, K };
   }
 
+  // ================= X11: digital lease signing — lease stuck in the post for a week, both sign on screen, contract lands in both archives, Mon yes -> Fri keys =================
+  function X11() {
+    const de = lang === 'de';
+    const S = de ? {
+      found: 'Wohnung gefunden!', env: 'Mietvertrag', post: 'In Zustellung', day: (n) => `Tag ${n}`, still: 'noch unterwegs …',
+      doc: 'Mietvertrag · Wohnung 3', docS: 'Lena & Herr Becker', r1: 'Mieterin', r2: 'Vermieter', stamp: 'DIGITAL UNTERSCHRIEBEN',
+      arch: 'Archiv', fold: 'Mietvertrag', fold2: 'Übergabe', file: 'Mietvertrag_Whg3.pdf', now: 'sofort bei beiden ✓',
+      week: 'Diese Woche', days: ['Mo', 'Di', 'Mi', 'Do', 'Fr'], yes: '✓ Zusage', key: '🔑 Schlüssel', tag: 'für Mieter & Vermieter',
+    } : {
+      found: 'Apartment found!', env: 'Lease', post: 'In transit', day: (n) => `Day ${n}`, still: 'still in the mail …',
+      doc: 'Lease · Unit 3', docS: 'Lena & Mr. Becker', r1: 'Tenant', r2: 'Landlord', stamp: 'SIGNED DIGITALLY',
+      arch: 'Archive', fold: 'Lease', fold2: 'Handover', file: 'Lease_Unit3.pdf', now: 'there for both ✓',
+      week: 'This week', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], yes: '✓ Yes', key: '🔑 Keys', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.found = W(['gefunden', 'found']).start;
+    const iv = W(['Vertrag', 'lease']); K.vertrag = iv.start;
+    K.woche = W(['Woche', 'week'], iv.i).start;
+    K.post = W(['Post', 'mail'], iv.i).start;
+    const it = W(['Mit', 'With'], iv.i); K.turn = it.start;
+    K.t1 = W(['Mieter', 'tenant'], it.i).start;
+    K.t2 = W(['Vermieter', 'landlord'], it.i).start;
+    K.dig = W(['digital', 'digitally'], it.i).start;
+    K.both = W(['beide', 'both'], it.i).start;
+    K.arch = W(['Archiv', 'archive'], it.i).start;
+    K.now = W(['sofort', 'right'], it.i).start;
+    K.yes = W(['Zusage', 'Yes'], it.i).start;
+    K.mon = W(['Montag', 'Monday'], it.i).start;
+    K.keys = W(['Schlüssel', 'keys'], it.i).start;
+    K.fri = W(['Freitag', 'Friday'], it.i).start;
+    const T = END + 2.1;
+    el('div', 'x11bg', '<i class="g"></i>');
+    // hook: apartment found ✓
+    const fd = el('div', 'x11found', `<i>🏠</i><b>${S.found}</b><em>✓</em>`);
+    tl.set(fd, { xPercent: -50 }, 0);
+    tl.fromTo(fd, { autoAlpha: 0, scale: 0.5, y: 40 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.35, ease: 'back.out(2.2)' }, 0.02);
+    tl.fromTo(fd.querySelector('em'), { scale: 0 }, { scale: 1, duration: 0.3, ease: 'back.out(3)' }, K.found);
+    sfx('pop', 0.05, -9); sfx('chime', K.found + 0.05, -11);
+    tl.to(fd, { y: -150, scale: 0.72, autoAlpha: 0.4, duration: 0.4, ease: 'power3.inOut' }, K.vertrag - 0.4);
+    // envelope stuck in the post, day counter 1..7
+    const env = el('div', 'x11env', `<div class="in"><i class="fl"></i><b>${S.env}</b><span class="stp">✉</span></div>`);
+    const envIn = env.querySelector('.in');
+    tl.set(env, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(env, { autoAlpha: 0, y: -520, rotation: -12 }, { autoAlpha: 1, y: 0, rotation: 0, duration: 0.5, ease: 'bounce.out', immediateRender: false }, K.vertrag - 0.3);
+    sfx('thud', K.vertrag + 0.05, -8);
+    perFrame((t) => { const a = seg(t, K.vertrag + 0.2, 1.5); envIn.style.transform = `translateY(${Math.sin(t * 2.4) * 10 * a}px) rotate(${Math.sin(t * 1.7) * 3 * a}deg)`; });
+    const trk = el('div', 'x11trk', `<div class="rw"><i>📮</i><b>${S.post}</b><span class="d">${S.day(1)}</span></div><div class="dots">${'<i></i>'.repeat(7)}</div><em>${S.still}</em>`);
+    const dd = trk.querySelector('.d'), dots = [...trk.querySelectorAll('.dots i')], still = trk.querySelector('em');
+    tl.set(trk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(trk, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power3.out', immediateRender: false }, K.vertrag + 0.15);
+    let lastN = 0;
+    perFrame((t) => {
+      const n = Math.max(1, Math.min(7, 1 + Math.floor(6.99 * seg(t, K.vertrag + 0.3, K.woche - K.vertrag))));
+      if (n !== lastN) { lastN = n; dd.textContent = S.day(n); dots.forEach((d, i) => d.classList.toggle('on', i < n)); }
+    });
+    tl.set(still, { autoAlpha: 0 }, 0);
+    tl.fromTo(still, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.4)', immediateRender: false }, K.post);
+    sfx('counter', K.vertrag + 0.3, -14); sfx('buzz', K.post + 0.05, -16);
+    tl.to([fd, env, trk], { autoAlpha: 0, y: '-=80', duration: 0.3, ease: 'power2.in', stagger: 0.04 }, K.turn - 0.32);
+    // contract card, both sign on screen
+    const sig1 = 'M8 70 C 14 30, 26 12, 30 30 C 34 50, 22 80, 30 82 C 40 84, 46 60, 56 58 C 66 56, 62 78, 72 76 C 82 74, 84 52, 92 54 C 100 56, 96 78, 106 76 C 116 74, 118 50, 128 52 C 138 54, 134 80, 146 74 C 160 66, 170 38, 186 44 C 200 50, 196 72, 212 66 C 226 60, 238 52, 252 50';
+    const sig2 = 'M10 40 C 20 18, 36 20, 32 44 C 28 66, 12 80, 22 84 C 34 88, 50 54, 62 50 C 76 46, 70 76, 82 74 C 96 72, 98 44, 110 46 C 122 48, 112 76, 126 76 C 140 76, 150 38, 166 40 C 178 42, 172 72, 186 70 C 204 68, 212 34, 228 38 C 240 42, 236 70, 252 62';
+    const ct = el('div', 'x11doc', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.doc}</b><small>${S.docS}</small></div></div>
+      <div class="ln"><i style="width:92%"></i><i style="width:78%"></i><i style="width:86%"></i><i style="width:60%"></i></div>
+      <div class="sg">${[[S.r1, sig1], [S.r2, sig2]].map(([rl, p]) => `<div class="bx"><svg viewBox="0 0 260 100" preserveAspectRatio="xMidYMid meet"><path d="${p}"/></svg><span>${rl}</span><em>✓</em></div>`).join('')}</div>
+      <div class="stp">${S.stamp}</div>`);
+    tl.set(ct, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(ct, { autoAlpha: 0, y: 300 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -9);
+    const paths = [...ct.querySelectorAll('path')], chk = [...ct.querySelectorAll('.bx em')], stp = ct.querySelector('.stp');
+    [K.t1, K.t2].forEach((tt, i) => {
+      const p = paths[i], L = Math.ceil(p.getTotalLength()) + 6;
+      p.style.strokeDasharray = `${L}`;
+      tl.set(p, { strokeDashoffset: L }, 0);
+      tl.fromTo(p, { strokeDashoffset: L }, { strokeDashoffset: 0, duration: 0.55, ease: 'power1.inOut', immediateRender: false }, tt - 0.05);
+      tl.set(chk[i], { autoAlpha: 0 }, 0);
+      tl.fromTo(chk[i], { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(3)', immediateRender: false }, tt + 0.5);
+      sfx('whoosh', tt, -17); sfx('pop', tt + 0.5, -11);
+    });
+    tl.set(stp, { autoAlpha: 0 }, 0);
+    tl.fromTo(stp, { autoAlpha: 0, scale: 2.2, rotation: 0 }, { autoAlpha: 1, scale: 1, rotation: -6, duration: 0.22, ease: 'power4.in', immediateRender: false }, K.dig - 0.05);
+    sfx('thud', K.dig + 0.17, -8);
+    tl.to(ct, { autoAlpha: 0, y: -140, scale: 0.8, duration: 0.35, ease: 'power2.in' }, K.both - 0.38);
+    // both archives get the signed lease at once
+    const ph = [S.r1, S.r2].map((rl, i) => el('div', `x11ph ${i ? 'r' : 'l'}`, `<div class="tp"><span>${i ? '🏠' : '👤'}</span><b>${rl}</b></div><div class="ti">${S.arch}</div>
+      <div class="fo"><i>📁</i><b>${S.fold2}</b><small>2</small></div><div class="fo"><i>📁</i><b>${S.fold}</b><small>1</small></div><div class="fi"><i>📄</i><b>${S.file}</b><em>✓</em></div>`));
+    const tFile = Math.min(K.arch, K.now), tNow = Math.max(K.arch, K.now);
+    ph.forEach((p, i) => {
+      tl.set(p, { autoAlpha: 0 }, 0);
+      tl.fromTo(p, { autoAlpha: 0, y: 220, rotation: i ? 5 : -5 }, { autoAlpha: 1, y: 0, rotation: i ? 2 : -2, duration: 0.45, ease: 'back.out(1.6)', immediateRender: false }, K.both - 0.18 + i * 0.08);
+      const fi = p.querySelector('.fi');
+      tl.set(fi, { autoAlpha: 0 }, 0);
+      tl.fromTo(fi, { autoAlpha: 0, x: i ? -180 : 180, scale: 0.6 }, { autoAlpha: 1, x: 0, scale: 1, duration: 0.4, ease: 'back.out(2)', immediateRender: false }, tFile - 0.2 + i * 0.06);
+    });
+    sfx('whoosh', K.both - 0.15, -11); sfx('send', tFile - 0.15, -10); sfx('chime', tNow + 0.1, -12);
+    const now = el('div', 'x11now', S.now);
+    tl.set(now, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(now, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, tNow + 0.05);
+    tl.to([...ph, now], { autoAlpha: 0, y: '-=80', duration: 0.3, ease: 'power2.in', stagger: 0.04 }, K.yes - 0.38);
+    // week strip: yes on Monday, keys on Friday
+    const wk = el('div', 'x11wk', `<div class="h">${S.week}</div><div class="ds">${S.days.map((d) => `<span>${d}</span>`).join('')}<i class="hl"></i></div><div class="lb"><em class="y">${S.yes}</em><em class="k">${S.key}</em></div>`);
+    const cells = [...wk.querySelectorAll('.ds span')], hl = wk.querySelector('.hl'), ly = wk.querySelector('.y'), lkk = wk.querySelector('.k');
+    tl.set(wk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(wk, { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power3.out', immediateRender: false }, K.yes - 0.22);
+    tl.set([ly, lkk, hl], { autoAlpha: 0 }, 0);
+    tl.fromTo(cells[0], { backgroundColor: '#ffffff', color: '#0f4c5c' }, { backgroundColor: '#1fbf72', color: '#ffffff', duration: 0.2, immediateRender: false }, K.yes);
+    tl.fromTo(ly, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'back.out(2)', immediateRender: false }, K.yes + 0.05);
+    tl.set(hl, { autoAlpha: 1, x: 0 }, K.mon + 0.2);
+    tl.fromTo(hl, { x: 0 }, { x: 4 * 196, duration: Math.max(0.4, K.keys - K.mon - 0.3), ease: 'power2.inOut', immediateRender: false }, K.mon + 0.2);
+    tl.fromTo(cells[4], { backgroundColor: '#ffffff', color: '#0f4c5c' }, { backgroundColor: '#ff6b4a', color: '#ffffff', duration: 0.2, immediateRender: false }, K.keys - 0.1);
+    tl.fromTo(lkk, { autoAlpha: 0, y: 20, scale: 0.6 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, K.keys - 0.05);
+    tl.fromTo(cells[4], { scale: 1 }, { scale: 1.14, duration: 0.15, yoyo: true, repeat: 1, ease: 'power2.out', immediateRender: false }, K.fri);
+    sfx('pop', K.yes, -10); sfx('whoosh', K.mon + 0.25, -14); sfx('keys', K.keys, -6); sfx('chime', K.fri + 0.1, -10);
+    const lk = el('div', 'x11lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
+  // ================= X12: water from the flat above — 3D two-storey cutaway, drips into a bucket, ticket with photo, plumber slot, both units see status, sealed =================
+  function X12() {
+    const de = lang === 'de';
+    const S = de ? {
+      fam: 'Familie Yilmaz', famS: 'Whg 2 · 09:12', drip: 'tropf', up: '↑ Whg 4', upS: 'Wohnung darüber',
+      tk: 'Wasserschaden · Whg 2', tkS: 'Familie Yilmaz · 09:12', foto: '📷 Foto', ll: 'an Vermieter ✓', pl: '🔧 Installateur', s1: '12:00', s2: '14:00',
+      u: ['Whg 2', 'Whg 4'], seen: '👁 sieht den Stand', fix: '✓ Dicht', clk: '🕒 15:30', tag: 'für Mieter & Vermieter',
+    } : {
+      fam: 'The Millers', famS: 'Unit 2 · 9:12 am', drip: 'drip', up: '↑ Unit 4', upS: 'apartment above',
+      tk: 'Water leak · Unit 2', tkS: 'The Millers · 9:12 am', foto: '📷 Photo', ll: 'to landlord ✓', pl: '🔧 Plumber', s1: '12 pm', s2: '2 pm',
+      u: ['Unit 2', 'Unit 4'], seen: '👁 sees the status', fix: '✓ Sealed', clk: '🕒 3:30 pm', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.drop = W(['tropft', 'dripping']).start;
+    K.above = W(['darüber', 'above']).start;
+    const it = W(['Mit', 'With']); K.turn = it.start;
+    K.rep = W(['Meldung', 'report'], it.i).start;
+    K.foto = W(['Foto', 'photo'], it.i).start;
+    K.ll = W(['Vermieter', 'landlord'], it.i).start;
+    K.pl = W(['Installateur', 'plumber'], it.i).start;
+    K.slot = W(['Termin', 'slot'], it.i).start;
+    K.both = W(['beide', 'both'], it.i).start;
+    K.stat = W(['Stand', 'status'], it.i).start;
+    K.aft = W(['Nachmittag', 'afternoon'], it.i).start;
+    K.fix = W(['dicht', 'sealed'], it.i).start;
+    const T = END + 2.1;
+    el('div', 'x12bg', '<i class="g"></i>');
+    const G = gl3(stage, { fov: 30, envTop: '#ffffff', envBot: '#9fb0c6', envInt: 0.95 });
+    const { scene, cam, r } = G;
+    r.shadowMap.enabled = false;
+    scene.add(new T3.HemisphereLight('#ffffff', '#8796ad', 0.95));
+    const sun = new T3.DirectionalLight('#fff1dc', 1.5); sun.position.set(-5, 9, 10); scene.add(sun);
+    const B = new T3.Group(); scene.add(B);
+    const FH = 2.4, BW = 5.2, DP = 2.8, SL = 0.24;
+    const cutM = M.std('#2b3445', { roughness: 0.9 });
+    mesh(new T3.BoxGeometry(BW + 0.44, 0.3, DP + 0.1), cutM, B, [0, -0.15, -0.05]);
+    mesh(new T3.BoxGeometry(BW + 0.44, SL, DP + 0.1), cutM, B, [0, FH - SL / 2, -0.05]);
+    mesh(new T3.BoxGeometry(BW + 0.44, SL, DP + 0.1), cutM, B, [0, 2 * FH - SL / 2, -0.05]);
+    [-1, 1].forEach((sg) => mesh(new T3.BoxGeometry(0.22, 2 * FH, DP + 0.1), cutM, B, [sg * (BW / 2 + 0.11), FH, -0.05]));
+    mesh(new T3.BoxGeometry(BW, FH - SL, 0.12), M.std('#f3e5d2', { roughness: 0.95 }), B, [0, (FH - SL) / 2, -DP / 2]);
+    mesh(new T3.BoxGeometry(BW, FH - SL, 0.12), M.std('#dbe7f2', { roughness: 0.95 }), B, [0, FH + (FH - SL) / 2, -DP / 2]);
+    mesh(new T3.BoxGeometry(BW, 0.05, DP), M.std('#c8935f', { roughness: 0.7 }), B, [0, 0.025, 0]);
+    mesh(new T3.BoxGeometry(BW, 0.05, DP), M.std('#c3ccd6', { roughness: 0.5 }), B, [0, FH + 0.025, 0]);
+    [0, 1].forEach((f) => {
+      mesh(new T3.BoxGeometry(1.1, 0.9, 0.04), new T3.MeshBasicMaterial({ color: '#bfe0ff' }), B, [-1.6, f * FH + 1.3, -DP / 2 + 0.08]);
+      mesh(new T3.BoxGeometry(1.22, 0.07, 0.12), M.std('#ffffff'), B, [-1.6, f * FH + 0.83, -DP / 2 + 0.1]);
+      mesh(new T3.BoxGeometry(0.05, 0.9, 0.06), M.std('#ffffff'), B, [-1.6, f * FH + 1.3, -DP / 2 + 0.11]);
+    });
+    // lower flat: sofa, bucket under the drip, wet stain on the wall under the ceiling
+    const sofaM = M.std('#4f7aa6', { roughness: 0.8 });
+    mesh(rbox(1.7, 0.42, 0.8, 0.12), sofaM, B, [-1.5, 0.26, -0.75]);
+    mesh(rbox(1.7, 0.6, 0.22, 0.1), sofaM, B, [-1.5, 0.62, -1.1]);
+    const BX = 0.95, BZ = -0.75;
+    mesh(new T3.CylinderGeometry(0.27, 0.2, 0.42, 28, 1, true), M.std('#ff8a3d', { roughness: 0.5, side: T3.DoubleSide }), B, [BX, 0.26, BZ]);
+    mesh(new T3.TorusGeometry(0.27, 0.025, 8, 28), M.std('#e0712a'), B, [BX, 0.47, BZ], [Math.PI / 2, 0, 0]);
+    mesh(new T3.CircleGeometry(0.2, 24), M.std('#e0712a'), B, [BX, 0.06, BZ], [-Math.PI / 2, 0, 0]);
+    const bw = mesh(new T3.CircleGeometry(0.21, 24), M.std('#6fb6ec', { roughness: 0.1, metalness: 0.1 }), B, [BX, 0.1, BZ], [-Math.PI / 2, 0, 0]);
+    const stain = textPlane((x, w, h) => { const g = x.createRadialGradient(w / 2, h * 0.05, 8, w / 2, h * 0.2, w * 0.48); g.addColorStop(0, 'rgba(112,82,48,0.9)'); g.addColorStop(0.5, 'rgba(135,100,60,0.55)'); g.addColorStop(1, 'rgba(135,100,60,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }, 256, 256, 1.7, 1.7);
+    stain.position.set(BX, FH - SL - 0.85, -DP / 2 + 0.065); B.add(stain);
+    const drip = mesh(new T3.CylinderGeometry(0.035, 0.035, 0.5, 10), M.std('#7cc0f0', { roughness: 0.05, transparent: true, opacity: 0.6 }), B, [BX, FH - SL - 0.25, BZ]);
+    const dropM = M.std('#7cc0f0', { roughness: 0.05, metalness: 0.1, emissive: new T3.Color('#2a6fa8'), emissiveIntensity: 0.3 });
+    const drops = [0, 1].map(() => mesh(new T3.SphereGeometry(0.06, 14, 10), dropM, B, [BX, 2.1, BZ], null, [1, 1.35, 1]));
+    // upper flat: washing machine with a leaking hose, puddle on the tiles
+    const WX = 0.9;
+    mesh(rbox(0.85, 0.9, 0.75, 0.06), M.std('#f4f4f1', { roughness: 0.35 }), B, [WX, FH + 0.5, -1.0]);
+    mesh(new T3.CylinderGeometry(0.27, 0.27, 0.05, 32), M.std('#8a97a6', { roughness: 0.2, metalness: 0.7 }), B, [WX, FH + 0.48, -0.61], [Math.PI / 2, 0, 0]);
+    mesh(new T3.CylinderGeometry(0.21, 0.21, 0.06, 32), M.std('#2a3b52', { roughness: 0.05, metalness: 0.3 }), B, [WX, FH + 0.48, -0.6], [Math.PI / 2, 0, 0]);
+    const pipeM = M.std('#c9ced4', { metalness: 0.9, roughness: 0.3 });
+    mesh(new T3.CylinderGeometry(0.05, 0.05, 1.4, 16), pipeM, B, [WX + 0.62, FH + 0.85, -1.3]);
+    mesh(new T3.CylinderGeometry(0.07, 0.07, 0.12, 16), M.std('#e8432d'), B, [WX + 0.62, FH + 0.38, -1.3]);
+    const LEAK = new T3.Vector3(WX + 0.62, FH + 0.38, -1.22);
+    mesh(rbox(1.7, 0.9, 0.7, 0.04), M.std('#ece6dc', { roughness: 0.6 }), B, [-1.45, FH + 0.5, -1.0]);
+    mesh(new T3.BoxGeometry(1.76, 0.06, 0.76), M.std('#5c6b7a', { roughness: 0.4 }), B, [-1.45, FH + 0.98, -1.0]);
+    const pud = mesh(new T3.CircleGeometry(1, 40), new T3.MeshStandardMaterial({ color: '#5aa9e6', roughness: 0.05, metalness: 0.2, transparent: true, opacity: 0.8 }), B, [WX + 0.2, FH + 0.057, -0.55], [-Math.PI / 2, 0, 0], 0.01);
+    const spray = [...Array(10)].map(() => mesh(new T3.SphereGeometry(0.035, 10, 8), dropM, B, [LEAK.x, LEAK.y, LEAK.z]));
+    // people
+    const person = (col, hair, x, y, z, s = 1) => {
+      const P = new T3.Group(); P.position.set(x, y, z); P.scale.setScalar(s); B.add(P);
+      mesh(new T3.CapsuleGeometry(0.2, 0.55, 6, 14), M.std(col, { roughness: 0.7 }), P, [0, 0.55, 0]);
+      mesh(new T3.SphereGeometry(0.18, 20, 14), M.std('#e8b98f', { roughness: 0.7 }), P, [0, 1.12, 0]);
+      mesh(new T3.SphereGeometry(0.185, 20, 14, 0, Math.PI * 2, 0, 1.4), M.std(hair, { roughness: 0.8 }), P, [0, 1.15, -0.01]);
+      return P;
+    };
+    const p1 = person('#e0603e', '#2b1d16', 0.1, 0.05, -0.25), p2 = person('#3f8fd2', '#2b1d16', 0.5, 0.05, 0.25, 0.72);
+    const plum = person('#2f6fd1', '#3a2a22', -2.3, FH + 0.05, -0.3);
+    mesh(new T3.CylinderGeometry(0.2, 0.21, 0.09, 20), M.std('#ffb020'), plum, [0, 1.3, 0]);
+    mesh(rbox(0.42, 0.26, 0.2, 0.03), M.std('#d9342b'), plum, [0.32, 0.2, 0.12]);
+    // camera: close on the lower flat, pan up to the source, pull back wide for the ticket
+    const camT = track([
+      [0, () => ({ x: 0.45, y: 1.2, z: 10.5, lx: 0.45, ly: 1.1 })],
+      [K.above - 0.4, () => ({ x: 0.5, y: 1.25, z: 10.0, lx: 0.5, ly: 1.15 })],
+      [K.above + 0.45, () => ({ x: 0.75, y: 3.5, z: 10.0, lx: 0.75, ly: 3.4 })],
+      [K.turn - 0.15, () => ({ x: 0.75, y: 3.5, z: 9.6, lx: 0.75, ly: 3.4 })],
+      [K.turn + 0.8, () => ({ x: 0, y: 3.1, z: 25.6, lx: 0, ly: 2.36 })],
+      [T, () => ({ x: 0, y: 3.1, z: 24.8, lx: 0, ly: 2.36 })],
+    ]);
+    // overlays
+    const fam = el('div', 'x12fam', `<i>💧</i><span><b>${S.fam}</b><small>${S.famS}</small></span>`);
+    tl.set(fam, { xPercent: -50 }, 0);
+    tl.fromTo(fam, { autoAlpha: 0, y: -40, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(2)' }, 0.02);
+    tl.to(fam, { autoAlpha: 0, y: -40, duration: 0.25 }, K.turn - 0.25);
+    sfx('impact', 0.05, -13);
+    const dripT = [0.6, 1.8, 3.0].filter((x) => x < K.turn - 0.3);
+    const dripTx = dripT.map(() => el('div', 'x12drip', S.drip));
+    dripTx.forEach((e, i) => { tl.set(e, { autoAlpha: 0 }, 0); tl.fromTo(e, { autoAlpha: 0, scale: 1.5 }, { autoAlpha: 1, scale: 1, duration: 0.12, ease: 'power3.out', immediateRender: false }, dripT[i]); tl.to(e, { autoAlpha: 0, duration: 0.35 }, dripT[i] + 0.5); });
+    const up = el('div', 'x12up', `<b>${S.up}</b><small>${S.upS}</small>`);
+    tl.set(up, { autoAlpha: 0 }, 0);
+    tl.fromTo(up, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, K.above + 0.15);
+    tl.to(up, { autoAlpha: 0, scale: 0.8, duration: 0.2 }, K.turn - 0.1);
+    sfx('whoosh', K.above - 0.3, -12); sfx('sting', K.above + 0.15, -14);
+    // ticket card
+    const tk = el('div', 'x12tk', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.tk}</b><small>${S.tkS}</small></div><em class="dn">${S.fix}</em></div>
+      <div class="pr"><div class="im"><i></i><i class="d"></i></div><b>${S.foto}</b><span class="ll">${S.ll}</span></div>
+      <div class="sl"><b>${S.pl}</b><span class="a">${S.s1}<i></i></span><span class="b">${S.s2}</span></div>`);
+    tl.set(tk, { autoAlpha: 0 }, 0);
+    tl.fromTo(tk, { autoAlpha: 0, y: -260 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power4.out', immediateRender: false }, K.turn + 0.05);
+    sfx('send', K.rep, -10);
+    const im = tk.querySelector('.im'), fb = tk.querySelector('.pr b'), llb = tk.querySelector('.ll'), sl = tk.querySelector('.sl'), sa = tk.querySelector('.sl .a i'), sb = tk.querySelector('.sl .b'), st = tk.querySelector('.dn');
+    tl.set([im, fb, llb, sl, st], { autoAlpha: 0 }, 0);
+    tl.fromTo([im, fb], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.4)', stagger: 0.06, immediateRender: false }, K.foto - 0.1);
+    sfx('shutter', K.foto - 0.05, -8);
+    tl.fromTo(llb, { autoAlpha: 0, x: 40 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power3.out', immediateRender: false }, K.ll - 0.05);
+    sfx('pop', K.ll, -11);
+    tl.fromTo(sl, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power3.out', immediateRender: false }, K.pl - 0.1);
+    tl.set(sa, { scaleX: 0 }, 0);
+    tl.fromTo(sa, { scaleX: 0 }, { scaleX: 1, duration: 0.2, ease: 'power2.out', immediateRender: false }, K.slot - 0.35);
+    tl.fromTo(sb, { backgroundColor: '#fff3d6', color: '#7a5200' }, { backgroundColor: '#1fbf72', color: '#ffffff', duration: 0.2, immediateRender: false }, K.slot);
+    tl.fromTo(sb, { scale: 1 }, { scale: 1.15, duration: 0.14, yoyo: true, repeat: 1, immediateRender: false }, K.slot);
+    sfx('pop', K.pl, -12); sfx('chime', K.slot + 0.05, -11);
+    // both units see the status
+    const seen = S.u.map((u) => el('div', 'x12seen', `<b>${u}</b><small>${S.seen}</small>`));
+    seen.forEach((s, i) => { tl.set(s, { autoAlpha: 0 }, 0); tl.fromTo(s, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.28, ease: 'back.out(2.6)', immediateRender: false }, K.both - 0.05 + i * 0.25); tl.to(s, { autoAlpha: 0, duration: 0.2 }, K.aft - 0.2); sfx('pop', K.both + i * 0.25, -12); });
+    // afternoon: sealed
+    const clk = el('div', 'x12clk', S.clk);
+    tl.set(clk, { autoAlpha: 0 }, 0);
+    tl.fromTo(clk, { autoAlpha: 0, rotationX: -90 }, { autoAlpha: 1, rotationX: 0, duration: 0.3, ease: 'power3.out', immediateRender: false }, K.aft - 0.1);
+    sfx('refresh', K.aft - 0.15, -13);
+    const ok = el('div', 'x12ok', S.fix);
+    tl.set(ok, { autoAlpha: 0 }, 0);
+    tl.fromTo(ok, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, K.fix - 0.05);
+    tl.fromTo(st, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(3)', immediateRender: false }, K.fix);
+    sfx('chime', K.fix, -9);
+    // drip sounds while it leaks
+    for (let x = 0.6; x < K.aft; x += 0.6) sfx('drip', x, x < K.turn ? -12 : -22);
+    const v3 = new T3.Vector3();
+    const proj = (p) => { v3.copy(p).project(cam); return [(v3.x * 0.5 + 0.5) * 1080, (-v3.y * 0.5 + 0.5) * 1920]; };
+    const A_LO = new T3.Vector3(-1.7, 1.95, 0.9), A_UP = new T3.Vector3(-1.7, FH + 1.95, 0.9), A_LEAK = new T3.Vector3(LEAK.x - 0.4, LEAK.y + 1.25, LEAK.z + 0.4), A_BUCK = new T3.Vector3(BX, 0.75, BZ);
+    const leakOn = (t) => 1 - E.io(seg(t, K.aft + 0.15, 0.6));
+    const grow = (t) => clamp(t / (K.aft + 0.2));
+    perFrame((t) => {
+      const L = leakOn(t), g = grow(t);
+      drops.forEach((d, i) => { const p = (((t + i * 0.6) / 1.2) % 1 + 1) % 1; d.position.set(BX, 2.12 - 1.66 * p * p, BZ); d.visible = L > 0.5 && p < 0.97; });
+      drip.visible = L > 0.5;
+      bw.position.y = 0.1 + 0.28 * g; bw.scale.setScalar(0.95 + 0.25 * g);
+      stain.material.opacity = (0.3 + 0.7 * clamp(g * 1.5)) * (1 - 0.4 * (1 - L));
+      spray.forEach((s, k) => { const p = (t * 1.3 + k / spray.length) % 1; s.position.set(LEAK.x - 0.4 * p - 0.03 * (k % 3), LEAK.y + 0.16 * p - 0.48 * p * p, LEAK.z + 0.3 * p + 0.03 * (k % 4)); s.visible = L > 0.3; });
+      const ps = (0.2 + 0.8 * clamp(g * 1.3)) * L; pud.scale.set(Math.max(1e-4, ps * 0.95), Math.max(1e-4, ps * 0.6), 1); pud.visible = ps > 0.01;
+      p1.rotation.y = 0.4 + Math.sin(t * 1.2) * 0.12; p2.rotation.y = -0.3 + Math.sin(t * 1.5 + 1) * 0.15;
+      const w = E.io(seg(t, K.slot + 0.25, 0.9)); plum.position.x = -2.3 + 2.45 * w; plum.visible = t > K.slot + 0.2;
+      const c = camT(t); cam.position.set(c.x + Math.sin(t * 0.3) * 0.2, c.y, c.z); cam.lookAt(c.lx, c.ly, 0);
+      scene.updateMatrixWorld(); cam.updateMatrixWorld();
+      [[seen[0], A_LO], [seen[1], A_UP], [up, A_LEAK], [ok, A_LEAK]].forEach(([e, a]) => { const [x, y] = proj(a); e.style.left = `${x}px`; e.style.top = `${y}px`; });
+      dripTx.forEach((e, i) => { const [x, y] = proj(A_BUCK); e.style.left = `${x + 70 + i * 20}px`; e.style.top = `${y - 200 - i * 40}px`; });
+      G.r.render(scene, cam);
+    });
+    const lk = el('div', 'x12lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
+  // ================= X13: New Year's meter reading — kinetic: midnight, empty note, January clash, entered once, both see same number =================
+  function X13() {
+    const de = lang === 'de';
+    const S = de ? {
+      nye: 'Silvester', meter: 'Zählerstand', note: 'Notiz', empty: '???', jan: 'Januar', a: '12.480', b: '12.840', r1: 'Mieter', r2: 'Vermieter',
+      card: 'Zählerstand · Whg 3', cardS: 'Heizung · 31.12. 23:58', unit: 'kWh', entered: 'einmal eingetragen ✓', same: 'dieselbe Zahl ✓', seen: 'sofort sichtbar',
+      bill: 'Abrechnung 2026', line: 'Heizung', zero: '0 Diskussionen', tag: 'für Mieter & Vermieter',
+    } : {
+      nye: "New Year's Eve", meter: 'Meter reading', note: 'Note', empty: '???', jan: 'January', a: '12,480', b: '12,840', r1: 'Tenant', r2: 'Landlord',
+      card: 'Meter reading · Unit 3', cardS: 'Heating · Dec 31, 11:58 pm', unit: 'kWh', entered: 'entered once ✓', same: 'same number ✓', seen: 'visible instantly',
+      bill: 'Statement 2026', line: 'Heating', zero: '0 debates', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.mid = W(['null', 'midnight']).start;
+    K.note = W(['notiert', 'reading']).start;
+    K.jan = W(['Januar', 'January']).start;
+    K.argue = W(['streiten', 'argue']).start;
+    K.zahl = W(['Zahl', 'number'], W(['streiten', 'argue']).i).start;
+    const it = W(['Mit', 'With'], W(['streiten', 'argue']).i); K.turn = it.start;
+    K.once = W(['einmal', 'once'], it.i).start;
+    K.both = W(['beide', 'both'], it.i).start;
+    K.same = W(['dieselbe', 'same'], it.i).start;
+    K.bill = W(['Abrechnung', 'statement'], it.i).start;
+    K.ohne = W(['ohne', 'without'], it.i).start;
+    const T = END + 2.1;
+    const digs = S.a.replace(/[^0-9]/g, '');
+    const fmt = (s) => (de ? s.replace(/(\d{2})(\d{3})$/, '$1.$2') : s.replace(/(\d{2})(\d{3})$/, '$1,$2'));
+
+    // ---- night sky with fireworks, fades to day at the turn ----
+    const bg = el('div', 'x13bg', '<i class="n"></i><i class="d"></i>');
+    const night = bg.querySelector('.n');
+    const fw = [...Array(5)].map((_, i) => el('i', 'x13fw', null, bg));
+    perFrame((t) => fw.forEach((f, i) => {
+      const per = 1.7, ph = (t + i * 0.37) % per, k = ph / per;
+      const on = t < K.jan - 0.3 ? 1 : 0;
+      f.style.left = `${120 + ((i * 197) % 840)}px`; f.style.top = `${120 + ((i * 131) % 380)}px`;
+      f.style.transform = `scale(${0.2 + 1.3 * E.oc(k)})`; f.style.opacity = `${on * (1 - k) * 0.9}`;
+      f.style.borderColor = ['#ffd36b', '#ff6b4a', '#7fd6ff', '#c49bff', '#1fbf72'][i];
+    }));
+    tl.to(night, { autoAlpha: 0, duration: 0.6, ease: 'power2.inOut' }, K.jan - 0.3);
+    // midnight clock
+    const clk = el('div', 'x13clk', `<small>${S.nye}</small><b><span class="h">23</span>:<span class="m">59</span></b>`);
+    const hh = clk.querySelector('.h'), mm = clk.querySelector('.m');
+    tl.set(clk, { xPercent: -50 }, 0);
+    tl.fromTo(clk, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: 'back.out(2)' }, 0.02);
+    tl.call(() => { hh.textContent = '00'; mm.textContent = '00'; }, null, K.mid);
+    tl.call(() => { hh.textContent = '23'; mm.textContent = '59'; }, null, Math.max(0.01, K.mid - 0.02));
+    tl.fromTo(clk, { scale: 1 }, { scale: 1.12, duration: 0.15, yoyo: true, repeat: 1, ease: 'power2.out', immediateRender: false }, K.mid);
+    sfx('pop', 0.05, -10); sfx('impact', K.mid, -12);
+    // meter with rolling odometer
+    const mt = el('div', 'x13mt', `<div class="hd">🔥 ${S.meter}</div><div class="od">${digs.split('').map(() => '<span><b class="r"><i>' + [...'0123456789'].join('</i><i>') + '</i></b></span>').join('')}<em>${S.unit}</em></div>`);
+    const cols = [...mt.querySelectorAll('.od span')];
+    tl.set(mt, { xPercent: -50 }, 0);
+    tl.fromTo(mt, { autoAlpha: 0, y: 80 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power3.out' }, 0.35);
+    perFrame((t) => {
+      const v = 12460 + Math.min(20, Math.floor(seg(t, 0.4, K.note - 0.4) * 20));
+      const s = String(v);
+      cols.forEach((c, i) => { c.firstChild.style.transform = `translateY(${-Number(s[i]) * 120}px)`; });
+    });
+    // empty note with question marks
+    const nt = el('div', 'x13nt', `<div class="hd">📝 ${S.note}</div><div class="ln"><span>${S.meter}:</span><b>${S.empty}</b></div>`);
+    const q = nt.querySelector('b');
+    tl.set(nt, { xPercent: -50 }, 0);
+    tl.fromTo(nt, { autoAlpha: 0, rotation: -8, y: 80 }, { autoAlpha: 1, rotation: -3, y: 0, duration: 0.4, ease: 'back.out(1.8)' }, K.note - 0.45);
+    tl.fromTo(q, { scale: 0.3, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.3, ease: 'back.out(3)', immediateRender: false }, K.note + 0.05);
+    sfx('whoosh', K.note - 0.45, -14); sfx('buzz', K.note + 0.1, -16);
+    tl.to([clk, mt, nt], { autoAlpha: 0, y: '-=90', duration: 0.3, ease: 'power2.in', stagger: 0.04 }, K.jan - 0.35);
+    // January: two different numbers clash
+    const jn = el('div', 'x13jan', `📅 ${S.jan}`);
+    tl.set(jn, { xPercent: -50 }, 0);
+    tl.fromTo(jn, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.jan - 0.05);
+    const bl = [[S.r1, S.a, 'l'], [S.r2, S.b, 'r']].map(([r, n, c]) => el('div', `x13bub ${c}`, `<small>${r}</small><b>${n}</b><em>${S.unit}</em>`));
+    bl.forEach((b, i) => {
+      tl.set(b, { autoAlpha: 0 }, 0);
+      tl.fromTo(b, { autoAlpha: 0, x: i ? 260 : -260, rotation: i ? 8 : -8 }, { autoAlpha: 1, x: 0, rotation: i ? 3 : -3, duration: 0.4, ease: 'back.out(1.8)', immediateRender: false }, K.argue - 0.2 + i * 0.35);
+      sfx('pop', K.argue - 0.15 + i * 0.35, -10);
+    });
+    const vs = el('div', 'x13vs', '⚡');
+    tl.set(vs, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(vs, { autoAlpha: 0, scale: 0.2 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(3)', immediateRender: false }, K.zahl - 0.1);
+    perFrame((t) => { const a = seg(t, K.zahl, 0.2) * (1 - seg(t, K.turn - 0.4, 0.1)); bl.forEach((b, i) => { b.style.translate = `${Math.sin(t * 40 + i) * 6 * a}px 0`; }); });
+    sfx('sting', K.zahl - 0.1, -12);
+    tl.to([jn, ...bl, vs], { autoAlpha: 0, y: '-=80', duration: 0.3, ease: 'power2.in', stagger: 0.03 }, K.turn - 0.32);
+    // Tenance card: reading typed in once
+    const cd = el('div', 'x13card', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.card}</b><small>${S.cardS}</small></div></div>
+      <div class="in"><span class="v"></span><i class="cur"></i><em>${S.unit}</em></div><div class="ok">${S.entered}</div>`);
+    const v = cd.querySelector('.v'), cur = cd.querySelector('.cur'), ok = cd.querySelector('.ok');
+    tl.set(cd, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(cd, { autoAlpha: 0, y: 260 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -9);
+    const tType = K.turn + 0.45, dType = Math.max(0.6, K.once - tType);
+    perFrame((t) => {
+      const n = Math.round(digs.length * seg(t, tType, dType));
+      v.textContent = n === digs.length ? fmt(digs) : digs.slice(0, n);
+      cur.style.opacity = (t < K.once + 0.2 && Math.floor(t * 4) % 2 === 0) ? 1 : 0;
+    });
+    sfx('typing', tType, -10);
+    tl.set(ok, { autoAlpha: 0 }, 0);
+    tl.fromTo(ok, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, K.once + 0.1);
+    sfx('chime', K.once + 0.15, -12);
+    tl.to(cd, { autoAlpha: 0, y: -140, scale: 0.85, duration: 0.32, ease: 'power2.in' }, K.both - 0.35);
+    // both phones show the same number
+    const ph = [S.r1, S.r2].map((r, i) => el('div', `x13ph ${i ? 'r' : 'l'}`, `<div class="tp"><span>${i ? '🏠' : '👤'}</span><b>${r}</b></div><small>${S.meter}</small><div class="n">${S.a}<em>${S.unit}</em></div><i class="okc">✓</i>`));
+    ph.forEach((p, i) => {
+      tl.set(p, { autoAlpha: 0 }, 0);
+      tl.fromTo(p, { autoAlpha: 0, y: 220, rotation: i ? 6 : -6 }, { autoAlpha: 1, y: 0, rotation: i ? 2 : -2, duration: 0.42, ease: 'back.out(1.6)', immediateRender: false }, K.both - 0.2 + i * 0.08);
+      const ck = p.querySelector('.okc');
+      tl.set(ck, { autoAlpha: 0 }, 0);
+      tl.fromTo(ck, { autoAlpha: 0, scale: 0.3 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(3)', immediateRender: false }, K.same + i * 0.08);
+    });
+    const eq = el('div', 'x13eq', '=');
+    tl.set(eq, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(eq, { autoAlpha: 0, scale: 0.3 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(3)', immediateRender: false }, K.same);
+    const sm = el('div', 'x13same', S.same);
+    tl.set(sm, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(sm, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, K.same + 0.2);
+    sfx('whoosh', K.both - 0.15, -12); sfx('pop', K.same, -10); sfx('chime', K.same + 0.25, -11);
+    tl.to([...ph, eq, sm], { autoAlpha: 0, y: '-=80', duration: 0.3, ease: 'power2.in', stagger: 0.03 }, K.bill - 0.35);
+    // statement: line item with the agreed number, zero debates
+    const bi = el('div', 'x13bill', `<div class="hd">🧾 ${S.bill}</div><div class="li"><span>🔥 ${S.line}</span><b>${S.a} ${S.unit}</b><em>✓</em></div><div class="li g"><span></span><b></b></div><div class="li g"><span></span><b></b></div><div class="z">${S.zero}</div>`);
+    const z = bi.querySelector('.z'), lck = bi.querySelector('.li em');
+    tl.set(bi, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(bi, { autoAlpha: 0, y: 200 }, { autoAlpha: 1, y: 0, duration: 0.42, ease: 'power4.out', immediateRender: false }, K.bill - 0.2);
+    tl.set([z, lck], { autoAlpha: 0 }, 0);
+    tl.fromTo(lck, { autoAlpha: 0, scale: 0.3 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(3)', immediateRender: false }, K.bill + 0.35);
+    tl.fromTo(z, { autoAlpha: 0, scale: 2, rotation: 0 }, { autoAlpha: 1, scale: 1, rotation: -5, duration: 0.22, ease: 'power4.in', immediateRender: false }, K.ohne);
+    sfx('receipts', K.bill - 0.2, -12); sfx('pop', K.bill + 0.35, -11); sfx('thud', K.ohne + 0.18, -8);
+    const lk = el('div', 'x13lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
+  // ================= X14: cold bathroom radiator — 3D radiator (frost -> warm), plumber "next week?", tenant picks slot, landlord confirms, Thu 8:00 heat on =================
+  function X14() {
+    const de = lang === 'de';
+    const S = de ? {
+      room: 'Bad', cold: '16 °C', warm: '22 °C', plumb: 'Installateur', next: 'nächste Woche', when: 'wann genau?', days: ['Mo', 'Di', 'Mi', 'Do', 'Fr'],
+      card: 'Termin wählen', cardS: 'Heizung Bad · Whg 3', times: ['08:00', '11:00', '14:00'], r1: 'Mieterin', r2: 'Vermieter', req: 'Do · 08:00 angefragt',
+      conf: 'Bestätigen', done: '✓ Bestätigt', slot: 'Do · 08:00', on: 'Heizung läuft ✓', tag: 'für Mieter & Vermieter',
+    } : {
+      room: 'Bathroom', cold: '61 °F', warm: '72 °F', plumb: 'Plumber', next: 'next week', when: 'when exactly?', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+      card: 'Pick a slot', cardS: 'Bathroom heating · Unit 3', times: ['8:00', '11:00', '2:00'], r1: 'Tenant', r2: 'Landlord', req: 'Thu · 8:00 a.m. requested',
+      conf: 'Confirm', done: '✓ Confirmed', slot: 'Thu · 8:00 a.m.', on: 'heat is on ✓', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.kalt = W(['kalt', 'cold']).start;
+    K.plumb = W(['Installateur', 'plumber']).start;
+    K.week = W(['Woche', 'week']).start;
+    K.when = W(['wann', 'when']).start;
+    const it = W(['Mit', 'With'], W(['wann', 'when']).i); K.turn = it.start;
+    K.pick = W(['wählt', 'picks'], it.i).start;
+    K.slot = W(['Termin', 'slot'], it.i).start;
+    K.ll = W(['Vermieter', 'landlord'], it.i).start;
+    K.conf = W(['bestätigt', 'confirms'], it.i).start;
+    K.tap = W(['Tipp', 'tap'], it.i).start;
+    K.thu = W(['Donnerstag', 'Thursday'], it.i).start;
+    K.heat = W(['läuft', 'back'], it.i).start;
+    const T = END + 2.1;
+    el('div', 'x14bg', '<i class="g"></i>');
+    // ---- 3D radiator ----
+    const G = gl3(stage, { fov: 30, envTop: '#ffffff', envBot: '#9fb3c4', envInt: 1.0 });
+    const { r, scene, cam } = G;
+    scene.add(new T3.HemisphereLight(0xffffff, 0x9fb3c4, 0.6));
+    const key = new T3.DirectionalLight(0xffffff, 1.6); key.position.set(-3, 5, 6); key.castShadow = true; key.shadow.mapSize.set(1024, 1024); scene.add(key);
+    const rig = new T3.Group(); scene.add(rig);
+    const radMat = M.phy('#dfe8f0', { roughness: 0.35, clearcoat: 0.8, emissive: new T3.Color('#ff5a1f'), emissiveIntensity: 0 });
+    const NC = 9, CW = 0.24;
+    for (let i = 0; i < NC; i++) mesh(new T3.CapsuleGeometry(0.1, 1.25, 8, 20), radMat, rig, [-(NC - 1) * CW / 2 + i * CW, 0, 0]);
+    mesh(new T3.CylinderGeometry(0.075, 0.075, NC * CW + 0.1, 20), radMat, rig, [0, 0.62, 0], [0, 0, Math.PI / 2]);
+    mesh(new T3.CylinderGeometry(0.075, 0.075, NC * CW + 0.1, 20), radMat, rig, [0, -0.62, 0], [0, 0, Math.PI / 2]);
+    const valve = mesh(new T3.CylinderGeometry(0.11, 0.11, 0.22, 24), M.std('#f4f6f8', { roughness: 0.3 }), rig, [(NC * CW) / 2 + 0.18, 0.62, 0.02], [0, 0, Math.PI / 2]);
+    mesh(new T3.CylinderGeometry(0.035, 0.035, 0.9, 12), M.std('#b9c3cc', { metalness: 0.7, roughness: 0.3 }), rig, [-(NC * CW) / 2 - 0.1, -1.05, 0]);
+    const wall = mesh(new T3.PlaneGeometry(14, 10), M.std('#eef3f6', { roughness: 0.9 }), scene, [0, 0, -0.35]);
+    wall.castShadow = false;
+    // tiles
+    const tileTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d'); x.fillStyle = '#eef3f6'; x.fillRect(0, 0, 256, 256); x.strokeStyle = '#d3dde4'; x.lineWidth = 6; for (let i = 0; i <= 256; i += 64) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 256); x.stroke(); x.beginPath(); x.moveTo(0, i); x.lineTo(256, i); x.stroke(); } const t = new T3.CanvasTexture(c); t.wrapS = t.wrapT = T3.RepeatWrapping; t.repeat.set(6, 4); t.colorSpace = T3.SRGBColorSpace; return t; })();
+    wall.material.map = tileTex; wall.material.color.set('#ffffff');
+    // frost + heat particles
+    const mkTex = (inner, outer) => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'); const g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, inner); g.addColorStop(1, outer); x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new T3.CanvasTexture(c); };
+    const frostT = mkTex('rgba(200,230,255,1)', 'rgba(200,230,255,0)'), heatT = mkTex('rgba(255,120,50,0.55)', 'rgba(255,120,60,0)');
+    const parts = [...Array(26)].map((_, i) => { const s = new T3.Sprite(new T3.SpriteMaterial({ map: frostT, transparent: true, depthWrite: false })); rig.add(s); return { s, ph: (i * 0.618) % 1, x: ((i * 37) % 23) / 23 - 0.5 }; });
+    const heat = [...Array(18)].map((_, i) => { const s = new T3.Sprite(new T3.SpriteMaterial({ map: heatT, transparent: true, depthWrite: false })); rig.add(s); return { s, ph: (i * 0.618) % 1, x: ((i * 41) % 19) / 19 - 0.5 }; });
+    const cold = new T3.Color('#bcd8f0'), hot = new T3.Color('#f3e6dc');
+    const camT = track([
+      [0, () => ({ x: 0.3, y: 0.15, z: 9.6, ry: -0.18, s: 1, py: 0.2 })],
+      [K.plumb - 0.2, () => ({ x: 0, y: 0.1, z: 12, ry: 0.05, s: 1, py: -0.25 })],
+      [K.turn - 0.1, () => ({ x: 0, y: 0.1, z: 12, ry: 0.05, s: 1, py: -0.25 })],
+      [K.turn + 0.4, () => ({ x: 0, y: 0.1, z: 12, ry: 0.05, s: 0, py: -0.25 })],
+      [K.thu - 0.2, () => ({ x: 0, y: 0.1, z: 12, ry: 0.05, s: 0, py: -0.25 })],
+      [K.thu + 0.4, () => ({ x: -0.2, y: 0.1, z: 9.4, ry: 0.16, s: 1, py: 0.15 })],
+      [T, () => ({ x: -0.35, y: 0.1, z: 8.8, ry: 0.22, s: 1, py: 0.15 })],
+    ]);
+    perFrame((t) => {
+      const p = camT(t);
+      cam.position.set(p.x, p.y, p.z); cam.lookAt(0, 0, 0);
+      rig.rotation.y = p.ry; rig.position.y = p.py; rig.scale.setScalar(Math.max(1e-4, p.s)); rig.visible = p.s > 0.01; wall.visible = rig.visible;
+      const w = E.io(seg(t, K.thu + 0.1, Math.max(0.8, K.heat - K.thu + 0.3)));
+      radMat.color.copy(cold).lerp(hot, w); radMat.emissiveIntensity = 0.32 * w;
+      valve.rotation.x = -2.2 * w;
+      parts.forEach((P) => { const k = (t * 0.25 + P.ph) % 1; P.s.position.set(P.x * 2.4, -0.7 + k * 1.6, 0.25 + 0.1 * Math.sin(P.ph * 9)); P.s.scale.setScalar(0.08 + 0.06 * Math.sin(P.ph * 7 + t)); P.s.material.opacity = (1 - w) * 0.85 * Math.sin(Math.PI * k); });
+      heat.forEach((P) => { const k = (t * 0.5 + P.ph) % 1; P.s.position.set(P.x * 2.2 + Math.sin(t * 2 + P.ph * 6) * 0.08, 0.7 + k * 1.4, 0.15); P.s.scale.setScalar(0.25 + 0.5 * k); P.s.material.opacity = w * 0.45 * Math.sin(Math.PI * k); });
+      r.render(scene, cam);
+    });
+    // temp chip
+    const tc = el('div', 'x14tmp', `<span>🛁 ${S.room}</span><b>${S.cold}</b>`);
+    const tb = tc.querySelector('b');
+    tl.set(tc, { xPercent: -50 }, 0);
+    tl.fromTo(tc, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'back.out(2)' }, 0.05);
+    tl.fromTo(tb, { scale: 1 }, { scale: 1.2, duration: 0.15, yoyo: true, repeat: 1, ease: 'power2.out', immediateRender: false }, K.kalt);
+    sfx('shiver', K.kalt - 0.1, -12);
+    tl.to(tc, { autoAlpha: 0, y: -60, duration: 0.3, ease: 'power2.in' }, K.plumb - 0.35);
+    // plumber calendar with question marks
+    const pc = el('div', 'x14cal', `<div class="hd">🔧 ${S.plumb}</div><small>${S.next}</small><div class="ds">${S.days.map((d) => `<span><b>${d}</b><i>?</i></span>`).join('')}</div><em>${S.when}</em>`);
+    const qs = [...pc.querySelectorAll('.ds i')], wh = pc.querySelector('em');
+    tl.set(pc, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(pc, { autoAlpha: 0, y: -60 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'back.out(1.6)', immediateRender: false }, K.plumb - 0.15);
+    tl.set(qs, { autoAlpha: 0 }, 0);
+    tl.fromTo(qs, { autoAlpha: 0, scale: 0.3 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(3)', stagger: 0.08, immediateRender: false }, K.week);
+    tl.set(wh, { autoAlpha: 0 }, 0);
+    tl.fromTo(wh, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.4)', immediateRender: false }, K.when);
+    perFrame((t) => { const a = seg(t, K.when, 0.2); qs.forEach((q, i) => { q.style.translate = `0 ${Math.sin(t * 6 + i) * 6 * a}px`; }); });
+    sfx('whoosh', K.plumb - 0.2, -13); sfx('pop', K.week, -12); sfx('buzz', K.when + 0.05, -16);
+    tl.to(pc, { autoAlpha: 0, y: -80, duration: 0.3, ease: 'power2.in' }, K.turn - 0.32);
+    // app: tenant picks a slot
+    const ap = el('div', 'x14app', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.card}</b><small>${S.cardS}</small></div><em>👤 ${S.r1}</em></div>
+      <div class="gr"><div class="c0"></div>${S.days.map((d) => `<div class="dh">${d}</div>`).join('')}
+      ${S.times.map((tm, ri) => `<div class="th">${tm}</div>${S.days.map((d, ci) => `<div class="sl ${(ri + ci) % 3 === 1 ? 'x' : ''}" data-k="${ri}-${ci}"></div>`).join('')}`).join('')}</div>
+      <div class="rqs">${S.req}</div><i class="tp"></i>`);
+    const pickCell = ap.querySelector('[data-k="0-3"]'), rq = ap.querySelector('.rqs'), tp = ap.querySelector('.tp');
+    pickCell.classList.remove('x');
+    tl.set(ap, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(ap, { autoAlpha: 0, y: 260 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -9);
+    tl.set(tp, { autoAlpha: 0 }, 0);
+    tl.fromTo(tp, { autoAlpha: 0, scale: 1.6, left: 820, top: 640 }, { autoAlpha: 1, scale: 1, left: 708, top: 242, duration: 0.45, ease: 'power3.out', immediateRender: false }, K.pick - 0.1);
+    tl.to(tp, { scale: 0.8, duration: 0.1, yoyo: true, repeat: 1 }, K.slot - 0.1);
+    tl.fromTo(pickCell, { backgroundColor: '#e8f3f5' }, { backgroundColor: '#2f8f9d', duration: 0.15, immediateRender: false }, K.slot - 0.05);
+    tl.to(tp, { autoAlpha: 0, duration: 0.2 }, K.slot + 0.3);
+    tl.set(rq, { autoAlpha: 0 }, 0);
+    tl.fromTo(rq, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.slot + 0.15);
+    sfx('pop', K.slot - 0.05, -9); sfx('send', K.slot + 0.2, -12);
+    tl.to(ap, { autoAlpha: 0, y: -120, scale: 0.85, duration: 0.32, ease: 'power2.in' }, K.ll - 0.4);
+    // landlord confirms with one tap
+    const lc = el('div', 'x14ll', `<div class="tp"><span>🏠</span><b>${S.r2}</b></div><div class="rqs">🔧 ${S.slot}<small>${S.cardS}</small></div><div class="bt"><span class="a">${S.conf}</span><span class="b">${S.done}</span></div><i class="fgr"></i>`);
+    const ba = lc.querySelector('.a'), bb = lc.querySelector('.b'), fg = lc.querySelector('.fgr'), btn = lc.querySelector('.bt');
+    tl.set(lc, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(lc, { autoAlpha: 0, y: 240, rotation: 3 }, { autoAlpha: 1, y: 0, rotation: 0, duration: 0.42, ease: 'back.out(1.5)', immediateRender: false }, K.ll - 0.2);
+    tl.set([bb, fg], { autoAlpha: 0 }, 0);
+    tl.fromTo(fg, { autoAlpha: 0, scale: 1.6, x: 140, y: 160 }, { autoAlpha: 1, scale: 1, x: 0, y: 0, duration: 0.4, ease: 'power3.out', immediateRender: false }, K.conf - 0.1);
+    const tTap = Math.max(K.conf + 0.35, K.tap - 0.1);
+    tl.to(btn, { scale: 0.92, duration: 0.08, yoyo: true, repeat: 1 }, tTap);
+    tl.to(ba, { autoAlpha: 0, duration: 0.12 }, tTap + 0.08);
+    tl.fromTo(bb, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, ease: 'back.out(2.6)', immediateRender: false }, tTap + 0.08);
+    tl.to(fg, { autoAlpha: 0, duration: 0.2 }, tTap + 0.35);
+    sfx('pop', tTap, -8); sfx('chime', tTap + 0.12, -11);
+    tl.to(lc, { autoAlpha: 0, y: -100, duration: 0.3, ease: 'power2.in' }, K.thu - 0.3);
+    // Thursday 8:00, heat on
+    const sb = el('div', 'x14slot', `📅 ${S.slot} <em>✓</em>`);
+    tl.set(sb, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(sb, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, K.thu - 0.05);
+    const tw = el('div', 'x14tmp w', `<span>🛁 ${S.room}</span><b>${S.cold}</b>`);
+    const twb = tw.querySelector('b');
+    tl.set(tw, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(tw, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.thu + 0.3);
+    tl.call(() => { twb.textContent = S.warm; }, null, K.heat - 0.1);
+    tl.call(() => { twb.textContent = S.cold; }, null, K.heat - 0.12);
+    tl.fromTo(twb, { scale: 1 }, { scale: 1.25, duration: 0.18, yoyo: true, repeat: 1, ease: 'power2.out', immediateRender: false }, K.heat - 0.1);
+    sfx('heater', K.thu + 0.3, -10); sfx('chime', K.heat, -11);
+    const lk = el('div', 'x14lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
+  // ================= X15: three problems lost in three chats -> three tickets with status both sides see: reported, seen, done =================
+  function X15() {
+    const de = lang === 'de';
+    const S = de ? {
+      p: [['🪟', 'Fenster zieht'], ['🔔', 'Klingel kaputt'], ['💡', 'Kellerlicht aus']], apps: [['💬', '#25d366'], ['✉️', '#2f7ff0'], ['📱', '#8e99a6']],
+      n1: '3 Nachrichten', n2: '3 Chats', read: 'gelesen · vor 5 Tagen', none: 'nichts passiert …',
+      board: 'Tickets · Lindenstr. 8', st: ['Gemeldet', 'Gesehen', 'Erledigt'], r1: 'Mieter', r2: 'Vermieter', vis: 'sichtbar für beide', tag: 'für Mieter & Vermieter',
+    } : {
+      p: [['🪟', 'Drafty window'], ['🔔', 'Doorbell broken'], ['💡', 'Basement light out']], apps: [['💬', '#25d366'], ['✉️', '#2f7ff0'], ['📱', '#8e99a6']],
+      n1: '3 messages', n2: '3 chats', read: 'read · 5 days ago', none: 'nothing happens …',
+      board: 'Tickets · Linden St', st: ['Reported', 'Seen', 'Done'], r1: 'Tenant', r2: 'Landlord', vis: 'visible to both', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.p = [W(['Fenster', 'window']).start, W(['Klingel', 'doorbell']).start, W(['Licht', 'basement']).start];
+    const i3 = W(['drei', 'three']); K.msg = i3.start;
+    K.chat = W(['drei', 'three'], i3.i).start;
+    K.nix = W(['nichts', 'nothing']).start;
+    const it = W(['Mit', 'With'], W(['nichts', 'nothing']).i); K.turn = it.start;
+    K.ticket = W(['Ticket', 'ticket'], it.i).start;
+    K.status = W(['Status', 'status'], it.i).start;
+    K.t1 = W(['Mieter', 'tenant'], it.i).start;
+    K.t2 = W(['Vermieter', 'landlord'], it.i).start;
+    K.rep = W(['Gemeldet', 'reported'], it.i).start;
+    K.seen = W(['gesehen', 'seen'], it.i).start;
+    K.done = W(['erledigt', 'done'], it.i).start;
+    const T = END + 2.1;
+    el('div', 'x15bg', '<i class="g"></i>');
+    // ---- hook: three chat bubbles from three apps ----
+    const bub = S.p.map(([ic, tx], i) => el('div', `x15bub b${i}`, `<span class="ap" style="background:${S.apps[i][1]}">${S.apps[i][0]}</span><div class="tx"><b>${ic} ${tx}</b><small>${S.read}</small></div>`));
+    bub.forEach((b, i) => {
+      tl.set(b, { autoAlpha: 0 }, 0);
+      tl.fromTo(b, { autoAlpha: 0, x: i % 2 ? 300 : -300, scale: 0.7 }, { autoAlpha: 1, x: 0, scale: 1, duration: 0.38, ease: 'back.out(1.8)', immediateRender: false }, Math.max(0.02, K.p[i] - 0.12));
+      sfx('pop', Math.max(0.05, K.p[i] - 0.1), -9);
+    });
+    const ct = el('div', 'x15cnt', `<span>${S.n1}</span><span>${S.n2}</span>`);
+    const cs = [...ct.querySelectorAll('span')];
+    tl.set(ct, { xPercent: -50 }, 0);
+    tl.set(cs, { autoAlpha: 0 }, 0);
+    tl.fromTo(cs[0], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.28, ease: 'back.out(2.6)', immediateRender: false }, K.msg);
+    tl.fromTo(cs[1], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.28, ease: 'back.out(2.6)', immediateRender: false }, K.chat);
+    sfx('buzz', K.msg, -15); sfx('buzz', K.chat, -15);
+    // nothing happens: bubbles grey out, "read 5 days ago", dust
+    const smalls = bub.map((b) => b.querySelector('small'));
+    tl.set(smalls, { autoAlpha: 0 }, 0);
+    tl.fromTo(smalls, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.25, stagger: 0.08, immediateRender: false }, K.nix);
+    tl.to(bub, { filter: 'grayscale(1)', opacity: 0.55, duration: 0.4, stagger: 0.06 }, K.nix + 0.1);
+    const no = el('div', 'x15none', S.none);
+    tl.set(no, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(no, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out', immediateRender: false }, K.nix + 0.15);
+    sfx('sting', K.nix, -16);
+    tl.to([ct, no], { autoAlpha: 0, duration: 0.25 }, K.turn - 0.3);
+    // ---- turn: bubbles fly into the ticket board ----
+    const bd = el('div', 'x15board', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.board}</b></div><span class="ey e1">👤 ${S.r1}</span><span class="ey e2">🏠 ${S.r2}</span></div>
+      ${S.p.map(([ic, tx], i) => `<div class="tk"><span class="id">#${101 + i}</span><b>${ic} ${tx}</b><span class="pl"><i class="s0">${S.st[0]}</i><i class="s1">${S.st[1]}</i><i class="s2">${S.st[2]}</i></span></div>`).join('')}
+      <div class="vs">👁 ${S.vis}</div>`);
+    const tks = [...bd.querySelectorAll('.tk')], pls = [...bd.querySelectorAll('.pl')], eys = [...bd.querySelectorAll('.ey')], vs = bd.querySelector('.vs');
+    tl.set(bd, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.to(bub, { autoAlpha: 0, y: 260, scale: 0.6, duration: 0.32, ease: 'power3.in', stagger: 0.05 }, K.turn - 0.25);
+    tl.fromTo(bd, { autoAlpha: 0, y: 220 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power4.out', immediateRender: false }, K.turn + 0.05);
+    sfx('whoosh', K.turn - 0.2, -9);
+    tl.set(tks, { autoAlpha: 0 }, 0);
+    tl.fromTo(tks, { autoAlpha: 0, x: -160 }, { autoAlpha: 1, x: 0, duration: 0.32, ease: 'back.out(1.8)', stagger: 0.12, immediateRender: false }, Math.min(K.ticket - 0.25, K.turn + 0.5));
+    tks.forEach((_, i) => sfx('pop', Math.min(K.ticket - 0.2, K.turn + 0.55) + i * 0.12, -12));
+    tl.set(pls, { autoAlpha: 0 }, 0);
+    tl.fromTo(pls, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(2.6)', stagger: 0.07, immediateRender: false }, K.status - 0.05);
+    sfx('chime', K.status, -13);
+    tl.set([...eys, vs], { autoAlpha: 0 }, 0);
+    tl.fromTo(eys[0], { autoAlpha: 0, y: -20 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'back.out(2.4)', immediateRender: false }, K.t1);
+    tl.fromTo(eys[1], { autoAlpha: 0, y: -20 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'back.out(2.4)', immediateRender: false }, K.t2);
+    tl.fromTo(vs, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.4)', immediateRender: false }, K.t2 + 0.35);
+    sfx('pop', K.t1, -12); sfx('pop', K.t2, -12);
+    // status progression on every ticket: reported -> seen -> done
+    const stepAt = [K.rep, K.seen, K.done];
+    pls.forEach((p) => {
+      const it3 = [...p.querySelectorAll('i')];
+      tl.set(it3, { autoAlpha: 0 }, 0);
+      tl.set(it3[0], { autoAlpha: 1 }, K.status - 0.05);
+      [1, 2].forEach((k) => { tl.set(it3[k - 1], { autoAlpha: 0 }, stepAt[k] - 0.02); tl.fromTo(it3[k], { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.22, ease: 'back.out(3)', immediateRender: false }, stepAt[k] - 0.02); });
+    });
+    const tr = el('div', 'x15trk', `${S.st.map((s, i) => `<span class="k${i}"><i>${i + 1}</i><b>${s}</b></span>`).join('<em></em>')}`);
+    const st = [...tr.querySelectorAll('span')], ln = [...tr.querySelectorAll('em')];
+    tl.set(tr, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(tr, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power3.out', immediateRender: false }, K.rep - 0.25);
+    st.forEach((s, i) => { tl.fromTo(s, { opacity: 0.35 }, { opacity: 1, duration: 0.2, immediateRender: false }, stepAt[i] - 0.02); tl.fromTo(s, { scale: 1 }, { scale: 1.15, duration: 0.12, yoyo: true, repeat: 1, immediateRender: false }, stepAt[i]); sfx(i === 2 ? 'chime' : 'pop', stepAt[i], i === 2 ? -9 : -11); });
+    ln.forEach((l, i) => tl.fromTo(l, { scaleX: 0 }, { scaleX: 1, duration: Math.max(0.2, stepAt[i + 1] - stepAt[i] - 0.1), ease: 'none', immediateRender: false }, stepAt[i] + 0.05));
+    tl.to(bd, { y: -40, duration: 0.3, ease: 'power2.out' }, K.rep - 0.3);
+    const lk = el('div', 'x15lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
+  // ================= X16: 3 utility line items countdown — statement with "?" lines, 3-2-1 item cards, then each line with receipt, ? -> ✓, no fights =================
+  function X16() {
+    const de = lang === 'de';
+    const S = de ? {
+      doc: 'Nebenkostenabrechnung 2025', sub: 'Wohnung 3 · Lindenstr. 8', items: [['🔥', 'Heizung', '1.240 €'], ['💧', 'Wasser', '386 €'], ['🧹', 'Hausmeister', '214 €']],
+      q: '3 Fragen', card: 'Nebenkosten 2025', rec: 'Beleg', r1: 'Mieter', r2: 'Vermieter', stamp: '0 Streit', tag: 'für Mieter & Vermieter',
+    } : {
+      doc: 'Utility statement 2025', sub: 'Unit 3 · 8 Linden St', items: [['🔥', 'Heating', '$1,240'], ['💧', 'Water', '$386'], ['🧹', 'Caretaker', '$214']],
+      q: '3 questions', card: 'Utilities 2025', rec: 'Receipt', r1: 'Tenant', r2: 'Landlord', stamp: '0 fights', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.q = W(['Fragen', 'questions']).start;
+    const i3 = W(['Drei', 'Three'], W(['Fragen', 'questions']).i); K.n3 = i3.start;
+    const i2 = W(['Zwei', 'Two'], i3.i); K.n2 = i2.start;
+    const i1 = W(['Eins', 'One'], i2.i); K.n1 = i1.start;
+    const it = W(['Mit', 'With'], i1.i); K.turn = it.start;
+    K.t1 = W(['Mieter', 'tenant'], it.i).start;
+    K.t2 = W(['Vermieter', 'landlord'], it.i).start;
+    K.rec = W(['Beleg', 'receipt'], it.i).start;
+    K.clear = W(['klären', 'answered'], it.i).start;
+    K.fight = W(['Streit', 'fights'], it.i).start;
+    const T = END + 2.1;
+    const NT = [K.n3, K.n2, K.n1];
+    el('div', 'x16bg', '<i class="g"></i>');
+    // hook: long statement, three lines flagged with "?"
+    const sd = el('div', 'x16doc', `<div class="hd"><b>🧾 ${S.doc}</b><small>${S.sub}</small></div>${[...Array(9)].map((_, i) => `<div class="ln ${[1, 4, 7].includes(i) ? 'f' : ''}"><i style="width:${40 + ((i * 23) % 35)}%"></i><em></em></div>`).join('')}`);
+    const flags = [...sd.querySelectorAll('.ln.f')];
+    tl.set(sd, { xPercent: -50 }, 0);
+    tl.fromTo(sd, { autoAlpha: 0, y: 240, rotation: -4 }, { autoAlpha: 1, y: 0, rotation: -2, duration: 0.5, ease: 'power4.out' }, 0.02);
+    sfx('receipts', 0.05, -12);
+    flags.forEach((f, i) => {
+      const qq = el('span', 'x16q', '?', f);
+      tl.set(qq, { autoAlpha: 0 }, 0);
+      tl.fromTo(qq, { autoAlpha: 0, scale: 0.2 }, { autoAlpha: 1, scale: 1, duration: 0.28, ease: 'back.out(3)', immediateRender: false }, K.q + i * 0.12);
+      tl.fromTo(f, { backgroundColor: 'rgba(255,107,74,0)' }, { backgroundColor: 'rgba(255,107,74,0.14)', duration: 0.2, immediateRender: false }, K.q + i * 0.12);
+      sfx('pop', K.q + i * 0.12, -12);
+    });
+    const qb = el('div', 'x16qb', S.q);
+    tl.set(qb, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(qb, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, K.q + 0.45);
+    tl.to([sd, qb], { autoAlpha: 0, y: '-=120', scale: 0.8, duration: 0.32, ease: 'power2.in' }, K.n3 - 0.35);
+    // countdown 3-2-1: big number + item card
+    const big = el('div', 'x16big', '<span>3</span>');
+    const bn = big.querySelector('span');
+    tl.set(big, { xPercent: -50, autoAlpha: 0 }, 0);
+    const cards = S.items.map(([ic, nm, am], i) => el('div', `x16it c${i}`, `<i>${ic}</i><b>${nm}</b><span>${am}</span><em>?</em>`));
+    NT.forEach((t0, i) => {
+      tl.call(() => { bn.textContent = String(3 - i); }, null, t0 - 0.06);
+      if (i) tl.call(() => { bn.textContent = String(4 - i); }, null, t0 - 0.08);
+      tl.fromTo(big, { autoAlpha: 0, scale: 2.4 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'power4.in', immediateRender: false }, t0 - 0.06);
+      sfx('impact', t0 + 0.22, -9);
+      const c = cards[i];
+      tl.set(c, { autoAlpha: 0, xPercent: -50 }, 0);
+      tl.fromTo(c, { autoAlpha: 0, y: 160, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.38, ease: 'back.out(1.7)', immediateRender: false }, t0 + 0.3);
+      sfx('whoosh', t0 + 0.25, -14);
+      if (i < 2) tl.to(c, { y: -260 + i * 0, scale: 0.62, autoAlpha: 0.0, duration: 0.3, ease: 'power2.in' }, NT[i + 1] - 0.32);
+    });
+    tl.to([big, cards[2]], { autoAlpha: 0, y: '-=100', duration: 0.3, ease: 'power2.in' }, K.turn - 0.32);
+    // turn: Tenance statement, every line with its receipt, both roles see it
+    const ap = el('div', 'x16app', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.card}</b><small>${S.sub}</small></div></div>
+      <div class="rl"><span class="r1">👤 ${S.r1}</span><span class="r2">🏠 ${S.r2}</span></div>
+      ${S.items.map(([ic, nm, am]) => `<div class="li"><i>${ic}</i><b>${nm}</b><span>${am}</span><u>📎 ${S.rec}</u><em class="qq">?</em><em class="ok">✓</em></div>`).join('')}
+      <div class="st">${S.stamp}</div>`);
+    const rows = [...ap.querySelectorAll('.li')], recs = [...ap.querySelectorAll('.li u')], qs = [...ap.querySelectorAll('.qq')], oks = [...ap.querySelectorAll('.ok')], rls = [...ap.querySelectorAll('.rl span')], st = ap.querySelector('.st');
+    tl.set(ap, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(ap, { autoAlpha: 0, y: 240 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -9);
+    tl.set(rows, { autoAlpha: 0 }, 0);
+    tl.fromTo(rows, { autoAlpha: 0, x: -120 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'back.out(1.8)', stagger: 0.1, immediateRender: false }, K.turn + 0.3);
+    tl.set([...rls, ...recs, ...oks, st], { autoAlpha: 0 }, 0);
+    tl.fromTo(rls[0], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(2.6)', immediateRender: false }, K.t1);
+    tl.fromTo(rls[1], { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(2.6)', immediateRender: false }, K.t2);
+    sfx('pop', K.t1, -12); sfx('pop', K.t2, -12);
+    tl.fromTo(recs, { autoAlpha: 0, x: 80, rotation: 8 }, { autoAlpha: 1, x: 0, rotation: 0, duration: 0.3, ease: 'back.out(2)', stagger: 0.12, immediateRender: false }, K.rec - 0.35);
+    recs.forEach((_, i) => sfx('pop', K.rec - 0.3 + i * 0.12, -13));
+    tl.to(qs, { autoAlpha: 0, scale: 0.3, duration: 0.15, stagger: 0.1 }, K.clear - 0.05);
+    tl.fromTo(oks, { autoAlpha: 0, scale: 0.3 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(3)', stagger: 0.1, immediateRender: false }, K.clear);
+    sfx('chime', K.clear + 0.2, -11);
+    tl.fromTo(st, { autoAlpha: 0, scale: 2.2, rotation: 0 }, { autoAlpha: 1, scale: 1, rotation: -6, duration: 0.22, ease: 'power4.in', immediateRender: false }, K.fight - 0.05);
+    sfx('thud', K.fight + 0.17, -8);
+    const lk = el('div', 'x16lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
+  // ================= X17: building overview — 3D 8-unit building (cutaway grid), sticky notes chaos, overview card with unit status, broadcast to all tenants =================
+  function X17() {
+    const de = lang === 'de';
+    const S = de ? {
+      notes: ['Whg 2 zieht aus!', 'Besichtigung Do 17h', 'Whg 6 Kündigung', 'Schlüssel?', 'Zähler Whg 4'], cnt: ['8 Wohnungen', '2 Auszüge', '1 Besichtigung'],
+      card: 'Hausüberblick', cardS: 'Lindenstr. 8 · 8 Einheiten', st: { ok: 'bewohnt', out: 'Auszug', view: 'Besichtigung' }, unit: (n) => `Whg ${n}`,
+      msg: '📣 Info ans Haus', msgT: 'Wasser aus: Di 9–11 Uhr', got: 'an alle 8 ✓', one: 'Ein Haus · ein Stand', tag: 'für Mieter & Vermieter',
+    } : {
+      notes: ['Unit 2 moving out!', 'Viewing Thu 5pm', 'Unit 6 notice', 'Keys?', 'Meter unit 4'], cnt: ['8 units', '2 move-outs', '1 viewing'],
+      card: 'Building overview', cardS: '8 Linden St · 8 units', st: { ok: 'occupied', out: 'move-out', view: 'viewing' }, unit: (n) => `Unit ${n}`,
+      msg: '📣 Building update', msgT: 'Water off: Tue 9–11 am', got: 'sent to all 8 ✓', one: 'One building · one status', tag: 'for tenants & landlords',
+    };
+    const STAT = ['ok', 'out', 'ok', 'ok', 'view', 'out', 'ok', 'ok']; // units 1..8 (bottom-left first)
+    const K = {};
+    K.n8 = W(['Acht', 'Eight']).start;
+    K.n2 = W(['zwei', 'two']).start;
+    K.n1 = W(['eine', 'one']).start;
+    K.jug = W(['jongliert', 'juggling']).start;
+    const it = W(['Tenance', 'Tenance'], W(['jongliert', 'juggling']).i); K.turn = words[it.i - 1].start;
+    K.ov = W(['Hausüberblick', 'overview'], it.i).start;
+    K.glance = W(['Blick', 'glance'], it.i).start;
+    K.ten = W(['Mieter', 'tenants'], it.i).start;
+    K.info = W(['Info', 'update'], it.i).start;
+    K.one = W(['Ein', 'One'], it.i).start;
+    const T = END + 2.1;
+    el('div', 'x17bg', '<i class="g"></i>');
+    // ---- 3D building ----
+    const G = gl3(stage, { fov: 30, envTop: '#ffffff', envBot: '#a7b6c6', envInt: 1.0 });
+    const { r, scene, cam } = G;
+    scene.add(new T3.HemisphereLight(0xffffff, 0xa7b6c6, 0.7));
+    const key = new T3.DirectionalLight(0xffffff, 1.8); key.position.set(-5, 9, 8); key.castShadow = true; key.shadow.mapSize.set(1024, 1024);
+    Object.assign(key.shadow.camera, { left: -6, right: 6, top: 7, bottom: -4, near: 1, far: 30 }); scene.add(key);
+    const floor = new T3.Mesh(new T3.PlaneGeometry(40, 40), new T3.ShadowMaterial({ opacity: 0.18 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -0.02; floor.receiveShadow = true; scene.add(floor);
+    const B = new T3.Group(); scene.add(B);
+    const UW = 1.6, UH = 1.15, D = 1.6, SL = 0.12;
+    const wallM = M.std('#f4efe6', { roughness: 0.8 }), slabM = M.std('#d9d2c4', { roughness: 0.7 });
+    mesh(new T3.BoxGeometry(2 * UW + 0.24, SL, D + 0.2), slabM, B, [0, SL / 2, 0]);
+    const COL = { ok: new T3.Color('#1fbf72'), out: new T3.Color('#ff8a3d'), view: new T3.Color('#4b6bff'), off: new T3.Color('#c8ccd2') };
+    const units = [];
+    for (let f = 0; f < 4; f++) for (let c = 0; c < 2; c++) {
+      const u = new T3.Group(); B.add(u);
+      const x = (c - 0.5) * UW, y = SL + f * (UH + SL);
+      u.position.set(x, y, 0);
+      mesh(new T3.BoxGeometry(UW, SL, D), slabM, u, [0, UH + SL / 2, 0]);
+      mesh(new T3.BoxGeometry(0.06, UH, D), wallM, u, [c ? UW / 2 - 0.03 : -UW / 2 + 0.03, UH / 2, 0]);
+      const glow = M.std('#f4efe6', { emissive: COL.off.clone(), emissiveIntensity: 0.0, roughness: 0.8 });
+      mesh(new T3.BoxGeometry(UW, UH, 0.06), glow, u, [0, UH / 2, -D / 2 + 0.03]);
+      const fl = mesh(new T3.BoxGeometry(UW - 0.1, 0.03, D - 0.1), M.std('#e9e1d2', { roughness: 0.7 }), u, [0, 0.02, 0]);
+      mesh(new T3.BoxGeometry(0.62, 0.5, 0.03), M.std('#ffffff', { emissive: new T3.Color('#fff6dc'), emissiveIntensity: 0.5 }), u, [0, UH * 0.55, -D / 2 + 0.08]);
+      // tiny furniture: sofa / table / bed by index
+      const k = f * 2 + c;
+      if (k % 3 === 0) mesh(rbox(0.6, 0.22, 0.28, 0.06), M.std('#7e9bb5'), u, [-0.3, 0.14, -0.4]);
+      if (k % 3 === 1) mesh(new T3.CylinderGeometry(0.2, 0.2, 0.05, 20), M.std('#c49a6c'), u, [0.25, 0.32, 0.1]);
+      if (k % 3 === 2) mesh(rbox(0.5, 0.14, 0.7, 0.05), M.std('#e9ecef'), u, [0.3, 0.1, -0.2]);
+      if (STAT[k] === 'out') [0, 1].forEach((b) => mesh(rbox(0.26, 0.22, 0.26, 0.03), M.std('#c8a06e'), u, [-0.35 + b * 0.32, 0.13 + 0, 0.35]));
+      units.push({ u, glow, k });
+    }
+    mesh(new T3.BoxGeometry(2 * UW + 0.24, 0.2, D + 0.24), M.std('#8f97a3', { roughness: 0.6 }), B, [0, SL + 4 * (UH + SL) + 0.1, 0]);
+    const camT = track([
+      [0, () => ({ x: 2.8, y: 3.2, z: 17.5, ly: 2.2, ry: -0.35 })],
+      [K.jug, () => ({ x: 1.2, y: 3.2, z: 18, ly: 2.2, ry: -0.2 })],
+      [K.turn + 0.3, () => ({ x: 0, y: 3.8, z: 19, ly: 1.4, ry: 0 })],
+      [K.one - 0.3, () => ({ x: 0, y: 3.8, z: 19, ly: 1.4, ry: 0 })],
+      [K.one + 0.5, () => ({ x: -1.6, y: 3.3, z: 17, ly: 2.2, ry: 0.28 })],
+      [T, () => ({ x: -2.1, y: 3.3, z: 16.5, ly: 2.2, ry: 0.32 })],
+    ]);
+    perFrame((t) => {
+      const p = camT(t);
+      cam.position.set(p.x, p.y, p.z); cam.lookAt(0, p.ly, 0); B.rotation.y = p.ry;
+      units.forEach(({ glow, k }) => {
+        const on8 = seg(t, K.n8 + k * 0.06, 0.2);
+        const st = STAT[k];
+        const lit = st === 'out' ? seg(t, K.n2, 0.3) : st === 'view' ? seg(t, K.n1, 0.3) : 0;
+        const c = COL.off.clone().lerp(st === 'ok' ? COL.off : COL[st], lit);
+        const ovr = seg(t, K.ov, 0.4);
+        if (ovr > 0) c.lerp(COL[st], ovr);
+        const ping = Math.max(0, 1 - Math.abs(t - (K.info + 0.25 + k * 0.05)) * 4);
+        glow.emissive.copy(c).lerp(new T3.Color('#ffd36b'), ping);
+        glow.emissiveIntensity = 0.75 * Math.max(lit, ovr, ping); glow.color.set('#f4efe6').lerp(c, 0.55 * Math.max(lit, ovr, ping));
+      });
+      r.render(scene, cam);
+    });
+    // counters
+    const ct = el('div', 'x17cnt', S.cnt.map((s) => `<span>${s}</span>`).join(''));
+    const cs = [...ct.querySelectorAll('span')];
+    tl.set(ct, { xPercent: -50 }, 0);
+    tl.set(cs, { autoAlpha: 0 }, 0);
+    [K.n8, K.n2, K.n1].forEach((t0, i) => { tl.fromTo(cs[i], { autoAlpha: 0, y: 30, scale: 0.6 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.3, ease: 'back.out(2.4)', immediateRender: false }, Math.max(0.02, t0 - 0.05)); sfx('pop', Math.max(0.05, t0), -10); });
+    // sticky notes juggling around the building
+    const notes = S.notes.map((n, i) => el('div', `x17note n${i}`, n));
+    notes.forEach((n, i) => {
+      tl.set(n, { autoAlpha: 0 }, 0);
+      tl.fromTo(n, { autoAlpha: 0, scale: 0.3, rotation: (i % 2 ? 1 : -1) * 30 }, { autoAlpha: 1, scale: 1, rotation: (i % 2 ? 1 : -1) * 6, duration: 0.3, ease: 'back.out(2.2)', immediateRender: false }, K.jug - 0.4 + i * 0.12);
+      sfx('pop', K.jug - 0.35 + i * 0.12, -14);
+    });
+    perFrame((t) => { const a = seg(t, K.jug, 0.3); notes.forEach((n, i) => { n.style.translate = `${Math.sin(t * 2.4 + i * 1.7) * 26 * a}px ${Math.cos(t * 2.1 + i) * 22 * a}px`; }); });
+    tl.to([...notes, ct], { autoAlpha: 0, scale: 0.4, duration: 0.28, ease: 'power2.in', stagger: 0.03 }, K.turn - 0.32);
+    // overview card with 8 unit tiles
+    const ov = el('div', 'x17ov', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.card}</b><small>${S.cardS}</small></div></div>
+      <div class="gr">${[3, 2, 1, 0].map((f) => [0, 1].map((c) => { const k = f * 2 + c; return `<div class="u ${STAT[k]}"><b>${S.unit(k + 1)}</b><span>${S.st[STAT[k]]}</span></div>`; }).join('')).join('')}</div>`);
+    const tiles = [...ov.querySelectorAll('.u')];
+    tl.set(ov, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(ov, { autoAlpha: 0, y: -120 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -9);
+    tl.set(tiles, { autoAlpha: 0 }, 0);
+    tl.fromTo(tiles, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(2.2)', stagger: 0.05, immediateRender: false }, K.ov - 0.1);
+    sfx('counter', K.ov, -14); sfx('chime', K.glance, -12);
+    tl.to(ov, { autoAlpha: 0, y: -80, duration: 0.3, ease: 'power2.in' }, K.ten - 0.35);
+    // broadcast to all tenants
+    const ms = el('div', 'x17msg', `<small>${S.msg}</small><b>${S.msgT}</b><em>${S.got}</em>`);
+    const got = ms.querySelector('em');
+    tl.set(ms, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(ms, { autoAlpha: 0, y: -60, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(1.8)', immediateRender: false }, K.ten - 0.15);
+    tl.set(got, { autoAlpha: 0 }, 0);
+    tl.fromTo(got, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, ease: 'back.out(2.6)', immediateRender: false }, K.info + 0.6);
+    sfx('send', K.info, -10); [0, 1, 2, 3].forEach((i) => sfx('pop', K.info + 0.3 + i * 0.1, -16)); sfx('chime', K.info + 0.65, -12);
+    tl.to(ms, { autoAlpha: 0, y: -60, duration: 0.3, ease: 'power2.in' }, K.one - 0.35);
+    const on = el('div', 'x17one', S.one);
+    tl.set(on, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(on, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2.2)', immediateRender: false }, K.one);
+    sfx('impact', K.one + 0.05, -11);
+    const lk = el('div', 'x17lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
+  // ================= X18: notice in December -> empty January? one plan (move-out, viewings, next tenant), 3D key handed over 31st -> 1st, zero empty days =================
+  function X18() {
+    const de = lang === 'de';
+    const S = de ? {
+      notice: 'Kündigung', noticeS: 'Whg 3 · zum 31.12.', jan: 'Januar', empty: 'leer?', rent: '0 € Miete',
+      card: 'Mieterwechsel · Whg 3', rows: [['📦', 'Auszug', '31.12.'], ['👀', 'Besichtigungen', '10. · 14. · 18.12.'], ['✍️', 'Nachmieter', 'unterschrieben ✓']], vis: 'für beide sichtbar', r1: 'Mieter', r2: 'Vermieter',
+      out: 'Übergabe 31.12.', in: 'Einzug 1.1.', zero: '0 Tage Leerstand', days: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'], tag: 'für Mieter & Vermieter',
+    } : {
+      notice: 'Notice', noticeS: 'Unit 3 · ends Dec 31', jan: 'January', empty: 'empty?', rent: '$0 rent',
+      card: 'Tenant change · Unit 3', rows: [['📦', 'Move-out', 'Dec 31'], ['👀', 'Viewings', 'Dec 10 · 14 · 18'], ['✍️', 'Next tenant', 'signed ✓']], vis: 'visible to both', r1: 'Tenant', r2: 'Landlord',
+      out: 'Handover Dec 31', in: 'Move-in Jan 1', zero: '0 empty days', days: ['M', 'T', 'W', 'T', 'F', 'S', 'S'], tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.dec = W(['Dezember', 'December']).start;
+    K.empty = W(['leeren', 'empty']).start;
+    K.jan = W(['Januar', 'January']).start;
+    const it = W(['Tenance', 'Tenance'], W(['Januar', 'January']).i); K.turn = words[it.i - 1].start;
+    K.out = W(['Auszug', 'move-out'], it.i).start;
+    K.view = W(['Besichtigungen', 'viewings'], it.i).start;
+    K.next = W(['Nachmieter', 'next'], it.i).start;
+    K.both = W(['beide', 'both'], it.i).start;
+    K.hand = W(['Übergabe', 'Handover'], it.i).start;
+    K.d31 = W(['einunddreißigsten', 'thirty-first'], it.i).start;
+    K.in = W(['Einzug', 'move-in'], it.i).start;
+    K.d1 = W(['ersten', 'first'], W(['Einzug', 'move-in'], it.i).i).start;
+    K.zero = W(['Null', 'Zero'], it.i).start;
+    const T = END + 2.1;
+    el('div', 'x18bg', '<i class="g"></i>');
+    // ---- 3D key ----
+    const G = gl3(stage, { fov: 30, envTop: '#ffffff', envBot: '#6d5a3a', envInt: 1.2 });
+    const { r, scene, cam } = G;
+    cam.position.set(0, 0, 12); cam.lookAt(0, 0, 0);
+    scene.add(new T3.HemisphereLight(0xffffff, 0x8a7a5a, 0.8));
+    const kl = new T3.DirectionalLight(0xffffff, 2.2); kl.position.set(-3, 5, 7); scene.add(kl);
+    const gold = M.phy('#e2b23c', { metalness: 1, roughness: 0.22, clearcoat: 0.4 });
+    const KEY = new T3.Group(); scene.add(KEY);
+    mesh(new T3.TorusGeometry(0.42, 0.13, 20, 48), gold, KEY, [-1.0, 0, 0]);
+    mesh(new T3.CylinderGeometry(0.1, 0.1, 1.7, 24), gold, KEY, [0.25, 0, 0], [0, 0, Math.PI / 2]);
+    [[0.75, 0.22], [0.92, 0.16], [1.05, 0.26]].forEach(([x, h]) => mesh(new T3.BoxGeometry(0.11, h, 0.12), gold, KEY, [x, -0.1 - h / 2 + 0.05, 0]));
+    const tagM = M.std('#ff6b4a', { roughness: 0.5 });
+    const tag = mesh(rbox(0.7, 0.45, 0.06, 0.08), tagM, KEY, [-1.75, -0.35, 0], [0, 0, 0.4]);
+    const keyT = track([
+      [0, () => ({ x: 0, y: 3.5, z: 0, s: 0, ry: 0 })],
+      [K.hand - 0.3, () => ({ x: -0.35, y: 0.2, z: 0, s: 0, ry: 0 })],
+      [K.hand + 0.1, () => ({ x: -0.35, y: 0.2, z: 0, s: 0.72, ry: 0.3 })],
+      [K.d31 + 0.3, () => ({ x: -0.3, y: 0.2, z: 0, s: 0.72, ry: 0.5 })],
+      [K.in + 0.1, () => ({ x: 0.3, y: 0.2, z: 0.6, s: 0.72, ry: 2.6 })],
+      [K.zero - 0.2, () => ({ x: 0.35, y: 0.2, z: 0, s: 0.72, ry: 3.0 })],
+      [K.zero + 0.1, () => ({ x: 0.35, y: 0.2, z: 0, s: 0, ry: 3.4 })],
+      [T, () => ({ x: 0.35, y: 0.2, z: 0, s: 0, ry: 3.4 })],
+    ]);
+    perFrame((t) => {
+      const p = keyT(t);
+      KEY.position.set(p.x, p.y + Math.sin(t * 2) * 0.06, p.z); KEY.scale.setScalar(Math.max(1e-4, p.s)); KEY.visible = p.s > 0.01;
+      KEY.rotation.set(0.25, p.ry, Math.sin(t * 1.6) * 0.12);
+      const arc = seg(t, K.d31 + 0.3, Math.max(0.3, K.in - K.d31 - 0.2));
+      KEY.position.y += Math.sin(Math.PI * arc) * 0.8;
+      r.render(scene, cam);
+    });
+    // hook: notice letter + empty January
+    const nt = el('div', 'x18not', `<i>✉️</i><div><b>${S.notice}</b><small>${S.noticeS}</small></div>`);
+    tl.set(nt, { xPercent: -50 }, 0);
+    tl.fromTo(nt, { autoAlpha: 0, y: -80, rotation: -6 }, { autoAlpha: 1, y: 0, rotation: -2, duration: 0.45, ease: 'back.out(1.8)' }, 0.02);
+    sfx('pop', 0.05, -9); sfx('thud', K.dec, -12);
+    const cal = el('div', 'x18cal', `<div class="hd"><b>${S.jan}</b><em>${S.empty}</em></div><div class="dn">${S.days.map((d) => `<span>${d}</span>`).join('')}</div><div class="gr">${[...Array(31)].map((_, i) => `<i>${i + 1}</i>`).join('')}</div><div class="rn">${S.rent}</div><div class="z">${S.zero}</div>`);
+    const cells = [...cal.querySelectorAll('.gr i')], em = cal.querySelector('.hd em'), rn = cal.querySelector('.rn'), zz = cal.querySelector('.z');
+    tl.set(cal, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(cal, { autoAlpha: 0, y: 200 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power4.out', immediateRender: false }, K.empty - 0.35);
+    tl.set([em, rn, zz], { autoAlpha: 0 }, 0);
+    tl.fromTo(em, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.28, ease: 'back.out(2.6)', immediateRender: false }, K.jan);
+    tl.fromTo(rn, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.28, ease: 'back.out(2)', immediateRender: false }, K.jan + 0.3);
+    sfx('whoosh', K.empty - 0.3, -13); sfx('sting', K.jan, -14);
+    tl.to([nt, cal], { autoAlpha: 0, y: '-=100', duration: 0.3, ease: 'power2.in', stagger: 0.04 }, K.turn - 0.32);
+    // the plan card
+    const pl = el('div', 'x18plan', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.card}</b></div></div>
+      ${S.rows.map(([ic, nm, d]) => `<div class="rw"><i>${ic}</i><b>${nm}</b><span>${d}</span></div>`).join('')}<div class="vs"><span>👤 ${S.r1}</span><span>🏠 ${S.r2}</span><em>👁 ${S.vis}</em></div>`);
+    const rws = [...pl.querySelectorAll('.rw')], vs = pl.querySelector('.vs');
+    tl.set(pl, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(pl, { autoAlpha: 0, y: 240 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -9);
+    tl.set([...rws, vs], { autoAlpha: 0 }, 0);
+    [K.out, K.view, K.next].forEach((t0, i) => { tl.fromTo(rws[i], { autoAlpha: 0, x: -140 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'back.out(1.8)', immediateRender: false }, t0 - 0.12); sfx('pop', t0 - 0.1, -11); });
+    tl.fromTo(vs, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.4)', immediateRender: false }, K.both - 0.1);
+    sfx('chime', K.both, -12);
+    tl.to(pl, { autoAlpha: 0, y: -100, duration: 0.3, ease: 'power2.in' }, K.hand - 0.35);
+    // handover tags, key travels
+    const to = el('div', 'x18tag l', S.out), ti = el('div', 'x18tag r', S.in);
+    tl.set([to, ti], { autoAlpha: 0 }, 0);
+    tl.fromTo(to, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.hand - 0.05);
+    tl.fromTo(ti, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.in - 0.05);
+    sfx('keys', K.hand + 0.05, -7); sfx('whoosh', K.d31 + 0.3, -12); sfx('keys', K.in + 0.1, -7);
+    tl.to([to, ti], { autoAlpha: 0, duration: 0.25 }, K.zero - 0.2);
+    // zero empty days: January turns green
+    tl.to(cal, { autoAlpha: 1, y: 0, duration: 0.01 }, K.zero - 0.25);
+    tl.set([em, rn], { autoAlpha: 0 }, K.zero - 0.25);
+    tl.fromTo(cal, { autoAlpha: 0, scale: 0.85 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(1.6)', immediateRender: false }, K.zero - 0.2);
+    tl.to(cells, { backgroundColor: '#1fbf72', color: '#ffffff', duration: 0.12, stagger: 0.012 }, K.zero);
+    tl.fromTo(zz, { autoAlpha: 0, scale: 2, rotation: 0 }, { autoAlpha: 1, scale: 1, rotation: -5, duration: 0.22, ease: 'power4.in', immediateRender: false }, K.zero + 0.35);
+    sfx('counter', K.zero, -12); sfx('thud', K.zero + 0.55, -8);
+    const lk = el('div', 'x18lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
+  // ================= X19: 3 a.m. smoke alarm chirp — night kinetic: chirping detector + 40s ring, dead battery, who to call?, one-tap report, caretaker swaps it in the morning =================
+  function X19() {
+    const de = lang === 'de';
+    const S = de ? {
+      clock: '03:00', chirp: 'PIEP!', every: 'alle 40 s', bat: 'Batterie leer', who: ['Vermieter?', 'Hausmeister?', 'Notdienst?'],
+      card: 'Neue Meldung', cardS: 'Whg 5 · Flur', cat: '🔋 Rauchmelder piept', btn: 'Melden', sent: 'gemeldet ✓', r1: 'Mieterin',
+      to: '🧰 Hausmeister', when: 'morgen · 08:30', done: 'Batterie getauscht ✓', calm: 'Ruhe für alle', tag: 'für Mieter & Vermieter',
+    } : {
+      clock: '3:00 am', chirp: 'CHIRP!', every: 'every 40 s', bat: 'Battery dead', who: ['Landlord?', 'Caretaker?', 'Hotline?'],
+      card: 'New report', cardS: 'Unit 5 · Hallway', cat: '🔋 Smoke alarm chirping', btn: 'Report', sent: 'reported ✓', r1: 'Tenant',
+      to: '🧰 Caretaker', when: 'tomorrow · 8:30 am', done: 'Battery replaced ✓', calm: 'Peace for everyone', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.alarm = W(['Rauchmelder', 'smoke']).start;
+    K.every = W(['alle', 'every']).start;
+    K.bat = W(['Batterie', 'battery']).start;
+    K.who = W(['keiner', 'nobody']).start;
+    const it = W(['Tenance', 'Tenance'], W(['keiner', 'nobody']).i); K.turn = words[it.i - 1].start;
+    K.rep = W(['meldet', 'reports'], it.i).start;
+    K.tap = W(['Tipp', 'tap'], it.i).start;
+    K.care = W(['Hausmeister', 'caretaker'], it.i).start;
+    K.swap = W(['tauscht', 'swaps'], it.i).start;
+    K.morn = W(['Morgen', 'morning'], it.i).start;
+    K.calm = W(['Ruhe', 'Peace'], it.i).start;
+    const T = END + 2.1;
+    const bg = el('div', 'x19bg', '<i class="d"></i><i class="n"></i>');
+    const nb = bg.querySelector('.n');
+    tl.to(nb, { autoAlpha: 0, duration: 0.6, ease: 'power2.inOut' }, K.turn - 0.3);
+    // ceiling detector
+    const det = el('div', 'x19det', '<i class="led"></i><i class="sl"></i>');
+    const led = det.querySelector('.led');
+    tl.set(det, { xPercent: -50 }, 0);
+    tl.fromTo(det, { autoAlpha: 0, y: -120 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power3.out' }, 0.02);
+    const ck = el('div', 'x19clk', S.clock);
+    tl.set(ck, { xPercent: -50 }, 0);
+    tl.fromTo(ck, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2)' }, 0.1);
+    sfx('pop', 0.12, -12);
+    // chirps
+    const chirps = [K.alarm + 0.35, K.every + 0.5, K.bat + 0.3, K.who + 0.6].filter((t) => t < K.turn - 0.4);
+    const cb = el('div', 'x19chirp', S.chirp);
+    tl.set(cb, { xPercent: -50, autoAlpha: 0 }, 0);
+    chirps.forEach((t0) => {
+      tl.fromTo(cb, { autoAlpha: 1, scale: 0.6 }, { autoAlpha: 0, scale: 1.4, duration: 0.55, ease: 'power2.out', immediateRender: false }, t0);
+      tl.fromTo(det, { rotation: -3 }, { rotation: 3, duration: 0.05, yoyo: true, repeat: 5, immediateRender: false }, t0);
+      sfx('buzz', t0, -11);
+    });
+    perFrame((t) => {
+      const on = t < K.turn ? chirps.some((c) => t >= c && t < c + 0.25) : false;
+      const ok = t > K.swap + 0.3;
+      led.style.background = ok ? '#1fbf72' : on ? '#ff3b2f' : '#5a1a12';
+      led.style.boxShadow = ok ? '0 0 30px #1fbf72' : on ? '0 0 50px 12px #ff3b2f' : 'none';
+    });
+    // 40-second ring
+    const rg = el('div', 'x19ring', `<svg viewBox="0 0 200 200"><circle class="b" cx="100" cy="100" r="86"/><circle class="f" cx="100" cy="100" r="86"/></svg><b>40</b><small>${S.every}</small>`);
+    const rf = rg.querySelector('.f'), rb = rg.querySelector('b');
+    tl.set(rg, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(rg, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, K.every - 0.1);
+    perFrame((t) => { const u = seg(t, K.every, 1.6); rf.style.strokeDashoffset = `${540 * u}`; rb.textContent = String(Math.max(0, Math.round(40 - 40 * u))); });
+    sfx('counter', K.every, -14);
+    tl.to(rg, { autoAlpha: 0, scale: 0.6, duration: 0.25 }, K.bat - 0.3);
+    // dead battery
+    const bt = el('div', 'x19bat', `<div class="ic"><i></i></div><b>${S.bat}</b>`);
+    const bfill = bt.querySelector('.ic i');
+    tl.set(bt, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(bt, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.bat - 0.1);
+    tl.fromTo(bfill, { width: '60%' }, { width: '6%', duration: 0.5, ease: 'power2.in', immediateRender: false }, K.bat);
+    tl.to(bt, { autoAlpha: 0, y: -40, duration: 0.25 }, K.who - 0.3);
+    // who to call?
+    const wh = S.who.map((w, i) => el('div', `x19who w${i}`, `<i>📞</i><b>${w}</b>`));
+    wh.forEach((w, i) => { tl.set(w, { autoAlpha: 0 }, 0); tl.fromTo(w, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.4)', immediateRender: false }, K.who + i * 0.2); sfx('pop', K.who + i * 0.2, -12); });
+    perFrame((t) => { const a = seg(t, K.who + 0.3, 0.3); wh.forEach((w, i) => { w.style.translate = `${Math.sin(t * 5 + i * 2) * 10 * a}px 0`; }); });
+    tl.to([...wh, ck], { autoAlpha: 0, duration: 0.25 }, K.turn - 0.3);
+    // turn: one-tap report
+    const ap = el('div', 'x19app', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.card}</b><small>${S.cardS}</small></div><em>👤 ${S.r1}</em></div>
+      <div class="cat">${S.cat}</div><div class="bt"><span class="a">${S.btn}</span><span class="b">${S.sent}</span></div><i class="fg"></i>
+      <div class="rt"><b>${S.to}</b><span>${S.when}</span></div>`);
+    const ba = ap.querySelector('.a'), bb = ap.querySelector('.b'), fg = ap.querySelector('.fg'), btn = ap.querySelector('.bt'), rt = ap.querySelector('.rt');
+    tl.set(ap, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(ap, { autoAlpha: 0, y: 240 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -9);
+    tl.set([bb, fg, rt], { autoAlpha: 0 }, 0);
+    tl.fromTo(fg, { autoAlpha: 0, scale: 1.6, x: 160, y: 140 }, { autoAlpha: 1, scale: 1, x: 0, y: 0, duration: 0.4, ease: 'power3.out', immediateRender: false }, K.rep);
+    tl.to(btn, { scale: 0.92, duration: 0.08, yoyo: true, repeat: 1 }, K.tap - 0.1);
+    tl.to(ba, { autoAlpha: 0, duration: 0.12 }, K.tap - 0.02);
+    tl.fromTo(bb, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, ease: 'back.out(2.6)', immediateRender: false }, K.tap - 0.02);
+    tl.to(fg, { autoAlpha: 0, duration: 0.2 }, K.tap + 0.25);
+    sfx('pop', K.tap - 0.1, -8); sfx('send', K.tap + 0.05, -11);
+    tl.fromTo(rt, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.care - 0.1);
+    sfx('chime', K.care, -12);
+    tl.to(ap, { autoAlpha: 0, y: -60, duration: 0.3, ease: 'power2.in' }, K.swap - 0.35);
+    // morning: swapped, green LED
+    const sun = el('div', 'x19sun');
+    tl.set(sun, { autoAlpha: 0 }, 0);
+    tl.fromTo(sun, { autoAlpha: 0, y: 120 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out', immediateRender: false }, K.morn - 0.3);
+    const dn = el('div', 'x19done', S.done);
+    tl.set(dn, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(dn, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, K.swap + 0.3);
+    sfx('pop', K.swap + 0.3, -10);
+    const cm = el('div', 'x19calm', `<span>💤</span>${S.calm}`);
+    tl.set(cm, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(cm, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, K.calm - 0.05);
+    sfx('chime', K.calm, -10);
+    const lk = el('div', 'x19lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
+  // ================= X20: move-in report — 3D room corner, scratch + stain get photographed with date, joint report in both archives, years later at move-out nothing to argue =================
+  function X20() {
+    const de = lang === 'de';
+    const S = de ? {
+      head: 'Einzug · Whg 3', p1: 'Kratzer Wand', p2: 'Fleck Boden', date: '01.12.2026',
+      doc: 'Übergabeprotokoll', docS: 'Einzug · 01.12.2026', r1: 'Mieter', r2: 'Vermieter', arch: 'im Archiv ✓', yrs: 'Auszug', same: 'war schon da ✓', none: 'nichts zu diskutieren', tag: 'für Mieter & Vermieter',
+    } : {
+      head: 'Move-in · Unit 3', p1: 'Wall scratch', p2: 'Floor stain', date: '12/01/2026',
+      doc: 'Move-in report', docS: 'Move-in · 12/01/2026', r1: 'Tenant', r2: 'Landlord', arch: 'in archive ✓', yrs: 'Move-out', same: 'already there ✓', none: 'nothing to argue', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.scr = W(['Kratzer', 'scratch']).start;
+    K.stain = W(['Fleck', 'stain']).start;
+    K.foto = W(['Foto', 'photo']).start;
+    K.date = W(['Datum', 'date']).start;
+    K.t1 = W(['Mieter', 'tenant']).start;
+    K.tog = W(['gemeinsam', 'together']).start;
+    const it = W(['Tenance', 'Tenance'], W(['gemeinsam', 'together']).i); K.turn = words[it.i - 1].start;
+    K.both = W(['beide', 'both'], it.i).start;
+    K.arch = W(['Archiv', 'archives'], it.i).start;
+    K.out = W(['Auszug', 'move-out'], it.i).start;
+    K.yrs = W(['Jahre', 'years'], it.i).start;
+    K.none = W(['nichts', 'nothing'], it.i).start;
+    const T = END + 2.1;
+    el('div', 'x20bg', '<i class="g"></i>');
+    // ---- 3D room corner ----
+    const G = gl3(stage, { fov: 30, envTop: '#ffffff', envBot: '#b9a990', envInt: 1.0 });
+    const { r, scene, cam } = G;
+    scene.add(new T3.HemisphereLight(0xffffff, 0xb9a990, 0.7));
+    const key = new T3.DirectionalLight(0xffffff, 1.7); key.position.set(4, 7, 6); key.castShadow = true; key.shadow.mapSize.set(1024, 1024);
+    Object.assign(key.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5, near: 1, far: 30 }); scene.add(key);
+    const room = new T3.Group(); scene.add(room);
+    const wallM = M.std('#f1ece3', { roughness: 0.9 }), floorM = M.std('#c9a27a', { roughness: 0.7 });
+    mesh(new T3.BoxGeometry(5, 0.1, 5), floorM, room, [0, -0.05, 0]);
+    mesh(new T3.BoxGeometry(5, 3.2, 0.1), wallM, room, [0, 1.6, -2.5]);
+    mesh(new T3.BoxGeometry(0.1, 3.2, 5), wallM, room, [-2.5, 1.6, 0]);
+    // floor boards
+    for (let i = 0; i < 9; i++) mesh(new T3.BoxGeometry(0.02, 0.002, 5), M.std('#a9825c'), room, [-2.5 + i * 0.56, 0.002, 0]);
+    // skirting + window
+    mesh(new T3.BoxGeometry(5, 0.12, 0.04), M.std('#ffffff'), room, [0, 0.06, -2.43]);
+    const winF = mesh(rbox(1.4, 1.6, 0.1, 0.04), M.std('#ffffff'), room, [0.9, 1.9, -2.42]);
+    mesh(new T3.PlaneGeometry(1.2, 1.4), M.std('#bfe0ff', { emissive: new T3.Color('#dff0ff'), emissiveIntensity: 0.6 }), room, [0.9, 1.9, -2.36]);
+    // a few boxes (move-in)
+    [[-1.3, 0.25, -1.4, 0.6], [-0.75, 0.2, -1.6, 0.45], [-1.2, 0.68, -1.45, 0.4]].forEach(([x, y, z, s]) => mesh(rbox(s, s * 0.8, s, 0.03), M.std('#c8a06e'), room, [x, y, z], [0, 0.3, 0]));
+    // scratch on wall + stain on floor (canvas planes)
+    const scratch = textPlane((x, w, h) => { x.strokeStyle = 'rgba(90,70,50,0.85)'; x.lineWidth = 6; x.lineCap = 'round'; [[20, 80, 230, 40], [40, 100, 210, 70], [70, 70, 180, 52]].forEach(([a, b, c, d]) => { x.beginPath(); x.moveTo(a, b); x.lineTo(c, d); x.stroke(); }); }, 256, 128, 0.7, 0.35);
+    scratch.position.set(-0.6, 1.25, -2.44); room.add(scratch);
+    const stain = textPlane((x, w, h) => { const g = x.createRadialGradient(128, 128, 10, 128, 128, 120); g.addColorStop(0, 'rgba(70,40,20,0.65)'); g.addColorStop(0.6, 'rgba(90,55,25,0.35)'); g.addColorStop(1, 'rgba(90,55,25,0)'); x.fillStyle = g; x.beginPath(); x.ellipse(128, 128, 120, 90, 0.3, 0, Math.PI * 2); x.fill(); }, 256, 256, 0.9, 0.9);
+    stain.rotation.x = -Math.PI / 2; stain.position.set(0.5, 0.012, 0.3); room.add(stain);
+    const ring = (p) => { const m = new T3.Mesh(new T3.RingGeometry(0.42, 0.5, 48), new T3.MeshBasicMaterial({ color: '#ff6b4a', transparent: true, depthWrite: false, toneMapped: false })); m.position.copy(p); room.add(m); return m; };
+    const r1 = ring(new T3.Vector3(-0.6, 1.25, -2.42)), r2 = ring(new T3.Vector3(0.5, 0.02, 0.3)); r2.rotation.x = -Math.PI / 2;
+    const flash = el('div', 'x20flash');
+    const camT = track([
+      [0, () => ({ x: 4.6, y: 3.4, z: 8.8, lx: 0, ly: 1.0, lz: -0.6 })],
+      [K.scr - 0.2, () => ({ x: 2.2, y: 2.2, z: 5.6, lx: -0.6, ly: 1.2, lz: -2.0 })],
+      [K.stain + 0.1, () => ({ x: 2.4, y: 3.6, z: 5.8, lx: 0.4, ly: 0.2, lz: 0.2 })],
+      [K.tog, () => ({ x: 4.2, y: 3.6, z: 8.6, lx: 0, ly: 0.9, lz: -0.6 })],
+      [K.turn + 0.3, () => ({ x: 4.6, y: 4.2, z: 10.5, lx: 0, ly: 0.3, lz: -0.6 })],
+      [T, () => ({ x: 5.0, y: 4.2, z: 10.5, lx: 0, ly: 0.3, lz: -0.6 })],
+    ]);
+    perFrame((t) => {
+      const p = camT(t);
+      cam.position.set(p.x, p.y, p.z); cam.lookAt(p.lx, p.ly, p.lz);
+      const a1 = seg(t, K.scr + 0.1, 0.25) * (1 - seg(t, K.turn - 0.3, 0.2)), a2 = seg(t, K.stain + 0.1, 0.25) * (1 - seg(t, K.turn - 0.3, 0.2));
+      const a3 = seg(t, K.out + 0.1, 0.25);
+      r1.material.opacity = Math.max(a1, a3); r2.material.opacity = Math.max(a2, a3);
+      const pul = 1 + 0.08 * Math.sin(t * 8); r1.scale.setScalar(pul); r2.scale.setScalar(pul);
+      room.visible = t < K.turn + 0.2 || t > K.out - 0.4;
+      r.render(scene, cam);
+    });
+    const hd = el('div', 'x20head', `📦 ${S.head}`);
+    tl.set(hd, { xPercent: -50 }, 0);
+    tl.fromTo(hd, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'back.out(2)' }, 0.05);
+    sfx('pop', 0.08, -11);
+    // photos with date stamp
+    const ph = [[S.p1, 'w'], [S.p2, 'f']].map(([lb, cl], i) => el('div', `x20pol ${cl}`, `<div class="im"></div><b>📸 ${lb}</b><small>${S.date}</small>`));
+    const tPh = [Math.max(K.foto, K.scr + 0.6), K.foto + 0.5];
+    ph.forEach((p, i) => {
+      tl.set(p, { autoAlpha: 0 }, 0);
+      tl.fromTo(p, { autoAlpha: 0, scale: 0.4, rotation: i ? 14 : -14 }, { autoAlpha: 1, scale: 1, rotation: i ? 5 : -5, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, tPh[i]);
+      tl.fromTo(flash, { opacity: 0.85 }, { opacity: 0, duration: 0.35, immediateRender: false }, tPh[i] - 0.05);
+      sfx('shutter', tPh[i] - 0.05, -8);
+      const sm = p.querySelector('small');
+      tl.set(sm, { autoAlpha: 0 }, 0);
+      tl.fromTo(sm, { autoAlpha: 0, scale: 1.6 }, { autoAlpha: 1, scale: 1, duration: 0.2, ease: 'power4.in', immediateRender: false }, K.date + i * 0.15);
+    });
+    tl.set(flash, { opacity: 0 }, 0);
+    const rl = el('div', 'x20roles', `<span>👤 ${S.r1}</span><em>+</em><span>🏠 ${S.r2}</span>`);
+    tl.set(rl, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(rl, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.t1 - 0.1);
+    sfx('pop', K.t1, -12); sfx('chime', K.tog, -13);
+    tl.to([hd, ...ph, rl], { autoAlpha: 0, y: '-=80', duration: 0.3, ease: 'power2.in', stagger: 0.03 }, K.turn - 0.32);
+    // the report in both archives
+    const doc = el('div', 'x20doc', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.doc}</b><small>${S.docS}</small></div></div>
+      <div class="ps"><div class="t w"><i></i><span>${S.p1}</span></div><div class="t f"><i></i><span>${S.p2}</span></div></div>
+      <div class="sg"><span>✍️ ${S.r1} ✓</span><span>✍️ ${S.r2} ✓</span></div>`);
+    tl.set(doc, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(doc, { autoAlpha: 0, y: 240 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -9);
+    const ar = [S.r1, S.r2].map((rr, i) => el('div', `x20arch ${i ? 'r' : 'l'}`, `<i>📁</i><b>${rr}</b><span>${S.arch}</span>`));
+    ar.forEach((a, i) => { tl.set(a, { autoAlpha: 0 }, 0); tl.fromTo(a, { autoAlpha: 0, y: 60 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.arch - 0.25 + i * 0.12); });
+    sfx('send', K.both - 0.1, -11); sfx('chime', K.arch + 0.1, -11);
+    tl.to([doc, ...ar], { autoAlpha: 0, y: '-=80', duration: 0.3, ease: 'power2.in', stagger: 0.03 }, K.out - 0.35);
+    // years later: move-out, same marks -> already there
+    const yr = el('div', 'x20yrs', `<b>${S.yrs}</b><span class="y">2026</span>`);
+    const yy = yr.querySelector('.y');
+    tl.set(yr, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(yr, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.out - 0.1);
+    perFrame((t) => { yy.textContent = String(2026 + Math.round(4 * E.io(seg(t, K.yrs - 0.1, 0.7)))); });
+    sfx('counter', K.yrs - 0.1, -12);
+    const sm = el('div', 'x20same', S.same);
+    tl.set(sm, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(sm, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.6)', immediateRender: false }, K.yrs + 0.75);
+    const nn = el('div', 'x20none', S.none);
+    tl.set(nn, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(nn, { autoAlpha: 0, scale: 2, rotation: 0 }, { autoAlpha: 1, scale: 1, rotation: -4, duration: 0.22, ease: 'power4.in', immediateRender: false }, K.none);
+    sfx('chime', K.yrs + 0.8, -11); sfx('thud', K.none + 0.18, -8);
+    const lk = el('div', 'x20lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
+  // ================= X21: 3 winter messages countdown — snowy night, message bubbles 3-2-1, then each gets its place: ticket, airing reminder, snow duty plan =================
+  function X21() {
+    const de = lang === 'de';
+    const S = de ? {
+      head: 'Posteingang Vermieter', msgs: [['🥶', 'Die Heizung ist kalt!', 'Whg 2 · 06:12'], ['🍄', 'Schimmel in der Ecke …', 'Whg 5 · 18:40'], ['❄️', 'Wer räumt den Schnee?', 'Whg 7 · 07:05']],
+      card: 'Alles hat seinen Platz', p: [['🎫', 'Ticket', 'Heizung Whg 2', 'in Arbeit'], ['💨', 'Lüft-Erinnerung', '3× täglich · 10 Min', 'aktiv'], ['🗓️', 'Winterdienst-Plan', 'KW 50: Whg 7', 'geteilt']], tag: 'für Mieter & Vermieter',
+    } : {
+      head: "Landlord's inbox", msgs: [['🥶', 'The heating is cold!', 'Unit 2 · 6:12 am'], ['🍄', "There's mold in the corner…", 'Unit 5 · 6:40 pm'], ['❄️', 'Who clears the snow?', 'Unit 7 · 7:05 am']],
+      card: 'Everything has its place', p: [['🎫', 'Ticket', 'Heating unit 2', 'in progress'], ['💨', 'Airing reminder', '3× daily · 10 min', 'active'], ['🗓️', 'Snow duty plan', 'Week 50: unit 7', 'shared']], tag: 'for tenants & landlords',
+    };
+    const K = {};
+    const i3 = W(['Drei', 'Three'], W(['bekommt', 'winter']).i); K.n3 = i3.start;
+    const i2 = W(['Zwei', 'Two'], i3.i); K.n2 = i2.start;
+    const i1 = W(['Eins', 'One'], i2.i); K.n1 = i1.start;
+    const it = W(['Tenance', 'Tenance'], i1.i); K.turn = words[it.i - 1].start;
+    K.place = W(['Platz', 'place'], it.i).start;
+    K.p1 = W(['Ticket', 'ticket'], it.i).start;
+    K.p2 = W(['Lüft-Erinnerung', 'airing'], it.i).start;
+    K.p3 = W(['Winterdienst-Plan', 'snow'], it.i).start;
+    const T = END + 2.1;
+    const NT = [K.n3, K.n2, K.n1];
+    el('div', 'x21bg', '<i class="g"></i>');
+    const flakes = [...Array(36)].map((_, i) => el('i', 'x21sn', null));
+    perFrame((t) => flakes.forEach((f, i) => { const sp = 60 + (i * 37) % 70, x0 = (i * 211) % 1080; f.style.transform = `translate(${x0 + Math.sin(t * 0.8 + i) * 30}px, ${((t * sp + i * 97) % 2000) - 60}px) scale(${0.5 + (i % 5) * 0.2})`; }));
+    const hd = el('div', 'x21head', `📥 ${S.head} <em>3</em>`);
+    tl.set(hd, { xPercent: -50 }, 0);
+    tl.fromTo(hd, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'back.out(2)' }, 0.05);
+    sfx('buzz', 0.1, -14);
+    const big = el('div', 'x21big', '<span>3</span>');
+    const bn = big.querySelector('span');
+    tl.set(big, { xPercent: -50, autoAlpha: 0 }, 0);
+    const bub = S.msgs.map(([ic, tx, mt], i) => el('div', `x21msg m${i}`, `<i>${ic}</i><div><b>${tx}</b><small>${mt}</small></div>`));
+    NT.forEach((t0, i) => {
+      tl.call(() => { bn.textContent = String(3 - i); }, null, t0 - 0.06);
+      if (i) tl.call(() => { bn.textContent = String(4 - i); }, null, t0 - 0.08);
+      tl.fromTo(big, { autoAlpha: 0, scale: 2.2 }, { autoAlpha: 1, scale: 1, duration: 0.28, ease: 'power4.in', immediateRender: false }, t0 - 0.06);
+      sfx('impact', t0 + 0.2, -10);
+      tl.set(bub[i], { autoAlpha: 0 }, 0);
+      tl.fromTo(bub[i], { autoAlpha: 0, x: i % 2 ? 260 : -260, scale: 0.8 }, { autoAlpha: 1, x: 0, scale: 1, duration: 0.38, ease: 'back.out(1.8)', immediateRender: false }, t0 + 0.35);
+      sfx('pop', t0 + 0.4, -9);
+    });
+    tl.to(big, { autoAlpha: 0, duration: 0.2 }, K.n1 + 1.0);
+    tl.to([hd, ...bub], { autoAlpha: 0, y: '-=60', scale: 0.9, duration: 0.3, ease: 'power2.in', stagger: 0.03 }, K.turn - 0.32);
+    // turn: each one gets its place
+    const ap = el('div', 'x21app', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.card}</b></div></div>
+      ${S.p.map(([ic, nm, sb, st], i) => `<div class="pl p${i}"><i>${ic}</i><div><b>${nm}</b><small>${sb}</small></div><span>${st}</span></div>`).join('')}`);
+    const pls = [...ap.querySelectorAll('.pl')];
+    tl.set(ap, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(ap, { autoAlpha: 0, y: 240 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -9);
+    tl.set(pls, { autoAlpha: 0 }, 0);
+    [K.p1, K.p2, K.p3].forEach((t0, i) => {
+      tl.fromTo(pls[i], { autoAlpha: 0, x: -160 }, { autoAlpha: 0.35, x: 0, duration: 0.32, ease: 'back.out(1.8)', immediateRender: false }, K.turn + 0.45 + i * 0.12);
+      tl.fromTo(pls[i], { autoAlpha: 0.35, scale: 0.94 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.2)', immediateRender: false }, t0 - 0.12);
+      const sp = pls[i].querySelector('span');
+      tl.fromTo(sp, { scale: 0.4 }, { scale: 1, duration: 0.25, ease: 'back.out(3)', immediateRender: false }, t0 + 0.2);
+      sfx('pop', t0 - 0.1, -10); sfx('chime', t0 + 0.2, -15);
+    });
+    tl.fromTo(ap.querySelector('.hd'), { scale: 1 }, { scale: 1.05, duration: 0.15, yoyo: true, repeat: 1, immediateRender: false }, K.place);
+    const lk = el('div', 'x21lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
+  // ================= X27: foggy window at 7:15, humidity 78% → airing reminder, 5-min timer, window opens, gauge drops to 52%, no mold =================
+  function X27() {
+    const de = lang === 'de';
+    const S = de ? {
+      clock: '07:15', hum: 'Luftfeuchte', remT: 'Lüft-Erinnerung', remS: '5 Min stoßlüften', open: 'Fenster auf', ok: 'Kein Schimmel ✓', tag: 'für Mieter & Vermieter',
+    } : {
+      clock: '7:15 am', hum: 'Humidity', remT: 'Airing reminder', remS: '5 min of fresh air', open: 'Window open', ok: 'No mold ✓', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.fog = W(['Scheibe', 'window']).start;
+    K.hum = W(['Luftfeuchte', 'humidity']).start;
+    const it = W(['Tenance', 'Tenance']); K.turn = words[it.i - 1].start;
+    K.rem = W(['Lüft-Erinnerung', 'airing'], it.i).start;
+    K.five = W(['fünf', 'five'], it.i).start;
+    K.drop = W(['fällt', 'drops'], it.i).start;
+    K.no = W(['Kein', 'No'], it.i).start;
+    const T = END + 2.1;
+    el('div', 'x27bg', '<i class="g"></i>');
+    const ck = el('div', 'x27clk', `☀️ ${S.clock}`);
+    tl.set(ck, { xPercent: -50 }, 0);
+    tl.fromTo(ck, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'back.out(2)' }, 0.05);
+    sfx('pop', 0.08, -12);
+    // window with fog + droplets
+    const drops = [...Array(14)].map((_, i) => `<i class="dr" style="left:${(i * 61) % 560 + 30}px;top:${(i * 137) % 420 + 40}px;height:${18 + (i % 4) * 10}px"></i>`).join('');
+    const win = el('div', 'x27win', `<div class="sky"></div><div class="sash l"><div class="fog">${drops}</div></div><div class="sash r"><div class="fog">${drops}</div></div><i class="bar"></i>`);
+    tl.set(win, { xPercent: -50 }, 0);
+    tl.fromTo(win, { autoAlpha: 0, scale: 0.85, y: 40 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 0.15);
+    const fogs = [...win.querySelectorAll('.fog')];
+    tl.fromTo(fogs, { opacity: 0.35 }, { opacity: 0.95, duration: 1.2, ease: 'power1.in' }, Math.max(0.3, K.fog - 0.2));
+    sfx('whoosh', K.fog - 0.1, -16);
+    // humidity gauge
+    const g = el('div', 'x27gau', `<svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="84" class="tr"/><circle cx="100" cy="100" r="84" class="ar"/></svg><div class="v"><b>0</b><small>%</small></div><span>💧 ${S.hum}</span>`);
+    const gv = g.querySelector('b'); const ar = g.querySelector('.ar'); const C = 2 * Math.PI * 84;
+    tl.set(g, { autoAlpha: 0 }, 0);
+    tl.fromTo(g, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: 'back.out(2)', immediateRender: false }, K.hum - 0.15);
+    sfx('chime', K.hum, -15);
+    const t1 = K.hum, t2 = K.drop;
+    perFrame((t) => {
+      let v;
+      if (t < t1) v = 0; else if (t < t1 + 0.9) v = 78 * E.o5(clamp((t - t1) / 0.9, 0, 1));
+      else if (t < t2) v = 78; else v = lerp(78, 52, E.io(clamp((t - t2) / 1.4, 0, 1)));
+      gv.textContent = Math.round(v);
+      ar.style.strokeDasharray = `${C * v / 100} ${C}`;
+      const hot = v > 60;
+      ar.style.stroke = hot ? '#ff6b4a' : '#1fbf72'; gv.style.color = hot ? '#ff6b4a' : '#1fbf72';
+    });
+    tl.fromTo(g, { x: 0 }, { x: 14, duration: 0.06, yoyo: true, repeat: 5, immediateRender: false }, K.hum + 1.0);
+    // turn: reminder notification
+    const nt = el('div', 'x27not', `<span class="ai"><img src="assets/logo.png"></span><div><b>💨 ${S.remT}</b><small>${S.remS}</small></div><em>5:00</em>`);
+    const em = nt.querySelector('em');
+    tl.set(nt, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(nt, { autoAlpha: 0, y: -160 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'back.out(1.6)', immediateRender: false }, K.turn - 0.05);
+    sfx('buzz', K.turn, -12); sfx('chime', K.rem, -13);
+    tl.fromTo(ck, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.2, immediateRender: false }, K.turn - 0.1);
+    // timer 5:00 -> 0:00 fast between five and drop
+    const ta = K.five, tb = Math.max(K.five + 0.8, K.drop - 0.1);
+    perFrame((t) => {
+      const p = clamp((t - ta) / (tb - ta), 0, 1); const s = Math.round(300 * (1 - p));
+      em.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    });
+    // window opens, fog clears
+    const sl = win.querySelector('.sash.l'), sr = win.querySelector('.sash.r');
+    tl.to(sl, { rotationY: 58, duration: 0.7, ease: 'power3.inOut' }, K.five - 0.05);
+    tl.to(sr, { rotationY: -58, duration: 0.7, ease: 'power3.inOut' }, K.five);
+    tl.to(fogs, { opacity: 0, duration: 1.4, ease: 'power2.out' }, K.five + 0.2);
+    sfx('whoosh', K.five, -10);
+    const op = el('div', 'x27open', `🪟 ${S.open}`);
+    tl.set(op, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(op, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.five + 0.35);
+    // air streaks
+    const air = [...Array(6)].map((_, i) => el('i', 'x27air', null));
+    air.forEach((a, i) => {
+      tl.set(a, { autoAlpha: 0, top: 380 + i * 60 }, 0);
+      tl.fromTo(a, { autoAlpha: 0, x: -300 }, { autoAlpha: 0.8, x: 900, duration: 1.1, ease: 'none', immediateRender: false }, K.five + 0.3 + i * 0.18);
+      tl.to(a, { autoAlpha: 0, duration: 0.2 }, K.five + 1.2 + i * 0.18);
+    });
+    // no mold stamp
+    const st = el('div', 'x27ok', S.ok);
+    tl.set(st, { xPercent: -50, autoAlpha: 0, rotation: -6 }, 0);
+    tl.fromTo(st, { autoAlpha: 0, scale: 2 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'power4.in', immediateRender: false }, K.no - 0.1);
+    sfx('impact', K.no + 0.18, -9);
+    const lk = el('div', 'x27lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)' }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+  // ================= X28: Sunday 7:30 pm snow forecast → snow alert on phone (you're up, clear by 7) → 6:45 sidewalk cleared, whole building sees it =================
+  function X28() {
+    const de = lang === 'de';
+    const S = de ? {
+      day: 'Sonntag · 19:30', fc: 'Morgen', unit: 'cm Neuschnee', nT: 'Schneealarm ❄️', nS: 'Du bist dran · Gehweg bis 07:00', lockT: '19:31',
+      walk: 'Gehweg', at: '06:45', free: 'Gehweg frei ✓', seen: 'gesehen', units: ['Whg 1', 'Whg 2', 'Whg 3', 'Whg 4'], tag: 'für Mieter & Vermieter',
+    } : {
+      day: 'Sunday · 7:30 pm', fc: 'Tomorrow', unit: 'in of fresh snow', nT: 'Snow alert ❄️', nS: "You're up · sidewalk by 7:00", lockT: '7:31',
+      walk: 'Sidewalk', at: '6:45 am', free: 'Sidewalk clear ✓', seen: 'seen', units: ['Unit 1', 'Unit 2', 'Unit 3', 'Unit 4'], tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.snow = W(['Neuschnee', 'snow']).start;
+    const it = W(['Tenance', 'Tenance']); K.turn = words[it.i - 1].start;
+    K.alarm = W(['Schneealarm', 'alert'], it.i).start;
+    K.up = W(['dran', 'up'], it.i).start;
+    K.at = W(['sechs', 'six'], it.i).start;
+    K.all = W(['alle', 'everyone'], it.i).start;
+    const T = END + 2.1;
+    const bg = el('div', 'x28bg', '<i class="m"></i><i class="g"></i>');
+    const mb = bg.querySelector('.m');
+    tl.fromTo(mb, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.inOut', immediateRender: false }, K.at - 0.4);
+    const flakes = [...Array(40)].map(() => el('i', 'x28sn', null));
+    perFrame((t) => flakes.forEach((f, i) => { const sp = 70 + (i * 37) % 80, x0 = (i * 211) % 1080; f.style.transform = `translate(${x0 + Math.sin(t * 0.9 + i) * 26}px, ${((t * sp + i * 97) % 2000) - 60}px) scale(${0.45 + (i % 5) * 0.2})`; }));
+    const dc = el('div', 'x28day', `🌙 ${S.day}`);
+    tl.set(dc, { xPercent: -50 }, 0);
+    tl.fromTo(dc, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'back.out(2)' }, 0.05);
+    sfx('pop', 0.08, -12);
+    // forecast card with counting cm
+    const n = de ? 8 : 3;
+    const fc = el('div', 'x28fc', `<small>${S.fc}</small><div><b>0</b><span>❄️</span></div><em>${S.unit}</em>`);
+    const fb = fc.querySelector('b');
+    tl.set(fc, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(fc, { autoAlpha: 0, scale: 0.7, y: 60 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.45, ease: 'back.out(1.8)', immediateRender: false }, Math.max(0.4, K.snow - 1.2));
+    perFrame((t) => { fb.textContent = Math.round(n * E.o5(clamp((t - (K.snow - 0.9)) / 1.0, 0, 1))); });
+    sfx('chime', K.snow, -14);
+    tl.to([fc, dc], { autoAlpha: 0, y: -80, scale: 0.9, duration: 0.3, ease: 'power2.in' }, K.turn - 0.3);
+    // phone with lock-screen alert
+    const ph = el('div', 'x28ph', `<div class="scr"><b class="tm">${S.lockT}</b><div class="nt"><span class="ai"><img src="assets/logo.png"></span><div><b>${S.nT}</b><small>${S.nS}</small></div></div></div>`);
+    const nt = ph.querySelector('.nt');
+    tl.set(ph, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(ph, { autoAlpha: 0, y: 300 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.15, -10);
+    tl.set(nt, { autoAlpha: 0 }, 0);
+    tl.fromTo(nt, { autoAlpha: 0, y: -60, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.4, ease: 'back.out(2)', immediateRender: false }, K.alarm - 0.1);
+    sfx('buzz', K.alarm, -10);
+    tl.fromTo(ph, { rotation: 0 }, { rotation: 2.5, duration: 0.05, yoyo: true, repeat: 7, immediateRender: false }, K.alarm);
+    tl.fromTo(nt, { scale: 1 }, { scale: 1.06, duration: 0.15, yoyo: true, repeat: 1, immediateRender: false }, K.up);
+    tl.to(ph, { autoAlpha: 0, y: -120, scale: 0.85, duration: 0.35, ease: 'power2.in' }, K.at - 0.4);
+    // morning: sidewalk being cleared
+    const tc = el('div', 'x28at', `☀️ ${S.at}`);
+    tl.set(tc, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(tc, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, K.at - 0.1);
+    const wk = el('div', 'x28walk', `<i class="pv"></i><i class="sn"></i><i class="sh">🧹</i><span>${S.walk}</span>`);
+    const sn = wk.querySelector('.sn'), sh = wk.querySelector('.sh');
+    tl.set(wk, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(wk, { autoAlpha: 0, y: 80 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power3.out', immediateRender: false }, K.at - 0.05);
+    tl.fromTo(sn, { scaleX: 1 }, { scaleX: 0, duration: 1.3, ease: 'power1.inOut', immediateRender: false }, K.at + 0.35);
+    tl.fromTo(sh, { x: 0 }, { x: 760, duration: 1.3, ease: 'power1.inOut', immediateRender: false }, K.at + 0.35);
+    sfx('whoosh', K.at + 0.4, -12);
+    const fr = el('div', 'x28free', S.free);
+    tl.set(fr, { xPercent: -50, autoAlpha: 0, rotation: -5 }, 0);
+    tl.fromTo(fr, { autoAlpha: 0, scale: 2 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'power4.in', immediateRender: false }, K.at + 1.6);
+    sfx('impact', K.at + 1.85, -10);
+    // everyone sees it
+    const row = el('div', 'x28row', S.units.map((u) => `<div><i>🏠</i><b>${u}</b><small>${S.seen} ✓</small></div>`).join(''));
+    const cells = [...row.children];
+    tl.set(row, { xPercent: -50 }, 0); tl.set(cells, { autoAlpha: 0 }, 0);
+    cells.forEach((c, i) => {
+      tl.fromTo(c, { autoAlpha: 0, y: 40, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.all - 0.1 + i * 0.12);
+      sfx('pop', K.all + i * 0.12, -13);
+    });
+    const lk = el('div', 'x28lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)' }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+  // ================= X29: rent paid but no receipt → payment detected → receipt prints itself (base/utilities/850 paid) → monthly history for tenant & landlord =================
+  function X29() {
+    const de = lang === 'de';
+    const cur = (v) => (de ? `${v} €` : `$${v}`);
+    const S = de ? {
+      bank: 'Überweisung', bankS: 'Miete Oktober', done: 'ausgeführt ✓', q: 'Quittung?', det: 'Zahlungseingang erkannt', title: 'Quittung · Oktober',
+      l1: 'Kaltmiete', l2: 'Nebenkosten', sum: 'Gesamt', paid: 'BEZAHLT', hist: 'Verlauf', months: ['Oktober', 'September', 'August'], who: 'Mieter ✓ · Vermieter ✓', tag: 'für Mieter & Vermieter',
+    } : {
+      bank: 'Transfer', bankS: 'October rent', done: 'completed ✓', q: 'Receipt?', det: 'Payment detected', title: 'Receipt · October',
+      l1: 'Base rent', l2: 'Utilities', sum: 'Total', paid: 'PAID', hist: 'History', months: ['October', 'September', 'August'], who: 'Tenant ✓ · Landlord ✓', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.where = W(['Quittung', 'receipt']).start;
+    const it = W(['Tenance', 'Tenance']); K.turn = words[it.i - 1].start;
+    K.spot = W(['Eingang', 'payment'], it.i).start;
+    K.rcpt = W(['Quittung', 'receipt'], it.i).start;
+    K.base = W(['Kaltmiete', 'base'], it.i).start;
+    K.util = W(['Nebenkosten', 'utilities'], it.i).start;
+    K.amt = W(['achthundertfünfzig', 'eight'], it.i).start;
+    K.paid = W(['bezahlt', 'paid'], it.i).start;
+    K.month = W(['Monat', 'month'], it.i).start;
+    const T = END + 2.1;
+    el('div', 'x29bg', '<i class="g"></i>');
+    // bank transfer card
+    const bk = el('div', 'x29bank', `<i>🏦</i><div><b>${S.bank}</b><small>${S.bankS}</small></div><span>−${cur(850)}</span><em>${S.done}</em>`);
+    tl.set(bk, { xPercent: -50 }, 0);
+    tl.fromTo(bk, { autoAlpha: 0, y: -60, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.4, ease: 'back.out(1.8)' }, 0.05);
+    sfx('pop', 0.1, -12);
+    const q = el('div', 'x29q', `<b>?</b><span>${S.q}</span>`);
+    tl.set(q, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(q, { autoAlpha: 0, scale: 0.3, rotation: -20 }, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.45, ease: 'back.out(2.2)', immediateRender: false }, K.where - 0.15);
+    tl.fromTo(q, { y: 0 }, { y: -18, duration: 0.5, yoyo: true, repeat: 3, ease: 'sine.inOut', immediateRender: false }, K.where + 0.4);
+    sfx('impact', K.where, -12);
+    tl.to([bk, q], { autoAlpha: 0, y: -80, scale: 0.9, duration: 0.3, ease: 'power2.in', stagger: 0.04 }, K.turn - 0.3);
+    // app: payment detected
+    const ap = el('div', 'x29app', `<div class="hd"><span class="ai"><img src="assets/logo.png"></span><b>Tenance</b></div><div class="det"><i></i>${S.det} · ${cur(850)}</div>`);
+    const det = ap.querySelector('.det'), dot = det.querySelector('i');
+    tl.set(ap, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(ap, { autoAlpha: 0, y: 120 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -10);
+    tl.set(det, { autoAlpha: 0 }, 0);
+    tl.fromTo(det, { autoAlpha: 0, scale: 0.7 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.4)', immediateRender: false }, K.spot - 0.1);
+    tl.fromTo(dot, { scale: 1 }, { scale: 1.6, opacity: 0.4, duration: 0.4, yoyo: true, repeat: 3, immediateRender: false }, K.spot);
+    sfx('chime', K.spot, -12);
+    // receipt prints out
+    const rc = el('div', 'x29rc', `<div class="x29slot"></div><div class="x29clip"><div class="x29pp"><b class="x29t">🧾 ${S.title}</b>
+      <p class="x29r x29r1"><span>${S.l1}</span><span>${cur(700)}</span></p><p class="x29r x29r2"><span>${S.l2}</span><span>${cur(150)}</span></p>
+      <p class="x29r x29r3"><span>${S.sum}</span><span class="am">${cur(0)}</span></p><i class="x29st">${S.paid}</i></div></div>`);
+    const pp = rc.querySelector('.x29pp'), am = rc.querySelector('.am'), st = rc.querySelector('.x29st');
+    const rows = [rc.querySelector('.x29r1'), rc.querySelector('.x29r2'), rc.querySelector('.x29r3')];
+    tl.set(rc, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(rc, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, immediateRender: false }, K.rcpt - 0.3);
+    tl.fromTo(pp, { yPercent: -100 }, { yPercent: 0, duration: 0.9, ease: 'power2.out', immediateRender: false }, K.rcpt - 0.2);
+    sfx('whoosh', K.rcpt - 0.1, -13);
+    tl.set(rows, { autoAlpha: 0 }, 0);
+    [K.base, K.util, K.amt].forEach((t0, i) => {
+      tl.fromTo(rows[i], { autoAlpha: 0, x: -40 }, { autoAlpha: 1, x: 0, duration: 0.25, ease: 'power2.out', immediateRender: false }, t0 - 0.12);
+      sfx('pop', t0 - 0.1, -13);
+    });
+    perFrame((t) => { am.textContent = cur(Math.round(850 * E.o5(clamp((t - K.amt + 0.1) / 0.8, 0, 1)))); });
+    tl.set(st, { autoAlpha: 0, rotation: -12 }, 0);
+    tl.fromTo(st, { autoAlpha: 0, scale: 2.4 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'power4.in', immediateRender: false }, K.paid - 0.08);
+    sfx('impact', K.paid + 0.15, -9);
+    // monthly history
+    tl.to([ap, rc], { autoAlpha: 0, y: -60, duration: 0.3, ease: 'power2.in' }, K.month - 1.1);
+    const hs = el('div', 'x29hist', `<b class="h">📂 ${S.hist}</b>` + S.months.map((m) => `<div class="it"><i>🧾</i><div><b>${m}</b><small>${S.who}</small></div><span>${cur(850)}</span></div>`).join(''));
+    const its = [...hs.querySelectorAll('.it')];
+    tl.set(hs, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(hs, { autoAlpha: 0, y: 80 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power3.out', immediateRender: false }, K.month - 0.85);
+    tl.set(its, { autoAlpha: 0 }, 0);
+    its.forEach((x, i) => { tl.fromTo(x, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'back.out(1.8)', immediateRender: false }, K.month - 0.6 + i * 0.22); sfx('pop', K.month - 0.55 + i * 0.22, -14); });
+    const lk = el('div', 'x29lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)' }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+  // ================= X30: landlord asks for the lease → 20 min digging through folders → Tenance search, 4 letters, 2 s → lease found → contract/report/invoices in one archive =================
+  function X30() {
+    const de = lang === 'de';
+    const S = de ? {
+      ask: 'Kannst du mir den Mietvertrag schicken?', who: 'Vermieter', min: 'Min. gesucht', q: 'Miet', ph: 'Dokumente durchsuchen', res: 'Mietvertrag.pdf', resS: 'Wohnung 2 · unterschrieben', sec: 's',
+      send: 'Gesendet ✓', cats: [['📄', 'Vertrag'], ['📋', 'Protokoll'], ['🧾', 'Rechnungen']], arch: 'Ein Archiv', tag: 'für Mieter & Vermieter',
+    } : {
+      ask: 'Could you send me the lease?', who: 'Landlord', min: 'min searching', q: 'leas', ph: 'Search documents', res: 'Lease.pdf', resS: 'Apt 2 · signed', sec: 's',
+      send: 'Sent ✓', cats: [['📄', 'Lease'], ['📋', 'Report'], ['🧾', 'Invoices']], arch: 'One archive', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.ask = W(['fragt', 'asks']).start;
+    K.dig = W(['suchst', 'digging']).start;
+    K.tw = W(['zwanzig', 'twenty']).start;
+    const it = W(['Tenance', 'Tenance']); K.turn = words[it.i - 1].start;
+    K.four = W(['vier', 'four'], it.i).start;
+    const two = W(['zwei', 'two'], it.i); K.two = two.start;
+    K.there = W(['da', 'there'], two.i).start;
+    K.c1 = W(['Vertrag', 'lease'], two.i).start;
+    K.c2 = W(['Protokoll', 'report'], two.i).start;
+    K.c3 = W(['Rechnungen', 'invoices'], two.i).start;
+    K.arch = W(['Archiv', 'archive'], two.i).start;
+    const T = END + 2.1;
+    el('div', 'x30bg', '<i class="x30g"></i>');
+    // landlord message
+    const msg = el('div', 'x30msg', `<span class="x30av">🏠</span><div><small>${S.who}</small><b>${S.ask}</b></div>`);
+    tl.set(msg, { xPercent: -50 }, 0);
+    tl.fromTo(msg, { autoAlpha: 0, y: -60, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.4, ease: 'back.out(1.8)' }, 0.05);
+    sfx('pop', 0.1, -12);
+    // folder chaos: papers fly out of a binder
+    const fd = el('div', 'x30fold', '<div class="x30bk"></div>' + Array.from({ length: 9 }, (_, i) => `<i class="x30pg" style="--h:${(i * 37) % 360}"></i>`).join('') + '<div class="x30fr"><b>📁</b></div>');
+    const pgs = [...fd.querySelectorAll('.x30pg')];
+    tl.set(fd, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(fd, { autoAlpha: 0, y: 100 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power3.out', immediateRender: false }, K.dig - 0.4);
+    pgs.forEach((p, i) => {
+      const t0 = K.dig - 0.1 + i * 0.28, a = (i % 2 ? 1 : -1) * (120 + (i * 53) % 220);
+      tl.fromTo(p, { x: 0, y: 0, rotation: 0, autoAlpha: 1 }, { x: a, y: -260 - (i * 41) % 200, rotation: a / 4, duration: 0.7, ease: 'power2.out', immediateRender: false }, t0);
+      tl.to(p, { y: 500, autoAlpha: 0, duration: 0.9, ease: 'power1.in' }, t0 + 0.7);
+    });
+    sfx('binder', K.dig - 0.2, -12);
+    // timer counting to 20 min
+    const tm = el('div', 'x30tm', `<i>⏱️</i><b>0</b><span>${S.min}</span>`);
+    const tb = tm.querySelector('b');
+    tl.set(tm, { autoAlpha: 0 }, 0);
+    tl.fromTo(tm, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.2)', immediateRender: false }, K.dig);
+    perFrame((t) => { tb.textContent = Math.round(20 * E.io(clamp((t - K.dig) / (K.tw + 0.6 - K.dig), 0, 1))); });
+    tl.fromTo(tm, { x: 0 }, { x: 12, duration: 0.06, yoyo: true, repeat: 7, immediateRender: false }, K.tw + 0.5);
+    sfx('impact', K.tw + 0.45, -12);
+    tl.to([msg, fd, tm], { autoAlpha: 0, y: -80, scale: 0.9, duration: 0.3, ease: 'power2.in', stagger: 0.04 }, K.turn - 0.3);
+    // app search
+    const ap = el('div', 'x30app', `<div class="x30hd"><span class="ai"><img src="assets/logo.png"></span><b>Tenance</b></div>
+      <div class="x30sb"><i>🔍</i><span class="x30ph">${S.ph}</span><span class="x30q"></span><u></u></div>
+      <div class="x30ld"><em></em><b class="x30s">0.0 ${S.sec}</b></div>
+      <div class="x30rs"><i>📄</i><div><b>${S.res}</b><small>${S.resS}</small></div><em>${S.send}</em></div>`);
+    const q = ap.querySelector('.x30q'), ph = ap.querySelector('.x30ph'), cur = ap.querySelector('u'), ld = ap.querySelector('.x30ld'), bar = ld.querySelector('em'), sc = ld.querySelector('.x30s'), rs = ap.querySelector('.x30rs'), sd = rs.querySelector('em');
+    tl.set(ap, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(ap, { autoAlpha: 0, y: 120 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -10);
+    const tq = K.four - 0.1;
+    perFrame((t) => {
+      const n = clamp(Math.floor((t - tq) / 0.14) + 1, 0, 4);
+      q.textContent = S.q.slice(0, n); ph.style.display = n ? 'none' : '';
+      cur.style.opacity = (Math.floor(t * 3) % 2 && t < K.there) ? 0 : 1;
+      const p = clamp((t - (tq + 0.6)) / (K.there - tq - 0.6), 0, 1);
+      bar.style.transform = `scaleX(${p})`; sc.textContent = `${(2 * p).toFixed(1)} ${S.sec}`;
+    });
+    sfx('typing', tq, -12);
+    tl.set([ld, rs, sd], { autoAlpha: 0 }, 0);
+    tl.fromTo(ld, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, immediateRender: false }, tq + 0.55);
+    tl.to(ld, { autoAlpha: 0, duration: 0.2 }, K.there + 0.1);
+    tl.fromTo(rs, { autoAlpha: 0, y: 40, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, K.there - 0.05);
+    sfx('chime', K.there, -11);
+    tl.fromTo(sd, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(2.4)', immediateRender: false }, K.there + 0.35);
+    sfx('pop', K.there + 0.35, -13);
+    // archive categories
+    tl.to(ap, { autoAlpha: 0, y: -60, duration: 0.3, ease: 'power2.in' }, K.c1 - 0.35);
+    const ar = el('div', 'x30arc', S.cats.map(([e, n]) => `<div class="x30cc"><i>${e}</i><b>${n}</b></div>`).join('') + `<div class="x30bx"><i>🗄️</i><b>${S.arch}</b></div>`);
+    const ccs = [...ar.querySelectorAll('.x30cc')], bx = ar.querySelector('.x30bx');
+    tl.set(ar, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(ar, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, immediateRender: false }, K.c1 - 0.2);
+    tl.set([...ccs, bx], { autoAlpha: 0 }, 0);
+    [K.c1, K.c2, K.c3].forEach((t0, i) => {
+      tl.fromTo(ccs[i], { autoAlpha: 0, y: -120, rotation: (i - 1) * 10 }, { autoAlpha: 1, y: 0, rotation: (i - 1) * 4, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, t0 - 0.12);
+      sfx('pop', t0 - 0.1, -13);
+    });
+    tl.fromTo(bx, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, K.arch - 0.6);
+    tl.to(ccs, { y: 330, scale: 0.55, autoAlpha: 0, duration: 0.45, ease: 'power2.in', stagger: 0.07 }, K.arch - 0.35);
+    tl.fromTo(bx, { scale: 1 }, { scale: 1.08, duration: 0.15, yoyo: true, repeat: 1, immediateRender: false }, K.arch + 0.1);
+    sfx('impact', K.arch + 0.1, -10);
+    const lk = el('div', 'x30lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)' }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
+  // ================= X31: 1,500 deposit → move out → endless waiting → Tenance tracker both sides see: paid in / handover checked / refunded → deposit back, no chasing =================
+  function X31() {
+    const de = lang === 'de';
+    const cur = (v) => (de ? `${v.toLocaleString('de-DE')} €` : `$${v.toLocaleString('en-US')}`);
+    const S = de ? {
+      dep: 'Kaution', out: 'Ausgezogen', day: 'Tag', chat: ['Und meine Kaution?', 'Gibt es schon was Neues?', 'Hallo??'], tr: 'Kaution', who: ['Mieter', 'Vermieter'],
+      steps: ['Eingezahlt', 'Übergabe geprüft', 'Zurücküberwiesen'], back: 'zurück', no: '0 Nachfragen', tag: 'für Mieter & Vermieter',
+    } : {
+      dep: 'Deposit', out: 'Moved out', day: 'Day', chat: ['Any news on my deposit?', 'Hello? Any update?', 'Still waiting…'], tr: 'Deposit', who: ['Tenant', 'Landlord'],
+      steps: ['Paid in', 'Handover checked', 'Refunded'], back: 'back', no: '0 follow-ups', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.move = W(['Auszug', 'moving']).start;
+    K.wait = W(['warten', 'waiting']).start;
+    const it = W(['Tenance', 'Tenance']); K.turn = words[it.i - 1].start;
+    K.see = W(['sehen', 'see'], it.i).start;
+    K.s1 = W(['eingezahlt', 'paid'], it.i).start;
+    K.s2 = W(['Übergabe', 'handover'], it.i).start;
+    const s3 = W(['zurücküberwiesen', 'refunded'], it.i); K.s3 = s3.start;
+    K.back = W(['zurück', 'back'], s3.i).start;
+    K.no = W(['ohne', 'no'], s3.i).start;
+    const T = END + 2.1;
+    el('div', 'x31bg', '<i class="x31g"></i>');
+    // deposit card + moving box
+    const dc = el('div', 'x31dep', `<small>${S.dep}</small><b>${cur(1500)}</b><i>${de ? '💶' : '💵'}</i>`);
+    tl.set(dc, { xPercent: -50 }, 0);
+    tl.fromTo(dc, { autoAlpha: 0, y: -60, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(2)' }, 0.02);
+    sfx('kaching', 0.1, -12);
+    const bx = el('div', 'x31box', `<i>📦</i><span>🔑 ${S.out}</span>`);
+    tl.set(bx, { autoAlpha: 0 }, 0);
+    tl.fromTo(bx, { autoAlpha: 0, x: -300 }, { autoAlpha: 1, x: 0, duration: 0.45, ease: 'power3.out', immediateRender: false }, K.move - 0.2);
+    sfx('whoosh', K.move - 0.2, -12);
+    // waiting: day counter + unanswered chat bubbles
+    const dy = el('div', 'x31day', `<i>⏳</i><b>${S.day} 1</b>`);
+    const db = dy.querySelector('b');
+    tl.set(dy, { autoAlpha: 0 }, 0);
+    tl.fromTo(dy, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.2)', immediateRender: false }, K.wait - 0.25);
+    perFrame((t) => { db.textContent = `${S.day} ${1 + Math.round(46 * E.io(clamp((t - K.wait + 0.2) / 1.2, 0, 1)))}`; });
+    const bs = S.chat.map((c, i) => el('div', 'x31ch', `${c}<em>✓✓</em>`, null, { top: `${1000 + i * 130}px` }));
+    tl.set(bs, { autoAlpha: 0 }, 0);
+    bs.forEach((b, i) => { tl.fromTo(b, { autoAlpha: 0, x: 120 }, { autoAlpha: 1, x: 0, duration: 0.25, ease: 'back.out(2)', immediateRender: false }, K.wait - 0.1 + i * 0.32); sfx('send', K.wait - 0.1 + i * 0.32, -15); });
+    tl.to([dc, bx, dy, ...bs], { autoAlpha: 0, y: -80, scale: 0.9, duration: 0.3, ease: 'power2.in', stagger: 0.03 }, K.turn - 0.3);
+    // tracker app
+    const ap = el('div', 'x31app', `<div class="x31hd"><span class="ai"><img src="assets/logo.png"></span><b>Tenance</b><em>${S.tr} · ${cur(1500)}</em></div>
+      <div class="x31who">${S.who.map((w, i) => `<span><i>${i ? '🏠' : '🙂'}</i>${w} 👁️</span>`).join('')}</div>
+      <div class="x31tr"><i class="x31ln"><u></u></i>${S.steps.map((s) => `<div class="x31st"><b class="x31dt"></b><span>${s}</span><em>✓</em></div>`).join('')}</div>`);
+    const who = [...ap.querySelectorAll('.x31who span')], sts = [...ap.querySelectorAll('.x31st')], fill = ap.querySelector('.x31ln u');
+    tl.set(ap, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(ap, { autoAlpha: 0, y: 120 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -10);
+    tl.set(who, { autoAlpha: 0 }, 0);
+    who.forEach((w, i) => { tl.fromTo(w, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.4)', immediateRender: false }, K.see - 0.1 + i * 0.4); sfx('pop', K.see - 0.05 + i * 0.4, -13); });
+    const ST = [K.s1, K.s2, K.s3];
+    sts.forEach((s, i) => {
+      tl.fromTo(s, { opacity: 0.35 }, { opacity: 1, duration: 0.2, immediateRender: false }, ST[i] - 0.1);
+      tl.fromTo(s.querySelector('.x31dt'), { backgroundColor: '#d6dbe8', scale: 1 }, { backgroundColor: '#1fbf72', scale: 1.25, duration: 0.25, ease: 'back.out(3)', immediateRender: false }, ST[i] - 0.1);
+      tl.fromTo(s.querySelector('em'), { autoAlpha: 0, scale: 0.3 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(2.4)', immediateRender: false }, ST[i]);
+      sfx('chime', ST[i], -13);
+    });
+    tl.set(sts.map((s) => s.querySelector('em')), { autoAlpha: 0 }, 0);
+    tl.set(sts, { opacity: 0.35 }, 0);
+    perFrame((t) => { fill.style.transform = `scaleY(${clamp((t - K.s1) / (K.s3 - K.s1), 0, 1)})`; });
+    // money back
+    const mb = el('div', 'x31back', `<b>+${cur(1500)}</b><span>${S.dep} ${S.back} ✓</span>`);
+    tl.set(mb, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(mb, { autoAlpha: 0, scale: 2.2 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'power4.in', immediateRender: false }, K.back - 0.25);
+    sfx('kaching', K.back, -9);
+    const nq = el('div', 'x31no', `<i>💬</i><b>${S.no}</b>`);
+    tl.set(nq, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(nq, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.no - 0.1);
+    sfx('pop', K.no, -12);
+    const lk = el('div', 'x31lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)' }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
+  // ================= X32: March usage climbs → back payment looms → Tenance usage chart +18% → advance adjusted early 165 → 205 → back payment 0 =================
+  function X32() {
+    const de = lang === 'de';
+    const cur = (v) => (de ? `${v} €` : `$${v}`);
+    const S = de ? {
+      mon: ['Jan', 'Feb', 'Mär'], use: 'Verbrauch', bill: 'Nachzahlung', next: 'nächstes Jahr', chart: 'Verbrauchskurve', adv: 'Abschlag / Monat', early: 'früh angepasst ✓', zero: 'Nachzahlung', tag: 'für Mieter & Vermieter',
+    } : {
+      mon: ['Jan', 'Feb', 'Mar'], use: 'Usage', bill: 'Back payment', next: 'next year', chart: 'Usage chart', adv: 'Monthly payment', early: 'adjusted early ✓', zero: 'Back payment', tag: 'for tenants & landlords',
+    };
+    const K = {};
+    K.climb = W(['steigt', 'climbing']).start;
+    K.bill = W(['Nachzahlung', 'back']).start;
+    const it = W(['Tenance', 'Tenance']); K.turn = words[it.i - 1].start;
+    K.chart = W(['Verbrauchskurve', 'chart'], it.i).start;
+    K.plus = W(['plus', 'plus'], it.i).start;
+    K.adj = W(['Abschlag', 'monthly'], it.i).start;
+    K.early = W(['früh', 'early'], it.i).start;
+    const fr = W(['von', 'from'], it.i); K.from = fr.start;
+    K.to = W(['auf', 'to'], fr.i).start;
+    K.zero = W(['null', 'zero'], fr.i).start;
+    const T = END + 2.1;
+    el('div', 'x32bg', '<i class="x32g"></i>');
+    // bar chart: March bar shoots up red
+    const bc = el('div', 'x32bars', `<b class="x32h">📈 ${S.use}</b><div class="x32row">` + S.mon.map((m, i) => `<div class="x32col"><i class="x32b${i === 2 ? ' x32hot' : ''}"></i><span>${m}</span></div>`).join('') + '</div>');
+    const bars = [...bc.querySelectorAll('.x32b')];
+    tl.set(bc, { xPercent: -50 }, 0);
+    tl.fromTo(bc, { autoAlpha: 0, y: -60 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power3.out' }, 0.02);
+    tl.set(bars, { scaleY: 0 }, 0);
+    tl.to(bars[0], { scaleY: 0.45, duration: 0.4, ease: 'back.out(1.6)' }, 0.25);
+    tl.to(bars[1], { scaleY: 0.5, duration: 0.4, ease: 'back.out(1.6)' }, 0.4);
+    tl.to(bars[2], { scaleY: 0.95, duration: 0.6, ease: 'back.out(1.6)' }, K.climb - 0.05);
+    sfx('pop', 0.3, -14); sfx('sting', K.climb, -12);
+    // looming bill
+    const bl = el('div', 'x32bill', `<i>🧾</i><div><b>${S.bill}</b><small>${S.next}</small></div><span>${de ? '+ ??? €' : '+ $???'}</span>`);
+    tl.set(bl, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(bl, { autoAlpha: 0, y: 200, rotation: 6 }, { autoAlpha: 1, y: 0, rotation: -2, duration: 0.4, ease: 'back.out(1.8)', immediateRender: false }, K.bill - 0.3);
+    tl.fromTo(bl, { x: 0 }, { x: 14, duration: 0.06, yoyo: true, repeat: 7, immediateRender: false }, K.bill + 0.3);
+    sfx('impact', K.bill, -11);
+    tl.to([bc, bl], { autoAlpha: 0, y: -80, scale: 0.9, duration: 0.3, ease: 'power2.in', stagger: 0.04 }, K.turn - 0.3);
+    // app: usage curve
+    const ap = el('div', 'x32app', `<div class="x32hd"><span class="ai"><img src="assets/logo.png"></span><b>Tenance</b><em>${S.chart}</em></div>
+      <svg viewBox="0 0 800 360"><path class="x32gr" d="M0 300 L800 300"/><path class="x32ln" d="M10 280 C120 270 200 260 300 250 S480 200 560 150 S720 70 790 50"/><circle class="x32pt" cx="790" cy="50" r="16"/></svg>
+      <i class="x32pc">+18 %</i>`);
+    const ln = ap.querySelector('.x32ln'), pt = ap.querySelector('.x32pt'), pc = ap.querySelector('.x32pc');
+    const L = 900; ln.style.strokeDasharray = L;
+    tl.set(ap, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(ap, { autoAlpha: 0, y: 120 }, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power4.out', immediateRender: false }, K.turn - 0.05);
+    sfx('whoosh', K.turn - 0.2, -10);
+    perFrame((t) => { ln.style.strokeDashoffset = L * (1 - E.io(clamp((t - K.chart + 0.1) / 0.9, 0, 1))); });
+    tl.set([pt, pc], { autoAlpha: 0 }, 0);
+    tl.fromTo(pt, { autoAlpha: 0, scale: 0 }, { autoAlpha: 1, scale: 1, transformOrigin: '50% 50%', duration: 0.25, ease: 'back.out(3)', immediateRender: false }, K.chart + 0.75);
+    tl.fromTo(pc, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.4)', immediateRender: false }, K.plus - 0.05);
+    sfx('pop', K.plus, -12);
+    // advance payment card
+    const ad = el('div', 'x32adv', `<small>${S.adv}</small><div class="x32nums"><s>${cur(165)}</s><i>→</i><b>${cur(165)}</b></div><em>${S.early}</em>`);
+    const old = ad.querySelector('s'), arr = ad.querySelector('.x32nums i'), nv = ad.querySelector('b'), em = ad.querySelector('em');
+    tl.set(ad, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(ad, { autoAlpha: 0, y: 80 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'back.out(1.8)', immediateRender: false }, K.adj - 0.15);
+    sfx('pop', K.adj, -13);
+    tl.set([old, arr, em], { autoAlpha: 0 }, 0);
+    tl.fromTo(em, { autoAlpha: 0, scale: 0.5 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'back.out(2.4)', immediateRender: false }, K.early - 0.05);
+    sfx('chime', K.early, -12);
+    tl.fromTo([old, arr], { autoAlpha: 0, x: -30 }, { autoAlpha: 1, x: 0, duration: 0.25, stagger: 0.1, immediateRender: false }, K.from);
+    perFrame((t) => { nv.textContent = cur(Math.round(165 + 40 * E.o5(clamp((t - K.to) / 0.7, 0, 1)))); });
+    sfx('counter', K.to, -14);
+    // zero
+    const zr = el('div', 'x32zero', `<small>${S.zero}</small><b>${cur(0)}</b>`);
+    tl.set(zr, { xPercent: -50, autoAlpha: 0, rotation: -6 }, 0);
+    tl.fromTo(zr, { autoAlpha: 0, scale: 2.4 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'power4.in', immediateRender: false }, K.zero - 0.2);
+    sfx('impact', K.zero + 0.05, -9);
+    const lk = el('div', 'x32lock', `<span class="ai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${S.tag}</small></span>`);
+    tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+    tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)' }, END + 0.3);
+    sfx('impact', END + 0.33, -10);
+    setCapHidden((t) => t > END + 0.3);
+    return { T, K };
+  }
+
+  // ================= XK: shared card-scene kit for X33-X44 =================
+  function XK(ink, acc, bg) {
+    stage.style.setProperty('--ink', ink); stage.style.setProperty('--acc', acc);
+    el('div', 'xkbg', '<i></i>').style.background = bg;
+    const card = (cls, html, css) => { const e = el('div', 'xkc ' + cls, html, null, css); tl.set(e, { xPercent: -50, autoAlpha: 0 }, 0); return e; };
+    const show = (e, t, o = {}) => {
+      tl.fromTo(e, { autoAlpha: 0, y: o.y ?? 80, scale: o.s ?? 0.92 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.4, ease: 'back.out(1.7)', immediateRender: false }, t);
+      if (o.sfx !== false) sfx(o.sfx || 'pop', t + 0.05, -13);
+    };
+    const hide = (es, t) => tl.to(es, { autoAlpha: 0, y: -70, scale: 0.92, duration: 0.3, ease: 'power2.in', stagger: 0.03 }, t);
+    const pops = (es, ts, sf = 'pop', db = -14) => {
+      tl.set(es, { autoAlpha: 0 }, 0);
+      es.forEach((e, i) => { tl.fromTo(e, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.28, ease: 'back.out(2.4)', immediateRender: false }, ts[i] - 0.08); if (sf) sfx(sf, ts[i], db); });
+    };
+    const hd = (sub) => `<div class="xkhd"><span class="xkai"><img src="assets/logo.png"></span><b>Tenance</b>${sub ? `<em>${sub}</em>` : ''}</div>`;
+    const stamp = (txt, top, t) => {
+      const e = el('div', 'xkst', txt, null, { top: top + 'px' });
+      tl.set(e, { xPercent: -50, autoAlpha: 0, rotation: -5 }, 0);
+      tl.fromTo(e, { autoAlpha: 0, scale: 2.4 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'power4.in', immediateRender: false }, t - 0.2);
+      sfx('impact', t + 0.05, -10); return e;
+    };
+    const count = (node, a, b, t0, d, fmt = (v) => v) => perFrame((t) => { node.textContent = fmt(Math.round(a + (b - a) * E.o5(clamp((t - t0) / d, 0, 1)))); });
+    const turn = () => { const it = W(['Tenance', 'Tenance']); return { t: words[it.i - 1].start, i: it.i }; };
+    const end = (tag) => {
+      const lk = el('div', 'xklock', `<span class="xkai"><img src="assets/logo.png"></span><span><b>Tenance</b><small>${tag}</small></span>`);
+      tl.set(lk, { autoAlpha: 0, xPercent: -50 }, 0);
+      tl.fromTo(lk, { autoAlpha: 0, y: 60, scale: 0.7 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.8)' }, END + 0.3);
+      sfx('impact', END + 0.33, -10); setCapHidden((t) => t > END + 0.3);
+    };
+    const shake = (e, t) => tl.fromTo(e, { x: 0 }, { x: 12, duration: 0.06, yoyo: true, repeat: 7, immediateRender: false }, t);
+    return { card, show, hide, pops, hd, stamp, count, turn, end, shake };
+  }
+  const TAG = () => (lang === 'de' ? 'für Mieter & Vermieter' : 'for tenants & landlords');
+
+  // ================= X33: cold radiator at 10 pm → photo report → landlord sees → appointment 8:00 → warm by 9 =================
+  function X33() {
+    const de = lang === 'de';
+    const S = de ? { night: '🌙 22:00', room: 'Wohnzimmer · Heizung kalt', rep: 'Meldung · Heizung', out: 'Gesendet', seen: 'Vermieter hat gesehen', appt: 'Morgen · 08:00 · Techniker', warm: '☀️ 09:00 · warm', end: ['Gemeldet', 'Gesehen', 'Erledigt'] }
+      : { night: '🌙 10:00 pm', room: 'Living room · heating cold', rep: 'Report · Heating', out: 'Sent', seen: 'Landlord has seen it', appt: 'Tomorrow · 8:00 am · Technician', warm: '☀️ 9:00 am · warm', end: ['Reported', 'Seen', 'Fixed'] };
+    const k = XK('#1f2a44', '#ff6b4a', 'linear-gradient(180deg,#1d2747 0%,#2c3a66 55%,#3c4c7e 100%)');
+    const T0 = k.turn(), K = { turn: T0.t };
+    K.cold = W(['kalt', 'cold']).start; K.photo = W(['Foto', 'photo'], T0.i).start; K.out = W(['raus', 'out'], T0.i).start;
+    K.sees = W(['sieht', 'sees'], T0.i).start; K.appt = W(['Termin', 'appointment'], T0.i).start; K.warm = W(['warm', 'warm'], T0.i).start;
+    const e1 = W(['Gemeldet', 'reported'], T0.i), e2 = W(['gesehen', 'seen'], e1.i), e3 = W(['erledigt', 'fixed'], e2.i);
+    const ch = k.card('xkchip', S.night, { top: '140px' }); k.show(ch, 0.05);
+    const rd = k.card('x33rad', `<i>♨️</i><b class="xkbig">15°</b><span class="xksm">${S.room}</span><u>❄️</u>`, { top: '320px' });
+    const tv = rd.querySelector('b'); k.show(rd, 0.25);
+    tl.to(tv, { color: '#3b8cff', duration: 0.3 }, K.cold - 0.1); k.shake(rd, K.cold); sfx('shiver', K.cold, -12);
+    k.hide([ch, rd], K.turn - 0.3);
+    const ap = k.card('x33app', k.hd(S.rep) + `<div class="x33ph"><i>♨️</i><em></em></div><div class="xkr x33a"><i>📤</i><span>${S.out}</span><em>✓</em></div><div class="xkr x33b"><i>👁️</i><span>${S.seen}</span><em>✓</em></div>`, { top: '150px' });
+    k.show(ap, K.turn - 0.05, { sfx: 'whoosh' });
+    const fl = ap.querySelector('.x33ph em');
+    tl.fromTo(fl, { opacity: 0 }, { opacity: 1, duration: 0.05, yoyo: true, repeat: 1, immediateRender: false }, K.photo); sfx('shutter', K.photo, -10);
+    k.pops([ap.querySelector('.x33a'), ap.querySelector('.x33b')], [K.out, K.sees], 'send');
+    k.hide([ap], K.appt - 0.35);
+    const am = k.card('x33appt', `<div class="xkr"><i>📅</i><span>${S.appt}</span><em>✓</em></div>`, { top: '170px' }); k.show(am, K.appt - 0.1, { sfx: 'chime' });
+    const tc = k.card('x33rad', `<i>♨️</i><b class="xkbig">15°</b><span class="xksm">${S.warm}</span>`, { top: '420px' });
+    const tn = tc.querySelector('b'); k.show(tc, K.warm - 0.45);
+    k.count(tn, 15, 21, K.warm - 0.2, 0.8, (v) => v + '°'); tl.fromTo(tn, { color: '#3b8cff' }, { color: '#ff6b4a', duration: 0.6, immediateRender: false }, K.warm - 0.2);
+    const pills = S.end.map((s, i) => k.card('xkchip x33p', `${s} ✓`, { top: `${830 + i * 110}px` }));
+    k.pops(pills, [e1.start, e2.start, e3.start], 'pop', -12);
+    k.end(TAG());
+    return { T: END + 2.1, K };
+  }
+
+  // ================= X34: meter reading due → reminder → photo of the meter → value in → same number for both =================
+  function X34() {
+    const de = lang === 'de';
+    const S = de ? { cal: '📅 31. Oktober', due: 'Zählerstand fällig', rem: 'Erinnerung · Zählerstand', snap: 'Foto erkannt', unit: 'kWh', val: 'eingetragen', who: ['Mieter', 'Vermieter'], no: 'Keine Schätzung ✓' }
+      : { cal: '📅 October 31', due: 'Meter reading due', rem: 'Reminder · Meter reading', snap: 'Photo read', unit: 'kWh', val: 'saved', who: ['Tenant', 'Landlord'], no: 'No estimates ✓' };
+    const k = XK('#1d2b3a', '#2f7ff0', 'linear-gradient(180deg,#eef3f8 0%,#dfe8f2 60%,#d0dcea 100%)');
+    const T0 = k.turn(), K = { turn: T0.t };
+    K.due = W(['Zählerstand', 'reading']).start; K.rem = W(['Erinnerung', 'reminder'], T0.i).start; K.snap = W(['fotografierst', 'snap'], T0.i).start;
+    K.val = W(['Wert', 'number'], T0.i).start; K.same = W(['dieselbe', 'same'], T0.i).start; K.no = W(['Keine', 'no'], T0.i).start;
+    const fmt = (v) => (de ? String(v).replace(/\B(?=(\d{3})+(?!\d))/g, '.') : String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+    const ch = k.card('xkchip', S.cal, { top: '140px' }); k.show(ch, 0.05);
+    const mt = k.card('x34m', `<div class="x34d">? ? ? ?</div><span class="xksm">${S.due}</span>`, { top: '320px' }); k.show(mt, K.due - 0.3);
+    k.shake(mt, K.due + 0.4);
+    k.hide([ch, mt], K.turn - 0.3);
+    const nt = k.card('x34n', `<span class="xkai"><img src="assets/logo.png"></span><div><b>${S.rem}</b><small>${S.cal.slice(3)}</small></div><em>⏰</em>`, { top: '150px' });
+    k.show(nt, K.rem - 0.15, { sfx: 'chime' });
+    const cam = k.card('x34cam', `<i class="c1"></i><i class="c2"></i><i class="c3"></i><i class="c4"></i><div class="x34d"><b>0</b> <small>${S.unit}</small></div><em></em>`, { top: '420px' });
+    const dn = cam.querySelector('b'), fl = cam.querySelector('em');
+    k.show(cam, K.snap - 0.35, { sfx: false });
+    tl.fromTo(fl, { opacity: 0 }, { opacity: 1, duration: 0.05, yoyo: true, repeat: 1, immediateRender: false }, K.snap + 0.25); sfx('shutter', K.snap + 0.25, -10);
+    k.count(dn, 0, 4512, K.snap + 0.3, 0.7, fmt);
+    const ok = k.card('xkchip x34ok', `✓ ${fmt(4512)} ${S.unit} ${S.val}`, { top: '870px' }); k.show(ok, K.val - 0.1, { sfx: 'chime' });
+    k.hide([nt, cam, ok], K.same - 0.6);
+    const two = k.card('x34two', S.who.map((w, i) => `<div><i>${i ? '🏠' : '🙂'}</i><small>${w}</small><b>${fmt(4512)}</b></div>`).join('<u>=</u>'), { top: '260px' });
+    k.show(two, K.same - 0.4, { sfx: 'pop' });
+    k.stamp(S.no, 760, K.no);
+    k.end(TAG());
+    return { T: END + 2.1, K };
+  }
+
+  // ================= X35: water off Thursday → 8 units must know → one message to all → read receipts 8/8 =================
+  function X35() {
+    const de = lang === 'de';
+    const S = de ? { day: '🚰 Donnerstag · 9–12 Uhr', off: 'Wasser abgestellt', msg: 'Do. 9–12 Uhr kein Wasser. Bitte vorher Wasser bereitstellen.', to: 'An alle · 8 Wohnungen', read: 'gelesen', u: 'Whg', no: 'Kein Zettel ✓' }
+      : { day: '🚰 Thursday · 9–12', off: 'Water shut off', msg: 'Thu 9–12: no water. Please fill up beforehand.', to: 'To everyone · 8 units', read: 'read', u: 'Apt', no: 'No flyers ✓' };
+    const k = XK('#13334a', '#1fa3c9', 'linear-gradient(180deg,#e8f5f9 0%,#d6ecf3 60%,#c4e2ec 100%)');
+    const T0 = k.turn(), K = { turn: T0.t };
+    K.water = W(['Wasser', 'water']).start; K.eight = W(['acht', 'eight']).start; K.msg = W(['Nachricht', 'message'], T0.i).start;
+    const rd = W(['gelesen', 'read'], T0.i); K.read = rd.start; K.e8 = W(['Acht', 'eight'], rd.i).start; K.no = W(['Kein', 'no'], rd.i).start;
+    const dc = k.card('x35day', `<b>${S.day}</b><span class="xksm">${S.off}</span>`, { top: '150px' }); k.show(dc, K.water - 0.3);
+    const grid = (cls) => `<div class="x35g ${cls}">` + Array.from({ length: 8 }, (_, i) => `<div class="x35u"><i>🚪</i><small>${S.u} ${i + 1}</small><em>?</em></div>`).join('') + '</div>';
+    const g1 = k.card('x35gc', grid(''), { top: '470px' }); k.show(g1, K.eight - 0.3);
+    const q1 = [...g1.querySelectorAll('em')]; k.pops(q1, q1.map((_, i) => K.eight + 0.1 + i * 0.06), null);
+    k.hide([dc, g1], K.turn - 0.3);
+    const ap = k.card('x35app', k.hd(S.to) + `<div class="x35b">${S.msg}<em>➤</em></div>`, { top: '150px' }); k.show(ap, K.turn - 0.05, { sfx: 'whoosh' });
+    const bb = ap.querySelector('.x35b'); tl.set(bb, { autoAlpha: 0 }, 0);
+    tl.fromTo(bb, { autoAlpha: 0, x: 80 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, K.msg - 0.1); sfx('send', K.msg, -11);
+    const g2 = k.card('x35gc', grid('ok') + `<div class="x35c"><b>0</b>/8 ${S.read}</div>`, { top: '600px' }); k.show(g2, K.msg + 0.3, { sfx: false });
+    const ems = [...g2.querySelectorAll('em')]; ems.forEach((e) => { e.textContent = '✓'; });
+    const span = Math.max(0.6, K.e8 - K.read);
+    k.pops(ems, ems.map((_, i) => K.read + (i * span) / 8), 'pop', -16);
+    k.count(g2.querySelector('.x35c b'), 0, 8, K.read, span + 0.1);
+    k.stamp(S.no, 1060, K.no);
+    k.end(TAG());
+    return { T: END + 2.1, K };
+  }
+
+  // ================= X36: move-in, every scratch counts → room-by-room photos → both sign on phone → protocol in archive =================
+  function X36() {
+    const de = lang === 'de';
+    const S = de ? { chip: '🔑 Einzug', sc: 'Kratzer?', rooms: ['Küche', 'Bad', 'Wohnzimmer', 'Schlafzimmer'], title: 'Übergabeprotokoll', who: ['Mieter', 'Vermieter'], arch: '🗄️ Protokoll im Archiv ✓' }
+      : { chip: '🔑 Move-in', sc: 'Scratch?', rooms: ['Kitchen', 'Bathroom', 'Living room', 'Bedroom'], title: 'Handover report', who: ['Tenant', 'Landlord'], arch: '🗄️ Report in archive ✓' };
+    const k = XK('#2b2418', '#c07a2c', 'linear-gradient(180deg,#f6efe4 0%,#efe3d1 60%,#e6d5bd 100%)');
+    const T0 = k.turn(), K = { turn: T0.t };
+    K.sc = W(['Kratzer', 'scratch']).start; K.room = W(['Raum', 'room'], T0.i).start; K.ph = W(['Fotos', 'photos'], T0.i).start;
+    K.sign = W(['unterschreiben', 'sign'], T0.i).start; const ar = W(['Archiv', 'archive'], T0.i); K.arch = ar.start; K.for = W(['Für', 'for'], ar.i).start;
+    const ch = k.card('xkchip', S.chip, { top: '140px' }); k.show(ch, 0.05);
+    const fl = k.card('x36fl', `<svg viewBox="0 0 800 420"><path class="x36s" d="M180 260 L520 190"/></svg><b>🔍</b><em>${S.sc}</em>`, { top: '300px' }); k.show(fl, 0.3);
+    const sp = fl.querySelector('.x36s'); sp.style.strokeDasharray = 400;
+    perFrame((t) => { sp.style.strokeDashoffset = 400 * (1 - clamp((t - K.sc + 0.2) / 0.5, 0, 1)); });
+    sfx('sting', K.sc, -14);
+    k.hide([ch, fl], K.turn - 0.3);
+    const ap = k.card('x36app', k.hd(S.title) + S.rooms.map((r) => `<div class="xkr"><i>📷</i><span>${r}</span><em>✓</em></div>`).join('') + '<div class="x36th">' + '<i></i>'.repeat(4) + '</div>', { top: '140px' });
+    k.show(ap, K.turn - 0.05, { sfx: 'whoosh' });
+    const rws = [...ap.querySelectorAll('.xkr em')], th = [...ap.querySelectorAll('.x36th i')];
+    k.pops(rws, rws.map((_, i) => K.room + i * ((K.ph - K.room + 0.4) / 4)), 'pop', -15);
+    k.pops(th, th.map((_, i) => K.ph + i * 0.12), 'shutter', -16);
+    const sg = k.card('x36sg', S.who.map((w) => `<div><svg viewBox="0 0 300 110"><path d="M10 80 C40 20 60 100 90 50 S140 30 160 70 S220 90 290 30"/></svg><small>${w}</small></div>`).join(''), { top: '930px' });
+    k.show(sg, K.sign - 0.2, { sfx: false });
+    const sps = [...sg.querySelectorAll('path')]; sps.forEach((p) => { p.style.strokeDasharray = 500; });
+    perFrame((t) => { sps.forEach((p, i) => { p.style.strokeDashoffset = 500 * (1 - E.io(clamp((t - K.sign - i * 0.5) / 0.6, 0, 1))); }); });
+    sfx('unfold', K.sign, -14);
+    k.hide([ap, sg], K.arch - 0.45);
+    const ac = k.card('xkchip x36ar', S.arch, { top: '380px' }); k.show(ac, K.arch - 0.15, { sfx: 'chime' });
+    const who = S.who.map((w, i) => k.card('xkchip x36w', `${i ? '🏠' : '🙂'} ${w} ✓`, { top: `${560 + i * 120}px` }));
+    k.pops(who, [K.for, K.for + 0.35], 'pop', -12);
+    k.end(TAG());
+    return { T: END + 2.1, K };
+  }
+
+  // ================= X37: 3rd of the month, rent in? → landlord sees all units → 7 paid, 1 pending → friendly reminder =================
+  function X37() {
+    const de = lang === 'de';
+    const S = de ? { day: '3.', mon: 'Oktober', q: 'Miete da?', title: 'Mieteingang · Oktober', u: 'Whg', paid: 'bezahlt', open: 'offen', rem: '👋 Kleine Erinnerung: Miete Oktober ist noch offen.', no: 'Kein Anruf nötig ✓' }
+      : { day: '3rd', mon: 'October', q: 'Rent in?', title: 'Rent status · October', u: 'Apt', paid: 'paid', open: 'pending', rem: '👋 Friendly reminder: October rent is still open.', no: 'No awkward calls ✓' };
+    const k = XK('#16323a', '#1fbf72', 'linear-gradient(180deg,#eaf6f1 0%,#d9eee4 60%,#c8e5d7 100%)');
+    const T0 = k.turn(), K = { turn: T0.t };
+    K.rent = W(['Miete', 'rent']).start; K.gl = W(['Blick', 'glance'], T0.i).start; K.seven = W(['Sieben', 'seven'], T0.i).start;
+    K.one = W(['offen', 'pending'], T0.i).start; K.rem = W(['Erinnerung', 'reminder'], T0.i).start; K.no = W(['Keine', 'no'], T0.i).start;
+    const cal = k.card('x37cal', `<small>${S.mon}</small><b>${S.day}</b>`, { top: '200px' }); k.show(cal, 0.05);
+    const q = k.card('xkchip x37q', `💶 ${S.q} 🤔`, { top: '700px' }); k.show(q, K.rent - 0.2);
+    k.shake(q, K.rent + 0.4);
+    k.hide([cal, q], K.turn - 0.3);
+    const ap = k.card('x37app', k.hd(S.title) + '<div class="x37g">' + Array.from({ length: 8 }, (_, i) => `<div class="x37u${i === 3 ? ' x37o' : ''}"><small>${S.u} ${i + 1}</small><b>…</b></div>`).join('') + '</div>', { top: '150px' });
+    k.show(ap, K.turn - 0.05, { sfx: 'whoosh' });
+    const us = [...ap.querySelectorAll('.x37u')];
+    tl.set(us, { autoAlpha: 0 }, 0);
+    us.forEach((u, i) => tl.fromTo(u, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.25, immediateRender: false }, K.gl - 0.3 + i * 0.05));
+    const paid = us.filter((_, i) => i !== 3);
+    paid.forEach((u, i) => {
+      const t = K.seven + i * 0.09;
+      tl.to(u, { backgroundColor: '#1fbf72', color: '#fff', duration: 0.2 }, t);
+      u.querySelector('b').dataset.t = t;
+      sfx('pop', t, -17);
+    });
+    perFrame((t) => { us.forEach((u, i) => { const b = u.querySelector('b'); if (i === 3) b.textContent = t > K.one - 0.1 ? S.open : '…'; else b.textContent = t > +b.dataset.t ? `✓ ${S.paid}` : '…'; }); });
+    tl.to(us[3], { backgroundColor: '#ff9f43', color: '#fff', duration: 0.2 }, K.one - 0.1); sfx('buzz', K.one, -16);
+    const rb = k.card('x37rem', `<span>${S.rem}</span><em>➤</em>`, { top: '760px' }); k.show(rb, K.rem - 0.1, { sfx: 'send' });
+    k.stamp(S.no, 1020, K.no);
+    k.end(TAG());
+    return { T: END + 2.1, K };
+  }
+
+  // ================= X38: chimney inspector, nobody home → appointment to all tenants → confirm with one tap → all units checked =================
+  function X38() {
+    const de = lang === 'de';
+    const S = de ? { who: '🧹 Schornsteinfeger', ring: 'Niemand da …', appt: 'Schornsteinfeger · Di 10:00', u: 'Whg', ok: 'bestätigt', all: '6/6 geprüft ✓', first: '1. Besuch' }
+      : { who: '🧹 Chimney inspector', ring: 'Nobody home …', appt: 'Chimney inspection · Tue 10:00', u: 'Apt', ok: 'confirmed', all: '6/6 checked ✓', first: '1st visit' };
+    const k = XK('#2d2233', '#8a5cf6', 'linear-gradient(180deg,#f1ecf8 0%,#e4dcf1 60%,#d5c9e9 100%)');
+    const T0 = k.turn(), K = { turn: T0.t };
+    K.nb = W(['keiner', "nobody's", 'nobodys']).start; K.appt = W(['Termin', 'appointment'], T0.i).start;
+    const cf = W(['bestätigt', 'confirms'], T0.i); K.conf = cf.start; K.all = W(['Alle', 'every'], cf.i).start; K.first = W(['ersten', 'first'], cf.i).start;
+    const ch = k.card('xkchip', S.who, { top: '140px' }); k.show(ch, 0.05);
+    const dr = k.card('x38door', `<b>🚪</b><i>🔔</i><span>${S.ring}</span>`, { top: '300px' }); k.show(dr, 0.35);
+    const bell = dr.querySelector('i'); tl.fromTo(bell, { rotation: -20 }, { rotation: 20, duration: 0.1, yoyo: true, repeat: 9, immediateRender: false }, 0.6); sfx('buzz', 0.7, -14);
+    tl.set(dr.querySelector('span'), { autoAlpha: 0 }, 0); tl.to(dr.querySelector('span'), { autoAlpha: 1, duration: 0.3 }, K.nb - 0.1);
+    k.hide([ch, dr], K.turn - 0.3);
+    const nt = k.card('x34n', `<span class="xkai"><img src="assets/logo.png"></span><div><b>${S.appt}</b></div><em>📅</em>`, { top: '150px' }); k.show(nt, K.turn - 0.05, { sfx: 'chime' });
+    const ls = k.card('x38ls', Array.from({ length: 6 }, (_, i) => `<div class="xkr"><i>🚪</i><span>${S.u} ${i + 1}</span><em>✓ ${S.ok}</em></div>`).join(''), { top: '360px' });
+    k.show(ls, K.appt + 0.3, { sfx: false });
+    const ems = [...ls.querySelectorAll('em')];
+    k.pops(ems, ems.map((_, i) => K.conf + i * Math.min(0.15, (K.all - K.conf) / 6)), 'pop', -16);
+    k.stamp(S.all, 1060, K.all + 0.1);
+    const fc = k.card('xkchip x38f', S.first, { top: '200px' });
+    k.hide([nt], K.first - 0.4); k.show(fc, K.first - 0.2, { sfx: false });
+    k.end(TAG());
+    return { T: END + 2.1, K };
+  }
+
+  // ================= X39: tax return, need every receipt → tap 2026 → all receipts in one list → 12 rents, utilities, one export =================
+  function X39() {
+    const de = lang === 'de';
+    const S = de ? { tax: '📄 Steuererklärung 2026', q: 'Belege?', yrs: ['2024', '2025', '2026'], rent: 'Miete', util: 'Nebenkosten', inv: 'Rechnung', twelve: '12 × Miete', utilAll: 'Nebenkosten ✓', exp: '⬇️ PDF-Export', ok: 'Export fertig ✓', mon: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun'] }
+      : { tax: '📄 Tax return 2026', q: 'Receipts?', yrs: ['2024', '2025', '2026'], rent: 'Rent', util: 'Utilities', inv: 'Invoice', twelve: '12 × rent', utilAll: 'Utilities ✓', exp: '⬇️ PDF export', ok: 'Export ready ✓', mon: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'] };
+    const k = XK('#23283a', '#5b6cf0', 'linear-gradient(180deg,#eef0fb 0%,#e0e3f6 60%,#d0d5ef 100%)');
+    const T0 = k.turn(), K = { turn: T0.t };
+    K.need = W(['Belege', 'receipt']).start; K.yr = W(['zweitausendsechsundzwanzig', 'twenty'], T0.i).start; K.list = W(['Liste', 'list'], T0.i).start;
+    K.tw = W(['Zwölf', 'twelve'], T0.i).start; K.util = W(['Nebenkosten', 'utility'], T0.i).start; K.exp = W(['Export', 'export'], T0.i).start;
+    const tx = k.card('x39tx', `<b>${S.tax}</b><div class="x39ps"><i></i><i></i><i></i></div><em>${S.q}</em>`, { top: '180px' }); k.show(tx, 0.05);
+    const ps = [...tx.querySelectorAll('.x39ps i')];
+    ps.forEach((p, i) => tl.fromTo(p, { y: -300, rotation: 0, autoAlpha: 0 }, { y: 0, rotation: (i - 1) * 14, autoAlpha: 1, duration: 0.4, ease: 'bounce.out', immediateRender: false }, K.need - 0.2 + i * 0.15));
+    sfx('receipts', K.need, -12);
+    k.hide([tx], K.turn - 0.3);
+    const ap = k.card('x39app', k.hd() + `<div class="x39y">${S.yrs.map((y) => `<span>${y}</span>`).join('')}</div><div class="x39l">` +
+      S.mon.map((m) => `<div class="xkr"><i>🧾</i><span>${S.rent} · ${m}</span><em>✓</em></div>`).join('') + `<div class="xkr"><i>📄</i><span>${S.util} · ${S.inv}</span><em>✓</em></div></div>`, { top: '140px' });
+    k.show(ap, K.turn - 0.05, { sfx: 'whoosh' });
+    const y3 = ap.querySelectorAll('.x39y span')[2];
+    tl.to(y3, { backgroundColor: '#5b6cf0', color: '#fff', scale: 1.12, duration: 0.2 }, K.yr - 0.05); sfx('pop', K.yr, -12);
+    const rows = [...ap.querySelectorAll('.x39l .xkr')];
+    tl.set(rows, { autoAlpha: 0 }, 0);
+    rows.forEach((r, i) => { tl.fromTo(r, { autoAlpha: 0, x: -50 }, { autoAlpha: 1, x: 0, duration: 0.2, immediateRender: false }, K.list - 0.2 + i * 0.08); });
+    sfx('counter', K.list - 0.1, -15);
+    const c1 = k.card('xkchip x39c', S.twelve, { top: '1000px', left: '30%' }); const c2 = k.card('xkchip x39c', S.utilAll, { top: '1000px', left: '70%' });
+    k.pops([c1, c2], [K.tw, K.util], 'pop', -12);
+    k.hide([ap, c1, c2], K.exp - 0.5);
+    const ex = k.card('x39ex', `<b>${S.exp}</b><small>2026.pdf</small>`, { top: '380px' }); k.show(ex, K.exp - 0.3, { sfx: 'kaching' });
+    k.stamp(S.ok, 760, K.exp + 0.4);
+    k.end(TAG());
+    return { T: END + 2.1, K };
+  }
+
+  // ================= X40: 47 scattered messages → one thread per issue: heating, window, basement → status + photos =================
+  function X40() {
+    const de = lang === 'de';
+    const S = de ? { msgs: ['Heizung??', 'und das Fenster', 'Foto kommt', 'welcher Keller?', 'hab doch geschrieben', 'ok?'], th: [['♨️', 'Heizung', 'Erledigt', '#1fbf72'], ['🪟', 'Fenster', 'In Arbeit', '#ff9f43'], ['📦', 'Keller', 'Neu', '#2f7ff0']], title: 'Anliegen', one: 'Alles an einem Ort ✓', who: ['🙂 Mieter', '🏠 Vermieter'] }
+      : { msgs: ['heating??', 'and the window', 'photo coming', 'which basement?', 'I already wrote', 'ok?'], th: [['♨️', 'Heating', 'Done', '#1fbf72'], ['🪟', 'Window', 'In progress', '#ff9f43'], ['📦', 'Basement', 'New', '#2f7ff0']], title: 'Issues', one: 'All in one place ✓', who: ['🙂 Tenant', '🏠 Landlord'] };
+    const k = XK('#202634', '#2f7ff0', 'linear-gradient(180deg,#eef1f7 0%,#e1e6f0 60%,#d2d9e8 100%)');
+    const T0 = k.turn(), K = { turn: T0.t };
+    K.nb = W(['keiner', 'nobody']).start;
+    const h = W(['Heizung', 'heating'], T0.i), f = W(['Fenster', 'window'], h.i), kk = W(['Keller', 'basement'], f.i);
+    K.h = h.start; K.f = f.start; K.k = kk.start; K.st = W(['Status', 'status'], kk.i).start; K.ph = W(['Fotos', 'photos'], kk.i).start;
+    K.one = W(['Ort', 'place'], kk.i).start; K.both = W(['beide', 'both'], kk.i).start;
+    const badge = k.card('x40bd', '💬 <b>0</b>', { top: '140px' }); k.show(badge, 0.02); k.count(badge.querySelector('b'), 0, 47, 0.1, 1.4);
+    const bs = S.msgs.map((m, i) => k.card('x40m', m, { top: `${300 + i * 125}px`, left: `${i % 2 ? 60 : 40}%` }));
+    k.pops(bs, bs.map((_, i) => 0.2 + i * 0.22), 'send', -17);
+    bs.forEach((b, i) => tl.to(b, { rotation: (i % 2 ? 1 : -1) * 4, duration: 0.3 }, K.nb));
+    k.shake(badge, K.nb);
+    k.hide([badge, ...bs], K.turn - 0.3);
+    const ap = k.card('x40app', k.hd(S.title) + S.th.map(([i, n, s, c]) => `<div class="xkr x40t"><i>${i}</i><span>${n}<small class="x40ph"><u></u><u></u></small></span><em style="background:${c}">${s}</em></div>`).join(''), { top: '150px' });
+    k.show(ap, K.turn - 0.05, { sfx: 'whoosh' });
+    const nc = k.card('xkchip', `💬 47 → ${S.th.length} ${S.title}`, { top: '700px' }); k.show(nc, K.turn + 0.4); k.hide([nc], K.h - 0.3);
+    const ts = [...ap.querySelectorAll('.x40t')];
+    k.pops(ts, [K.h, K.f, K.k], 'pop', -13);
+    const ems = [...ap.querySelectorAll('.x40t em')]; k.pops(ems, ems.map((_, i) => K.st + i * 0.1), 'chime', -18);
+    const phs = [...ap.querySelectorAll('.x40ph')]; k.pops(phs, phs.map((_, i) => K.ph + i * 0.1), 'shutter', -18);
+    k.stamp(S.one, 780, K.one);
+    const who = S.who.map((w, i) => k.card('xkchip', w, { top: '960px', left: `${i ? 70 : 30}%` }));
+    k.pops(who, [K.both, K.both + 0.25], 'pop', -12);
+    k.end(TAG());
+    return { T: END + 2.1, K };
+  }
+
+  // ================= X41: move-out scratch dispute → move-in photo next to today's → scratch was already there → deposit back =================
+  function X41() {
+    const de = lang === 'de';
+    const S = de ? { chip: '📦 Auszug', a: 'Der Kratzer war vorher nicht da!', b: 'Doch, der war schon da.', p1: 'Einzug · 01.03.2023', p2: 'Heute', same: '= derselbe Kratzer', over: 'Diskussion beendet ✓', back: '💶 Kaution zurück' }
+      : { chip: '📦 Move-out', a: "That scratch wasn't there before!", b: 'Yes it was, it was already there.', p1: 'Move-in · 03/01/2023', p2: 'Today', same: '= same scratch', over: 'Argument over ✓', back: '💵 Deposit back' };
+    const k = XK('#2c2117', '#c07a2c', 'linear-gradient(180deg,#f7efe6 0%,#efe2d3 60%,#e5d2bd 100%)');
+    const T0 = k.turn(), K = { turn: T0.t };
+    K.sc = W(['Kratzer', 'scratch']).start; K.in = W(['Einzug', 'move-in'], T0.i).start; K.now = W(['heute', "today's", 'todays'], T0.i).start;
+    const al = W(['schon', 'already'], T0.i); K.al = al.start; K.over = W(['beendet', 'over'], al.i).start; K.back = W(['zurück', 'back'], al.i).start;
+    const ch = k.card('xkchip', S.chip, { top: '140px' }); k.show(ch, 0.05);
+    const fl = k.card('x41fl', '<svg viewBox="0 0 800 300"><path d="M260 170 L520 120"/></svg>', { top: '300px' }); k.show(fl, K.sc - 0.35);
+    const ba = k.card('x41bub', S.a, { top: '700px', left: '44%' }), bb = k.card('x41bub x41r', S.b, { top: '850px', left: '56%' });
+    k.pops([ba, bb], [K.sc + 0.3, K.sc + 0.9], 'send', -14);
+    k.hide([ch, fl, ba, bb], K.turn - 0.3);
+    const cmp = k.card('x41cmp', k.hd() + `<div class="x41two"><div><div class="x41p"><svg viewBox="0 0 300 220"><path d="M90 130 L200 100"/></svg><i></i></div><small>${S.p1}</small></div><div><div class="x41p"><svg viewBox="0 0 300 220"><path d="M90 130 L200 100"/></svg><i></i></div><small>${S.p2}</small></div></div><div class="x41eq">${S.same}</div>`, { top: '150px' });
+    k.show(cmp, K.turn - 0.05, { sfx: 'whoosh' });
+    const pans = [...cmp.querySelectorAll('.x41two > div')]; k.pops(pans, [K.in, K.now], 'shutter', -14);
+    const rings = [...cmp.querySelectorAll('.x41p i')], eq = cmp.querySelector('.x41eq');
+    k.pops([...rings, eq], [K.al, K.al + 0.1, K.al + 0.3], 'chime', -14);
+    k.stamp(S.over, 830, K.over);
+    const bk = k.card('xkchip x41bk', S.back, { top: '1010px' }); k.show(bk, K.back - 0.15, { sfx: 'kaching' });
+    k.end(TAG());
+    return { T: END + 2.1, K };
+  }
+
+  // ================= X42: winter is coming → checklist with reminders (bleed radiators, windows, outside tap) → 3/3, landlord sees =================
+  function X42() {
+    const de = lang === 'de';
+    const S = de ? { chip: '❄️ November', q: 'Wohnung winterfest?', title: 'Winter-Checkliste', it: [['♨️', 'Heizkörper entlüften'], ['🪟', 'Fenster prüfen'], ['🚰', 'Außenhahn zu']], three: '3/3 erledigt', sees: '🏠 Vermieter hat gesehen 👁️' }
+      : { chip: '❄️ November', q: 'Winter-ready?', title: 'Winter checklist', it: [['♨️', 'Bleed the radiators'], ['🪟', 'Check the windows'], ['🚰', 'Shut the outside tap']], three: '3/3 done', sees: '🏠 Landlord has seen it 👁️' };
+    const k = XK('#1c2f45', '#2f7ff0', 'linear-gradient(180deg,#dce9f7 0%,#c9dcf1 60%,#b6cfea 100%)');
+    const T0 = k.turn(), K = { turn: T0.t };
+    K.ready = W(['bereit', 'ready']).start; const ls = W(['Checkliste', 'checklist'], T0.i); K.list = ls.start;
+    const a = W(['Heizkörper', 'bleed'], ls.i), b = W(['Fenster', 'check'], a.i), c = W(['Außenhahn', 'shut'], b.i);
+    K.a = a.start; K.b = b.start; K.c = c.start; K.three = W(['Drei', 'three'], c.i).start; K.sees = W(['sieht', 'sees'], c.i).start;
+    const sn = el('div', 'x42sn', Array.from({ length: 40 }, (_, i) => `<i style="left:${(i * 53) % 100}%;top:${(i * 37) % 100}%"></i>`).join(''));
+    perFrame((t) => { sn.style.transform = `translateY(${(t * 40) % 60}px)`; });
+    const ch = k.card('xkchip', S.chip, { top: '140px' }); k.show(ch, 0.05);
+    const hs = k.card('x42h', `<b>🏠</b><span>${S.q}</span>`, { top: '320px' }); k.show(hs, K.ready - 0.3); k.shake(hs, K.ready + 0.3);
+    k.hide([ch, hs], K.turn - 0.3);
+    const ap = k.card('x42app', k.hd(S.title) + S.it.map(([i, n]) => `<div class="xkr"><i>${i}</i><span>${n}</span><b class="x42b"><u>✓</u></b></div>`).join(''), { top: '150px' });
+    k.show(ap, K.list - 0.2, { sfx: 'whoosh' });
+    const ticks = [...ap.querySelectorAll('.x42b u')], boxes = [...ap.querySelectorAll('.x42b')];
+    k.pops(ticks, [K.a + 0.3, K.b + 0.3, K.c + 0.3], 'chime', -15);
+    boxes.forEach((bx, i) => tl.to(bx, { backgroundColor: '#1fbf72', borderColor: '#1fbf72', duration: 0.15 }, [K.a, K.b, K.c][i] + 0.25));
+    k.stamp(S.three, 760, K.three);
+    const sc = k.card('xkchip', S.sees, { top: '980px' }); k.show(sc, K.sees - 0.15, { sfx: 'pop' });
+    k.end(TAG());
+    return { T: END + 2.1, K };
+  }
+
+  // ================= X43: Monday, 5 open reports → sorted by urgency (heating, window, light) → tenants see status → week planned =================
+  function X43() {
+    const de = lang === 'de';
+    const S = de ? { chip: '☕ Mo · 08:00', tk: [['♨️', 'Heizung'], ['💡', 'Licht'], ['🪟', 'Fenster'], ['🚪', 'Tür'], ['🚿', 'Dusche']], title: 'Meldungen · nach Dringlichkeit', pr: ['Dringend', 'Hoch', 'Mittel', 'Normal', 'Normal'], sees: '👁️ Mieter sehen den Stand', days: ['Mo', 'Di', 'Mi', 'Do', 'Fr'], ok: 'Woche geplant ✓' }
+      : { chip: '☕ Mon · 8:00 am', tk: [['♨️', 'Heating'], ['💡', 'Light'], ['🪟', 'Window'], ['🚪', 'Door'], ['🚿', 'Shower']], title: 'Reports · by urgency', pr: ['Urgent', 'High', 'Medium', 'Normal', 'Normal'], sees: '👁️ Tenants see the status', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], ok: 'Week planned ✓' };
+    const k = XK('#2a2230', '#ff6b4a', 'linear-gradient(180deg,#f7eeee 0%,#efdfe0 60%,#e6cfd1 100%)');
+    const T0 = k.turn(), K = { turn: T0.t };
+    K.five = W(['fünf', 'five']).start;
+    const h = W(['Heizung', 'heating'], T0.i), f = W(['Fenster', 'window'], h.i), l = W(['Licht', 'light'], f.i);
+    K.sort = W(['sortiert', 'sorted'], T0.i).start; K.h = h.start; K.f = f.start; K.l = l.start; K.sees = W(['sieht', 'sees'], l.i).start; K.wk = W(['Woche', 'week'], l.i).start;
+    const ch = k.card('xkchip', S.chip, { top: '140px' }); k.show(ch, 0.05);
+    const sc = S.tk.map(([i, n], j) => k.card('x43t', `${i} ${n}`, { top: `${330 + (j * 137) % 560}px`, left: `${30 + (j * 23) % 45}%`, transform: `rotate(${(j % 2 ? 1 : -1) * (4 + j)}deg)` }));
+    k.pops(sc, sc.map((_, j) => K.five - 0.2 + j * 0.12), 'pop', -15);
+    k.hide([ch, ...sc], K.turn - 0.2);
+    const order = [0, 2, 1, 3, 4], col = ['#ff4e3d', '#ff9f43', '#f5c542', '#b9c1d3', '#b9c1d3'];
+    const ap = k.card('x43app', k.hd(S.title) + order.map((o, j) => `<div class="xkr"><b class="x43bar" style="background:${col[j]}"></b><i>${S.tk[o][0]}</i><span>${S.tk[o][1]}</span><em style="background:${col[j]}">${S.pr[j]}</em></div>`).join(''), { top: '150px' });
+    k.show(ap, K.sort - 0.25, { sfx: 'whoosh' });
+    const rws = [...ap.querySelectorAll('.xkr')];
+    k.pops(rws, [K.h, K.f, K.l, K.l + 0.3, K.l + 0.45], 'pop', -14);
+    const se = k.card('xkchip', S.sees, { top: '880px' }); k.show(se, K.sees - 0.15);
+    const wk = k.card('x43wk', S.days.map((d) => `<div><small>${d}</small><i></i></div>`).join(''), { top: '1010px' });
+    k.show(wk, K.wk - 0.25, { sfx: false });
+    const dots = [...wk.querySelectorAll('i')]; k.pops(dots, dots.map((_, i) => K.wk + i * 0.1), 'pop', -17);
+    k.end(TAG());
+    return { T: END + 2.1, K };
+  }
+
+  // ================= X44: new tenant, a thousand questions → day one in the app: house rules, trash schedule, contacts → welcome home =================
+  function X44() {
+    const de = lang === 'de';
+    const S = de ? { qs: ['🗑️ Wann kommt der Müll?', '🔧 Wer ist der Hausmeister?', '🔑 Wo ist der Keller?'], title: 'Dein Haus', tiles: [['📜', 'Hausordnung', 'Ruhezeiten · Treppenhaus'], ['🗓️', 'Müllplan', 'Di Restmüll · Fr Papier'], ['📞', 'Kontakte', 'Hausmeister · Vermieter']], wel: 'Willkommen zu Hause 🏡' }
+      : { qs: ['🗑️ When is trash day?', "🔧 Who's the caretaker?", "🔑 Where's the basement?"], title: 'Your building', tiles: [['📜', 'House rules', 'Quiet hours · Hallway'], ['🗓️', 'Trash schedule', 'Tue trash · Fri paper'], ['📞', 'Contacts', 'Caretaker · Landlord']], wel: 'Welcome home 🏡' };
+    const k = XK('#203a30', '#1fbf72', 'linear-gradient(180deg,#eef7ef 0%,#dcefdf 60%,#c9e6ce 100%)');
+    const T0 = k.turn(), K = { turn: T0.t };
+    K.q1 = W(['Müll', 'trash']).start; K.q2 = W(['Hausmeister', 'caretaker']).start; K.day = W(['ersten', 'one'], T0.i).start;
+    const r = W(['Hausordnung', 'rules'], T0.i), t = W(['Müllplan', 'schedule'], r.i), c = W(['Kontakte', 'contacts'], t.i);
+    K.r = r.start; K.t = t.start; K.c = c.start; K.wel = W(['Willkommen', 'welcome'], c.i).start;
+    const bx = k.card('x44box', '📦', { top: '160px' }); k.show(bx, 0.05);
+    const qs = S.qs.map((q, i) => k.card('x41bub x44q', q, { top: `${520 + i * 150}px`, left: `${[42, 58, 46][i]}%` }));
+    k.pops(qs, [K.q1 - 0.2, K.q2 - 0.2, K.q2 + 0.6], 'pop', -13);
+    qs.forEach((q, i) => tl.fromTo(q, { y: 0 }, { y: -14, duration: 0.6, yoyo: true, repeat: 3, ease: 'sine.inOut', immediateRender: false }, K.q1 + i * 0.2));
+    k.hide([bx, ...qs], K.turn - 0.3);
+    const ap = k.card('x44app', k.hd(S.title) + S.tiles.map(([i, n, s]) => `<div class="xkr x44t"><i>${i}</i><span>${n}<small>${s}</small></span><em>✓</em></div>`).join(''), { top: '150px' });
+    k.show(ap, K.turn - 0.05, { sfx: 'whoosh' });
+    const ts = [...ap.querySelectorAll('.x44t')]; k.pops(ts, [K.r, K.t, K.c], 'pop', -13);
+    const wl = k.card('x44wel', S.wel, { top: '820px' }); k.show(wl, K.wel - 0.15, { sfx: 'chime', s: 0.6 });
+    k.end(TAG());
+    return { T: END + 2.1, K };
+  }
+
+  // ================= AIK: "Tenance AI" hero kit (X45+): living gradient bg, particle field, AI core orb, neural links, 3D glass cards, kinetic end title =================
+  function AIK(turnT) {
+    const de = lang === 'de';
+    const cam = el('div', 'aicam');
+    const bg = el('div', 'aibg', '<i class="b1"></i><i class="b2"></i><i class="b3"></i>', cam);
+    const [b1, b2, b3] = [...bg.querySelectorAll('i')];
+    perFrame((t) => {
+      b1.style.transform = `translate(${Math.sin(t * 0.45) * 140}px,${Math.cos(t * 0.35) * 110}px)`;
+      b2.style.transform = `translate(${Math.cos(t * 0.4) * 160}px,${Math.sin(t * 0.5) * 120}px)`;
+      b3.style.transform = `translate(${Math.sin(t * 0.3 + 2) * 120}px,${Math.cos(t * 0.45 + 1) * 140}px)`;
+    });
+    // particle field: deterministic, warps forward at the AI moment
+    const cv = el('canvas', 'aipt', null, cam); cv.width = 1080; cv.height = 1920;
+    const cx = cv.getContext('2d');
+    const P = Array.from({ length: 110 }, (_, i) => { const r = (k) => { const x = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return x - Math.floor(x); }; return { x: r(1) * 1080, y: r(2) * 1920, v: 18 + r(3) * 50, s: 1 + r(4) * 3.2, a: 0.25 + r(5) * 0.6 }; });
+    const warp = (t) => { const d = t - turnT; return d < 0 ? 0 : d < 0.8 ? d * d * 900 : 576 + (d - 0.8) * 80; };
+    perFrame((t) => {
+      cx.clearRect(0, 0, 1080, 1920);
+      const w = warp(t), k = t >= turnT ? Math.max(0, 1 - (t - turnT) / 1.2) : 0;
+      P.forEach((p) => {
+        const y = (((p.y - p.v * t - w * (p.v / 40)) % 1920) + 1920) % 1920;
+        cx.globalAlpha = p.a; cx.fillStyle = '#9fd8ff';
+        cx.fillRect(p.x, y, p.s, p.s + k * 60 * (p.v / 60));
+      });
+    });
+    const shake = (t, amp = 14) => tl.fromTo(cam, { x: 0, y: 0 }, { keyframes: [{ x: amp, y: -amp / 2 }, { x: -amp, y: amp / 2 }, { x: amp / 2, y: amp / 3 }, { x: 0, y: 0 }], duration: 0.32, immediateRender: false }, t);
+    const card = (cls, html, css) => { const e = el('div', 'aic ' + cls, html, cam, css); tl.set(e, { xPercent: -50, autoAlpha: 0 }, 0); return e; };
+    const flip = (e, t, o = {}) => {
+      tl.fromTo(e, { autoAlpha: 0, rotationX: -75, y: 140, transformPerspective: 1400, transformOrigin: '50% 100%' }, { autoAlpha: 1, rotationX: 0, y: 0, duration: 0.6, ease: 'expo.out', immediateRender: false }, t);
+      if (o.sfx !== false) sfx(o.sfx || 'whoosh', t, o.db ?? -14);
+    };
+    const pop = (e, t, sf = 'pop', db = -13) => { tl.set(e, { autoAlpha: 0 }, 0); tl.fromTo(e, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2.6)', immediateRender: false }, t); if (sf) sfx(sf, t, db); };
+    const out = (es, t) => tl.to(es, { autoAlpha: 0, scale: 0.85, y: -60, filter: 'blur(10px)', duration: 0.35, ease: 'power2.in', stagger: 0.04 }, t);
+    // AI core orb with rotating rings, breathing glow and shockwave
+    const orb = (x, y, t0, size = 360) => {
+      const o = el('div', 'aiorb', '<em class="sw"></em><i class="r1"></i><i class="r2"></i><i class="r3"></i><b></b><span>AI</span>', cam, { left: x + 'px', top: y + 'px', width: size + 'px', height: size + 'px' });
+      const [r1, r2, r3] = [...o.querySelectorAll('i')], core = o.querySelector('b'), sw = o.querySelector('.sw');
+      tl.set(o, { xPercent: -50, yPercent: -50, autoAlpha: 0, scale: 0 }, 0);
+      tl.to(o, { autoAlpha: 1, scale: 1, duration: 0.7, ease: 'elastic.out(1,0.55)' }, t0);
+      tl.fromTo(sw, { scale: 0.3, opacity: 0.9 }, { scale: 3.2, opacity: 0, duration: 1.0, ease: 'power2.out', immediateRender: false }, t0 + 0.05);
+      sfx('vortex', t0 - 0.25, -10); sfx('impact', t0 + 0.05, -9);
+      perFrame((t) => {
+        const d = t - t0;
+        r1.style.transform = `rotate(${d * 90}deg)`; r2.style.transform = `rotate(${-d * 140}deg) scale(0.82)`; r3.style.transform = `rotate(${d * 60}deg) scale(1.16)`;
+        core.style.transform = `scale(${1 + Math.sin(d * 4) * 0.05})`;
+      });
+      return o;
+    };
+    // neural link: curved svg path drawn from a to b, with a travelling glow dot
+    const svg = el('div', 'ailinks', '<svg viewBox="0 0 1080 1920"></svg>', cam).querySelector('svg');
+    const link = (a, b, t0, dur = 0.5) => {
+      const ns = 'http://www.w3.org/2000/svg';
+      const p = document.createElementNS(ns, 'path'), dot = document.createElementNS(ns, 'circle');
+      const mx = (a[0] + b[0]) / 2 + (b[0] > a[0] ? -120 : 120), my = (a[1] + b[1]) / 2;
+      p.setAttribute('d', `M${a[0]} ${a[1]} Q${mx} ${my} ${b[0]} ${b[1]}`); p.setAttribute('class', 'ail');
+      dot.setAttribute('r', 11); dot.setAttribute('class', 'aid');
+      svg.appendChild(p); svg.appendChild(dot);
+      const L = p.getTotalLength(); p.style.strokeDasharray = L;
+      perFrame((t) => {
+        const k = clamp((t - t0) / dur, 0, 1); p.style.strokeDashoffset = L * (1 - E.io(k));
+        const kk = ((t - t0) % 1.4) / 1.4; const pt = p.getPointAtLength(L * (t < t0 + dur ? E.io(k) : kk));
+        dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y); dot.style.opacity = t < t0 ? 0 : 1;
+      });
+      return p;
+    };
+    // end title: everything blurs away, kinetic "Tenance AI" + subtitle, captions hidden
+    const title = (t0, tSub) => {
+      const kids = [...cam.children].filter((c) => !c.classList.contains('aibg') && !c.classList.contains('aipt'));
+      tl.to(kids, { autoAlpha: 0, scale: 0.9, filter: 'blur(14px)', duration: 0.4, ease: 'power2.in' }, t0 - 0.35);
+      const word = 'Tenance AI';
+      const tt = el('div', 'aititle', `<span class="ai"><img src="assets/logo.png"></span><h1>${[...word].map((c) => `<i>${c === ' ' ? '&nbsp;' : c}</i>`).join('')}</h1><h2>${de ? 'Dein KI-Hausverwalter' : 'Your AI property manager'}</h2><p>${de ? 'für Mieter & Vermieter' : 'for tenants & landlords'}</p>`);
+      const ls = [...tt.querySelectorAll('h1 i')], lg = tt.querySelector('.ai'), h2 = tt.querySelector('h2'), pp = tt.querySelector('p'), h1 = tt.querySelector('h1');
+      tl.set(tt, { autoAlpha: 0 }, 0); tl.set(tt, { autoAlpha: 1 }, t0 - 0.05);
+      tl.fromTo(lg, { scale: 0, rotation: -120 }, { scale: 1, rotation: 0, duration: 0.6, ease: 'back.out(2)', immediateRender: false }, t0 - 0.1);
+      tl.fromTo(ls, { y: 160, rotationX: -90, autoAlpha: 0, transformPerspective: 800 }, { y: 0, rotationX: 0, autoAlpha: 1, duration: 0.55, ease: 'expo.out', stagger: 0.045, immediateRender: false }, t0);
+      tl.fromTo([h2, pp], { y: 50, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.45, ease: 'power3.out', stagger: 0.15, immediateRender: false }, tSub - 0.1);
+      perFrame((t) => { h1.style.backgroundPosition = `${((t - t0) * 60) % 400}% 50%`; });
+      sfx('sting', t0 - 0.05, -10); sfx('impact', t0 + 0.1, -9);
+      setCapHidden((t) => t > t0 - 0.2);
+      tl.fromTo(cam, { scale: 1 }, { scale: 1.08, duration: 3.5, ease: 'sine.out', immediateRender: false }, t0);
+    };
+    return { cam, card, flip, pop, out, orb, link, title, shake };
+  }
+
+  // ================= X45: 2 a.m. leaking pipe → one message → Tenance AI takes over: damage identified, plumber booked, landlord informed — in 10 s =================
+  function X45() {
+    const de = lang === 'de';
+    const S = de ? { clock: '🌙 02:00', msg: 'Im Bad tropft das Rohr 💧', you: 'Du', c1: ['Schaden erkannt', 'Wasserschaden · Bad · dringend'], c2: ['Handwerker gebucht', 'Heute 08:00 · Installateur'], c3: ['Vermieter informiert', 'gelesen ✓'], sec: 'Sek.' }
+      : { clock: '🌙 2:00 am', msg: 'The bathroom pipe is leaking 💧', you: 'You', c1: ['Damage identified', 'Water leak · bathroom · urgent'], c2: ['Plumber booked', 'Today 8:00 am · plumber'], c3: ['Landlord informed', 'read ✓'], sec: 'sec' };
+    const it = W(['Tenance', 'Tenance']), K = { turn: it.start };
+    K.drip = W(['tropft', 'leaking']).start; K.msg = W(['Nachricht', 'message']).start;
+    K.over = W(['übernimmt', 'over'], it.i).start; K.dmg = W(['Schaden', 'damage'], it.i).start; K.hw = W(['Handwerker', 'plumber'], it.i).start;
+    K.vm = W(['Vermieter', 'landlord'], it.i).start; K.ten = W(['zehn', 'ten'], it.i).start;
+    const t2 = W(['Tenance', 'Tenance'], it.i); K.title = t2.start; K.sub = W(['Dein', 'your'], t2.i).start;
+    const k = AIK(K.turn);
+    // night: pipe drips into a growing puddle
+    const ck = k.card('aichip', S.clock, { top: '150px' }); k.pop(ck, 0.05, 'pop');
+    const pipe = k.card('x45pipe', '<div class="x45p"><i class="j"></i></div>' + Array.from({ length: 5 }, () => '<b class="x45d"></b>').join('') + '<u class="x45pd"></u>', { top: '320px' });
+    k.flip(pipe, 0.25, { sfx: false });
+    const drops = [...pipe.querySelectorAll('.x45d')], pud = pipe.querySelector('.x45pd');
+    perFrame((t) => {
+      drops.forEach((d, i) => { const c = ((t * 1.3 + i * 0.37) % 1.85); const v = c < 1.4 ? c / 1.4 : 1; d.style.transform = `translateY(${v * v * 330}px) scale(${1 - (c > 1.4 ? (c - 1.4) * 2 : 0)})`; d.style.opacity = c > 1.6 ? 0 : 1; });
+      pud.style.transform = `translateX(-50%) scaleX(${0.25 + 0.75 * clamp(t / 4, 0, 1)})`;
+    });
+    [0.5, 1.4, 2.2, 3.0].forEach((t) => sfx('drip', t, -12));
+    // the message
+    const ph = k.card('x45ph', `<div class="x45top"><span>${S.you}</span><em>●●●</em></div><div class="x45b">${S.msg}</div>`, { top: '820px' });
+    k.flip(ph, K.msg - 0.9, { sfx: false });
+    const typ = ph.querySelector('em'), bub = ph.querySelector('.x45b');
+    tl.set(bub, { autoAlpha: 0 }, 0);
+    tl.fromTo(typ, { opacity: 0.2 }, { opacity: 1, duration: 0.2, yoyo: true, repeat: 3, immediateRender: false }, K.msg - 0.6);
+    tl.fromTo(bub, { autoAlpha: 0, scale: 0.5, x: 120 }, { autoAlpha: 1, scale: 1, x: 0, duration: 0.4, ease: 'back.out(2.2)', immediateRender: false }, K.msg);
+    sfx('typing', K.msg - 0.6, -15); sfx('send', K.msg + 0.05, -10);
+    k.out([ck, pipe, ph], K.turn - 0.35);
+    // AI core + three tasks
+    const o = k.orb(540, 470, K.turn - 0.05, 380); k.shake(K.turn + 0.05);
+    const ys = [790, 1000, 1210], cs = [[S.c1, '🔍'], [S.c2, '📅'], [S.c3, '🏠']].map(([[a, b], ic], i) => k.card('x45c', `<i>${ic}</i><div><b>${a}</b><small>${b}</small></div><em>✓</em>`, { top: ys[i] + 'px' }));
+    const tk = [K.dmg, K.hw, K.vm];
+    ys.forEach((y, i) => k.link([540, 660], [110, y + 70], K.over - 0.1 + i * 0.12, 0.45));
+    sfx('refresh', K.over, -14);
+    cs.forEach((c, i) => {
+      k.flip(c, tk[i] - 0.25, { sfx: 'whoosh', db: -16 });
+      const ok = c.querySelector('em'); tl.set(ok, { autoAlpha: 0 }, 0);
+      tl.fromTo(ok, { autoAlpha: 0, scale: 0.2, rotation: -90 }, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.35, ease: 'back.out(3)', immediateRender: false }, tk[i] + 0.35);
+      sfx('chime', tk[i] + 0.35, -13);
+    });
+    // scan sweep on the damage card
+    const scan = el('i', 'x45scan', null, cs[0]); tl.fromTo(scan, { xPercent: -100, opacity: 1 }, { xPercent: 600, opacity: 0.2, duration: 0.8, ease: 'power1.inOut', immediateRender: false }, K.dmg);
+    // 10-second ring timer replaces the AI label
+    const tm = k.card('x45tm', `<svg viewBox="0 0 200 200"><circle class="tr" cx="100" cy="100" r="86"/><circle class="ar" cx="100" cy="100" r="86"/></svg><b>0</b><small>${S.sec}</small>`, { top: '330px' });
+    const ar = tm.querySelector('.ar'), tb = tm.querySelector('b'); const C = 2 * Math.PI * 86; ar.style.strokeDasharray = C;
+    k.pop(tm, K.ten - 0.35, 'counter', -14);
+    tl.to(o, { scale: 0.55, y: -40, duration: 0.4, ease: 'power3.inOut' }, K.ten - 0.4);
+    perFrame((t) => { const p = clamp((t - K.ten + 0.3) / 0.9, 0, 1); ar.style.strokeDashoffset = C * (1 - p); tb.textContent = Math.round(10 * E.o5(p)); });
+    k.title(K.title, K.sub);
+    return { T: END + 2.2, K };
+  }
+
+  // ================= X46: Monday flood (23 messages, 4 repairs, 2 late rents) → AI absorbs it → 3 sorted lanes → approve all → Tenance AI =================
+  function X46() {
+    const de = lang === 'de';
+    const S = de ? { clock: '☕ Mo · 08:00', st: [['💬', 'Nachrichten'], ['🔧', 'Reparaturen'], ['💶', 'offene Mieten']], notes: ['Heizung kalt?', 'Wann kommt der Techniker?', 'Schlüssel verloren', 'Miete Oktober', 'Fenster undicht', 'Licht im Keller', 'Paket abgegeben?', 'Rauchmelder piept', 'Termin Zähler?', 'Waschmaschine'], l: [['💬', 'Fragen beantwortet', 23], ['🔧', 'Reparaturen geplant', 4], ['💶', 'freundlich erinnert', 2]], ok: 'Alles freigeben', done: 'Freigegeben ✓' }
+      : { clock: '☕ Mon · 8:00 am', st: [['💬', 'messages'], ['🔧', 'repairs'], ['💶', 'late rents']], notes: ['Heating cold?', 'When is the plumber coming?', 'Lost my key', 'October rent', 'Window leaking', 'Basement light', 'Package delivered?', 'Smoke alarm beeping', 'Meter reading?', 'Washing machine'], l: [['💬', 'Questions answered', 23], ['🔧', 'Repairs scheduled', 4], ['💶', 'Reminders sent', 2]], ok: 'Approve all', done: 'Approved ✓' };
+    const it = W(['Tenance', 'Tenance']), K = { turn: it.start };
+    K.n = W(['dreiundzwanzig', 'twenty-three']).start; K.r = W(['Reparaturen', 'repairs']).start; K.m = W(['Mieten', 'rents']).start;
+    K.sort = W(['sortiert', 'sorted'], it.i).start; K.q = W(['Fragen', 'questions'], it.i).start; K.rp = W(['Reparaturen', 'repairs'], it.i).start;
+    K.f = W(['freundlich', 'friendly'], it.i).start; K.ok = W(['frei', 'approve'], it.i).start;
+    const t2 = W(['Tenance', 'Tenance'], it.i); K.title = t2.start; K.sub = W(['Dein', 'your'], t2.i).start;
+    const k = AIK(K.turn);
+    const ck = k.card('aichip', S.clock, { top: '150px' }); k.pop(ck, 0.05, 'pop');
+    // stat counters
+    const stats = S.st.map(([ic, n], i) => k.card('x46s', `<i>${ic}</i><b>0</b><small>${n}</small>`, { top: '300px', left: `${20 + i * 30}%` }));
+    const vals = [23, 4, 2], ts = [K.n, K.r, K.m];
+    stats.forEach((s, i) => { k.pop(s, ts[i] - 0.2, 'pop', -12); const b = s.querySelector('b'); perFrame((t) => { b.textContent = Math.round(vals[i] * E.o5(clamp((t - ts[i] + 0.1) / 0.6, 0, 1))); }); });
+    // notification avalanche
+    const notes = S.notes.map((n, i) => k.card('x46n', `<span class="ai"><img src="assets/logo.png"></span>${n}`, { top: `${560 + (i % 5) * 120}px`, left: `${i < 5 ? 34 : 66}%` }));
+    notes.forEach((nn, i) => {
+      const t = 0.9 + i * 0.32;
+      tl.fromTo(nn, { autoAlpha: 0, y: -500, rotation: (i % 2 ? 1 : -1) * 18 }, { autoAlpha: 1, y: 0, rotation: (i % 2 ? 1 : -1) * (3 + (i % 3) * 2), duration: 0.5, ease: 'bounce.out', immediateRender: false }, t);
+      sfx('buzz', t + 0.2, -21);
+    });
+    // AI swallows the chaos
+    const o = k.orb(540, 560, K.turn + 0.1, 360); k.shake(K.turn + 0.15, 10);
+    notes.forEach((nn, i) => tl.to(nn, { left: '50%', top: '470px', scale: 0, rotation: 360 + i * 30, autoAlpha: 0, duration: 0.7, ease: 'power3.in', immediateRender: false }, K.turn - 0.2 + i * 0.04));
+    tl.to([ck, ...stats], { autoAlpha: 0, y: -60, duration: 0.3, ease: 'power2.in' }, K.turn - 0.3);
+    tl.to(o, { top: '380px', scale: 0.7, duration: 0.5, ease: 'power3.inOut' }, K.sort - 0.2);
+    // three sorted lanes
+    const ys = [640, 820, 1000], tl3 = [K.q, K.rp, K.f];
+    const lanes = S.l.map(([ic, n, v], i) => k.card('x46l', `<i>${ic}</i><div><b>${n}</b><u><s></s></u></div><em>0</em>`, { top: ys[i] + 'px' }));
+    ys.forEach((y, i) => k.link([540, 500], [110, y + 70], K.sort + i * 0.1, 0.45));
+    lanes.forEach((ln, i) => {
+      k.flip(ln, tl3[i] - 0.25, { sfx: 'whoosh', db: -16 });
+      const bar = ln.querySelector('s'), em = ln.querySelector('em');
+      perFrame((t) => { const p = clamp((t - tl3[i]) / 0.8, 0, 1); bar.style.transform = `scaleX(${E.o5(p)})`; em.textContent = p >= 1 ? '✓' : Math.round(S.l[i][2] * E.o5(p)); });
+      sfx('chime', tl3[i] + 0.8, -14);
+    });
+    // approve all: button press, ripple, confetti
+    const btn = k.card('x46btn', `<b>${S.ok}</b><i class="rp"></i>`, { top: '1190px' });
+    const lab = btn.querySelector('b'), rp = btn.querySelector('.rp');
+    k.flip(btn, K.ok - 0.7, { sfx: false });
+    tl.to(btn, { scale: 0.92, duration: 0.1, yoyo: true, repeat: 1 }, K.ok);
+    tl.fromTo(rp, { scale: 0, opacity: 0.8 }, { scale: 4, opacity: 0, duration: 0.6, ease: 'power2.out', immediateRender: false }, K.ok);
+    tl.call(() => {}, null, K.ok);
+    perFrame((t) => { lab.textContent = t > K.ok + 0.1 ? S.done : S.ok; btn.classList.toggle('on', t > K.ok + 0.1); });
+    sfx('kaching', K.ok + 0.05, -10);
+    const cf = el('div', 'x46cf', Array.from({ length: 36 }, (_, i) => `<i style="background:hsl(${(i * 47) % 360},90%,62%)"></i>`).join(''), k.cam);
+    const bits = [...cf.querySelectorAll('i')];
+    tl.set(bits, { autoAlpha: 0 }, 0);
+    bits.forEach((b, i) => { const a = (i / bits.length) * Math.PI * 2, r = 260 + (i % 5) * 70; tl.fromTo(b, { x: 0, y: 0, autoAlpha: 1, rotation: 0 }, { x: Math.cos(a) * r, y: Math.sin(a) * r + 160, rotation: 540, autoAlpha: 0, duration: 1.1, ease: 'power2.out', immediateRender: false }, K.ok + 0.08); });
+    k.title(K.title, K.sub);
+    return { T: END + 2.2, K };
+  }
+
+  // ================= TK: Tenance-brand kit (X47+): forest bg + moving dot grid, gold sparks, floating 3D phone with real app UI, in-app chat, kinetic gold headlines, waitlist CTA =================
+  function TK() {
+    const de = lang === 'de';
+    const cam = el('div', 'tkcam');
+    const bg = el('div', 'tkbg', '<i class="g1"></i><i class="g2"></i><b class="grid"></b>', cam);
+    const [g1, g2] = [...bg.querySelectorAll('i')], grid = bg.querySelector('.grid');
+    perFrame((t) => {
+      g1.style.transform = `translate(${Math.sin(t * 0.5) * 160}px,${Math.cos(t * 0.4) * 120}px)`;
+      g2.style.transform = `translate(${Math.cos(t * 0.45) * 140}px,${Math.sin(t * 0.35) * 160}px)`;
+      grid.style.backgroundPosition = `${t * 14}px ${t * 26}px`;
+    });
+    // gold sparks rising
+    const cv = el('canvas', 'tksp', null, cam); cv.width = 1080; cv.height = 1920;
+    const cx = cv.getContext('2d');
+    const P = Array.from({ length: 70 }, (_, i) => { const r = (k) => { const x = Math.sin(i * 91.7 + k * 47.3) * 43758.5453; return x - Math.floor(x); }; return { x: r(1) * 1080, y: r(2) * 1920, v: 25 + r(3) * 70, s: 1.5 + r(4) * 3, a: 0.15 + r(5) * 0.5, w: r(6) * 6 }; });
+    let boost = []; const burst = (t) => boost.push(t);
+    perFrame((t) => {
+      cx.clearRect(0, 0, 1080, 1920);
+      const b = boost.reduce((s, t0) => s + (t >= t0 ? Math.min(t - t0, 0.5) * 500 : 0), 0);
+      P.forEach((p) => {
+        const y = (((p.y - p.v * t - b * (p.v / 60)) % 1920) + 1920) % 1920, x = p.x + Math.sin(t * 1.3 + p.w) * 14;
+        cx.globalAlpha = p.a; cx.fillStyle = '#e09b6b'; cx.beginPath(); cx.arc(x, y, p.s, 0, 6.283); cx.fill();
+      });
+    });
+    const shake = (t, a = 12) => tl.fromTo(cam, { x: 0, y: 0 }, { keyframes: [{ x: a, y: -a / 2 }, { x: -a, y: a / 2 }, { x: a / 2, y: 0 }, { x: 0, y: 0 }], duration: 0.3, immediateRender: false }, t);
+    const flash = (t) => { const f = el('div', 'tkflash', null, cam); tl.set(f, { opacity: 0 }, 0); tl.fromTo(f, { opacity: 0.55 }, { opacity: 0, duration: 0.45, ease: 'power2.out', immediateRender: false }, t); };
+    // kinetic headline: words masked, letters rise; *word* = gold
+    const head = (txt, top, t0, o = {}) => {
+      const h = el('div', 'tkhead' + (o.cls ? ' ' + o.cls : ''), txt.split(' ').map((w) => { const g = /^\*.*\*$/.test(w); w = w.replace(/\*/g, ''); return `<span class="w${g ? ' gold' : ''}">${[...w].map((c) => `<i>${c}</i>`).join('')}</span>`; }).join(' '), cam, { top: top + 'px' });
+      const ls = [...h.querySelectorAll('i')];
+      tl.set(h, { autoAlpha: 0 }, 0); tl.set(h, { autoAlpha: 1 }, t0);
+      tl.fromTo(ls, { yPercent: 110, rotation: 8 }, { yPercent: 0, rotation: 0, duration: 0.45, ease: 'expo.out', stagger: o.st ?? 0.025, immediateRender: false }, t0);
+      if (o.sfx !== false) sfx(o.sfx || 'whoosh', t0, -15);
+      if (o.out) tl.to(ls, { yPercent: -110, duration: 0.3, ease: 'power2.in', stagger: 0.01 }, o.out);
+      return h;
+    };
+    // floating 3D phone with stacked screens
+    const phone = (top, t0) => {
+      const ph = el('div', 'tkph', '<div class="bz"><div class="scr"></div><i class="notch"></i><b class="glare"></b></div>', cam, { top: top + 'px' });
+      const scr = ph.querySelector('.scr'), glare = ph.querySelector('.glare');
+      tl.set(ph, { xPercent: -50, autoAlpha: 0 }, 0);
+      tl.fromTo(ph, { autoAlpha: 0, y: 900, rotationX: 50, rotationZ: -12, scale: 0.9, transformPerspective: 2200, transformOrigin: '50% 0%' }, { autoAlpha: 1, y: 0, rotationX: 0, rotationZ: 0, scale: 1.17, duration: 0.9, ease: 'expo.out', immediateRender: false }, t0);
+      sfx('whoosh', t0, -11);
+      perFrame((t) => {
+        const d = Math.max(0, t - t0 - 0.9);
+        ph.querySelector('.bz').style.transform = `perspective(2200px) rotateY(${Math.sin(d * 0.8) * 9}deg) rotateX(${4 + Math.cos(d * 0.6) * 3}deg) translateY(${Math.sin(d * 1.1) * 10}px)`;
+        glare.style.transform = `translateX(${-140 + ((t * 40) % 420)}%) rotate(20deg)`;
+      });
+      const screen = (html, cls = '') => { const s = el('div', 'tks ' + cls, html, scr); return s; };
+      const swap = (from, to, t) => {
+        tl.set(to, { autoAlpha: 0 }, 0);
+        tl.fromTo(to, { autoAlpha: 1, xPercent: 100 }, { xPercent: 0, duration: 0.5, ease: 'expo.inOut', immediateRender: false }, t);
+        if (from) tl.to(from, { xPercent: -35, filter: 'brightness(0.4)', duration: 0.5, ease: 'expo.inOut' }, t);
+        sfx('whoosh', t, -17);
+      };
+      return { ph, scr, screen, swap };
+    };
+    const img = (f) => `<img class="tkimg" src="assets/ui/${f}.png">`;
+    const hl = (s, box, t, label) => {
+      const h = el('div', 'tkhl', label ? `<em>${label}</em>` : '', s, { top: box[0] + '%', height: box[1] + '%', left: (box[2] ?? 3) + '%', width: (box[3] ?? 94) + '%' });
+      tl.set(h, { autoAlpha: 0 }, 0);
+      tl.fromTo(h, { autoAlpha: 0, scale: 1.25 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, t);
+      tl.to(h, { boxShadow: '0 0 0 10px rgba(224,155,107,0)', duration: 0.6, repeat: 2 }, t + 0.35);
+      sfx('pop', t, -14); return h;
+    };
+    // chip that shoots out of the phone to a side position
+    const chip = (html, top, side, t) => {
+      const c = el('div', 'tkchip', html, cam, { top: top + 'px', left: side < 0 ? '30%' : '70%' });
+      tl.set(c, { xPercent: -50, autoAlpha: 0 }, 0);
+      tl.fromTo(c, { autoAlpha: 0, x: -side * 220, scale: 0.3, rotation: -side * 25 }, { autoAlpha: 1, x: 0, scale: 1, rotation: side * 3, duration: 0.55, ease: 'back.out(1.8)', immediateRender: false }, t);
+      sfx('chime', t + 0.1, -14); return c;
+    };
+    // in-app chat screen (Tenance dark UI tokens)
+    const chat = (name, sub) => {
+      const s = el('div', 'tks tkchat', `<div class="hd"><b class="av">${name.split(' ').map((x) => x[0]).join('').slice(0, 2)}</b><div><b>${name}</b><small>${sub}</small></div></div><div class="body"></div>`);
+      const body = s.querySelector('.body');
+      const msg = (txt, who, t, o = {}) => {
+        const m = el('div', 'tkm ' + who, (o.typing ? '<span class="typ"><i></i><i></i><i></i></span>' : '') + `<p>${txt}</p>`, body);
+        tl.set(m, { autoAlpha: 0 }, 0);
+        if (o.typing) {
+          const tp = m.querySelector('.typ'), p = m.querySelector('p');
+          tl.set(p, { display: 'none' }, 0); tl.set(m, { autoAlpha: 1 }, t - o.typing);
+          tl.fromTo(m, { scale: 0.6, y: 30 }, { scale: 1, y: 0, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, t - o.typing);
+          tl.set(tp, { display: 'none' }, t); tl.set(p, { display: 'block' }, t);
+          tl.fromTo(p, { opacity: 0 }, { opacity: 1, duration: 0.2, immediateRender: false }, t);
+        } else tl.fromTo(m, { autoAlpha: 0, scale: 0.5, y: 40 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.4, ease: 'back.out(2.2)', immediateRender: false }, t);
+        sfx(who === 'in' ? 'send' : 'pop', t, -13);
+        return m;
+      };
+      return { s, msg };
+    };
+    // in-screen push notification
+    const notif = (s, html, t) => { const n = el('div', 'tknot', html, s); tl.set(n, { autoAlpha: 0 }, 0); tl.fromTo(n, { autoAlpha: 0, yPercent: -150 }, { autoAlpha: 1, yPercent: 0, duration: 0.45, ease: 'back.out(1.6)', immediateRender: false }, t); sfx('chime', t, -12); return n; };
+    // end: tagline (two lines) + waitlist CTA button with tap
+    const end = (tLine1, tLine2, tCta, txt) => {
+      const kids = [...cam.children].filter((c) => !c.classList.contains('tkbg') && !c.classList.contains('tksp'));
+      tl.to(kids, { autoAlpha: 0, scale: 0.88, filter: 'blur(12px)', duration: 0.35, ease: 'power2.in' }, tLine1 - 0.35);
+      setCapHidden((t) => t > tLine1 - 0.2);
+      txt = txt || [de ? 'Dein Mieter schreibt.' : 'Your tenant writes.', de ? '*Tenance* antwortet.' : '*Tenance* answers.'];
+      const l1 = head(txt[0], 560, tLine1, { cls: 'tktag', sfx: 'impact' });
+      const l2 = txt[1] ? head(txt[1], 720, tLine2, { cls: 'tktag', sfx: 'impact' }) : l1;
+      flash(tLine2); shake(tLine2 + 0.05, 10); burst(tLine2);
+      const cta = el('div', 'tkcta', `<span class="lg"><img src="assets/logo.png"></span><b class="btn">${de ? 'Jetzt auf die Warteliste' : 'Join the waitlist'}<i class="rp"></i></b><small>tenance.de</small><u class="cur"></u>`);
+      const btn = cta.querySelector('.btn'), rp = cta.querySelector('.rp'), cur = cta.querySelector('.cur'), lg = cta.querySelector('.lg');
+      tl.set(cta, { autoAlpha: 0 }, 0); tl.set(cta, { autoAlpha: 1 }, tCta - 0.25);
+      tl.to([l1, l2], { y: -260, scale: 0.8, duration: 0.5, ease: 'expo.inOut' }, tCta - 0.35);
+      tl.fromTo(lg, { scale: 0, rotation: -90 }, { scale: 1, rotation: 0, duration: 0.5, ease: 'back.out(2)', immediateRender: false }, tCta - 0.25);
+      tl.fromTo(btn, { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.55, ease: 'elastic.out(1,0.6)', immediateRender: false }, tCta - 0.15);
+      tl.fromTo(cta.querySelector('small'), { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.4, immediateRender: false }, tCta + 0.15);
+      tl.fromTo(cur, { x: 260, y: 260, autoAlpha: 0 }, { x: 40, y: 20, autoAlpha: 1, duration: 0.6, ease: 'power3.out', immediateRender: false }, tCta + 0.4);
+      tl.to(btn, { scale: 0.93, duration: 0.1, yoyo: true, repeat: 1 }, tCta + 1.05);
+      tl.fromTo(rp, { scale: 0, opacity: 0.9 }, { scale: 6, opacity: 0, duration: 0.7, ease: 'power2.out', immediateRender: false }, tCta + 1.05);
+      perFrame((t) => { btn.style.boxShadow = `0 0 ${40 + Math.sin(t * 5) * 25}px rgba(224,155,107,${t > tCta ? 0.7 : 0})`; });
+      sfx('pop', tCta - 0.1, -11); sfx('kaching', tCta + 1.08, -12);
+    };
+    return { cam, head, phone, img, hl, chip, chat, notif, end, flash, shake, burst };
+  }
+
+  // ================= X47: 2 a.m., tenant writes "pipe leaking" → Tenance answers, spots damage, books plumber, informs landlord (real maintenance + dashboard UI) → tagline + waitlist =================
+  function X47() {
+    const de = lang === 'de';
+    const S = de ? { h: '*02:00* Uhr', name: 'Lena · Wohnung 3', sub: 'Mieterin', m1: 'Das Rohr im Bad tropft 💧', m2: 'Bin dran! Ich schicke sofort einen Installateur. Termin: heute 08:00 ✓', ai: 'Tenance AI', c1: '🔍 Wasserschaden erkannt', c2: '📅 Installateur · 08:00', c3: '✓ Vermieter informiert', n: '<b>Tenance AI</b>Wasserschaden in Wohnung 3, Installateur gebucht ✓', lb: 'dringend' }
+      : { h: '*2:00* a.m.', name: 'Lena · Apt 3', sub: 'Tenant', m1: 'The bathroom pipe is leaking 💧', m2: "On it! Sending a plumber right away. Appointment: today 8:00 am ✓", ai: 'Tenance AI', c1: '🔍 Water damage spotted', c2: '📅 Plumber · 8:00 am', c3: '✓ Landlord informed', n: '<b>Tenance AI</b>Water leak in apt 3, plumber booked ✓', lb: 'urgent' };
+    const K = {};
+    const w1 = W(['Mieter', 'tenant']); K.writes = w1.start; K.drip = W(['tropft', 'leaking'], w1.i).start;
+    const it = W(['Tenance', 'Tenance']); K.turn = it.start; K.ans = W(['antwortet', 'answers'], it.i - 1).start;
+    K.dmg = W(['Schaden', 'damage'], it.i).start; K.hw = W(['Handwerker', 'plumber'], it.i).start; K.inf = W(['informiert', 'lets'], it.i).start;
+    const l1 = W(['Dein', 'your'], it.i); K.l1 = l1.start; const t2 = W(['Tenance', 'Tenance'], l1.i); K.l2 = t2.start; K.cta = W(['Jetzt', 'join'], t2.i).start;
+    const k = TK();
+    const h = k.head(S.h, 120, 0.05, { st: 0.04, sfx: 'impact', out: K.turn - 0.2 });
+    const P = k.phone(290, 0.25);
+    const c = k.chat(S.name, S.sub); P.scr.appendChild(c.s);
+    c.msg(S.m1, 'in', K.drip - 0.2, { typing: 0.9 });
+    const ph = el('div', 'tkm in tkphoto', '<b>💧</b><span>IMG_0217</span>', c.s.querySelector('.body')); tl.set(ph, { autoAlpha: 0 }, 0);
+    tl.fromTo(ph, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, K.drip + 0.3); sfx('shutter', K.drip + 0.3, -14);
+    // Tenance answers: flash, burst, gold reply
+    k.flash(K.turn); k.burst(K.turn); k.shake(K.turn + 0.05, 9);
+    const hd2 = k.head(de ? 'Tenance *antwortet*' : 'Tenance *answers*', 120, K.turn, { sfx: 'impact' });
+    c.msg(S.m2, 'out ai', K.ans + 0.25, { typing: 0.5 });
+    // real maintenance screen + damage highlight + chips
+    const sm = P.screen(k.img('ll-maintenance'), 'tkimgs'); P.swap(c.s, sm, K.dmg - 0.35);
+    k.hl(sm, [38.3, 12, 3, 94], K.dmg, S.lb);
+    k.chip(S.c1, 470, -1, K.dmg + 0.1);
+    k.chip(S.c2, 760, 1, K.hw);
+    tl.to(hd2, { autoAlpha: 0, duration: 0.25 }, K.hw - 0.3);
+    // real dashboard + push notification
+    const sd = P.screen(k.img('ll-dashboard'), 'tkimgs'); P.swap(sm, sd, K.inf - 0.35);
+    k.notif(sd, S.n, K.inf);
+    k.chip(S.c3, 1050, -1, K.inf + 0.2);
+    k.end(K.l1, K.l2, K.cta);
+    return { T: END + 2.4, K };
+  }
+
+  // ================= X48: 23 messages Monday → tenants write, Tenance answers (real tenants/maintenance UI) → approve → AI property manager → waitlist =================
+  function X48() {
+    const de = lang === 'de';
+    const S = de ? { h: '*23* Nachrichten', mon: 'Montagmorgen', list: [['JS', 'James', 'Wann ist die nächste Abnahme?'], ['CB', 'Chandler', 'Der Wasserhahn tropft'], ['NP', 'Nicole', 'Klima macht Geräusche'], ['PR', 'Pamela', 'Wann läuft mein Vertrag aus?'], ['JK', 'Jack', 'Miete kommt Freitag']], done: 'beantwortet ✓', c1: '💬 23 Fragen geklärt', c2: '🔧 4 Reparaturen geplant', c3: '💶 2 Erinnerungen gesendet', ap: 'Alles freigeben', apd: 'Freigegeben ✓', mgr: 'Dein *KI-Hausverwalter*.', lb1: 'Termin ✓', lb2: 'erinnert ✓' }
+      : { h: '*23* messages', mon: 'Monday morning', list: [['JS', 'James', 'When is the next inspection?'], ['CB', 'Chandler', 'The kitchen tap is dripping'], ['NP', 'Nicole', 'The AC is making noise'], ['PR', 'Pamela', 'When is my lease renewal?'], ['JK', 'Jack', 'Rent comes Friday']], done: 'answered ✓', c1: '💬 23 questions handled', c2: '🔧 4 repairs scheduled', c3: '💶 2 reminders sent', ap: 'Approve all', apd: 'Approved ✓', mgr: 'Your *AI* property manager.', lb1: 'booked ✓', lb2: 'reminded ✓' };
+    const K = {};
+    K.mon = W(['Montagmorgen', 'monday']).start;
+    const it = W(['Tenance', 'Tenance']); K.turn = it.start; K.write = W(['Mieter', 'tenants']).start;
+    K.q = W(['Fragen', 'questions'], it.i).start; K.r = W(['Reparaturen', 'repairs'], it.i).start; K.m = W(['Mieten', 'rent'], it.i).start; K.ok = W(['frei', 'approve'], it.i).start;
+    const mg = W(['KI-Hausverwalter', 'property'], it.i); K.mgr = W(['Dein', 'your'], it.i).start;
+    K.cta = W(['Jetzt', 'join'], mg.i).start;
+    const k = TK();
+    const h = k.head(S.h, 110, 0.0, { st: 0.035, sfx: 'impact', out: K.write - 0.2 });
+    const h2 = k.head(S.mon, 250, K.mon - 0.1, { cls: 'tksub', sfx: false, out: K.write - 0.2 });
+    const P = k.phone(360, 0.2);
+    // inbox list inside phone
+    const inbox = el('div', 'tks tkinbox', `<div class="ttl">${de ? 'Nachrichten' : 'Messages'}<em>23</em></div>` + S.list.map(([a, n, m], i) => `<div class="row"><b class="av c${i}">${a}</b><div><b>${n}</b><small>${m}</small></div><u>1</u><s>${S.done}</s></div>`).join(''), P.scr);
+    const rows = [...inbox.querySelectorAll('.row')];
+    tl.set(rows, { autoAlpha: 0 }, 0);
+    rows.forEach((r, i) => { tl.fromTo(r, { autoAlpha: 0, x: 120 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'back.out(1.8)', immediateRender: false }, 0.5 + i * 0.32); sfx('buzz', 0.55 + i * 0.32, -20); });
+    // spilled notifications around the phone
+    const spill = S.list.map(([a, n, m], i) => { const e = el('div', 'tkspill', `<b>${n}</b> ${m}`, k.cam, { top: `${560 + i * 150}px`, left: `${i % 2 ? 77 : 23}%` }); tl.set(e, { xPercent: -50, autoAlpha: 0 }, 0); tl.fromTo(e, { autoAlpha: 0, y: -400, rotation: (i % 2 ? 14 : -14) }, { autoAlpha: 1, y: 0, rotation: (i % 2 ? 5 : -5), duration: 0.5, ease: 'bounce.out', immediateRender: false }, 1.2 + i * 0.3); return e; });
+    tl.to(spill, { autoAlpha: 0, scale: 0.3, x: (i) => (i % 2 ? -300 : 300), duration: 0.4, ease: 'power3.in', stagger: 0.04 }, K.turn - 0.3);
+    // Tenance answers: gold sweep across each row
+    k.flash(K.turn); k.burst(K.turn); k.shake(K.turn + 0.05, 9);
+    const hd = k.head(de ? 'Tenance *antwortet*' : 'Tenance *answers*', 140, K.turn, { sfx: 'impact' });
+    rows.forEach((r, i) => { const s = r.querySelector('s'), u = r.querySelector('u'); tl.set(s, { autoAlpha: 0 }, 0); tl.to(u, { scale: 0, duration: 0.15 }, K.turn + 0.3 + i * 0.12); tl.fromTo(s, { autoAlpha: 0, x: 40 }, { autoAlpha: 1, x: 0, duration: 0.25, immediateRender: false }, K.turn + 0.35 + i * 0.12); sfx('pop', K.turn + 0.35 + i * 0.12, -19); });
+    const cnt = inbox.querySelector('.ttl em'); perFrame((t) => { cnt.textContent = Math.max(0, Math.round(23 * (1 - clamp((t - K.turn - 0.3) / 1.0, 0, 1)))); });
+    k.chip(S.c1, 300, -1, K.q);
+    tl.to(hd, { autoAlpha: 0, duration: 0.25 }, K.q - 0.2);
+    // real maintenance screen
+    const sm = P.screen(k.img('ll-maintenance'), 'tkimgs'); P.swap(inbox, sm, K.r - 0.35);
+    k.hl(sm, [26.5, 10.5, 3, 94], K.r + 0.05, S.lb1); k.hl(sm, [53, 9, 3, 94], K.r + 0.3, S.lb1);
+    k.chip(S.c2, 520, 1, K.r + 0.1);
+    // real tenants screen: overdue row
+    const st = P.screen(k.img('ll-tenants'), 'tkimgs'); P.swap(sm, st, K.m - 0.35);
+    k.hl(st, [79.5, 8.5, 3, 94], K.m + 0.05, S.lb2);
+    k.chip(S.c3, 760, -1, K.m + 0.1);
+    // approve button over the phone
+    const ap = el('div', 'tkap', `<b>${S.ap}</b><i class="rp"></i>`, k.cam); const lab = ap.querySelector('b'), rp = ap.querySelector('.rp');
+    tl.set(ap, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(ap, { autoAlpha: 0, y: 120, scale: 0.6 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(2)', immediateRender: false }, K.ok - 0.6);
+    tl.to(ap, { scale: 0.92, duration: 0.1, yoyo: true, repeat: 1 }, K.ok);
+    tl.fromTo(rp, { scale: 0, opacity: 0.9 }, { scale: 5, opacity: 0, duration: 0.6, ease: 'power2.out', immediateRender: false }, K.ok);
+    perFrame((t) => { lab.textContent = t > K.ok + 0.1 ? S.apd : S.ap; ap.classList.toggle('on', t > K.ok + 0.1); });
+    k.burst(K.ok); sfx('kaching', K.ok + 0.05, -11);
+    // AI property manager line then tagline/CTA
+    k.end(K.mgr, K.mgr, K.cta, [S.mgr, null]);
+    return { T: END + 2.4, K };
+  }
+
   const GR = {
+    X29: [[2, 4, 1, 4, 3, 4, 2, 1, 1, 2, 1, 4, 4], [2, 4, 2, 4, 4, 2, 2, 1, 4, 1, 4, 4, 1]],
+    X30: [[4, 2, 4, 4, 4, 2, 4, 3, 1, 1, 1, 4], [4, 2, 4, 4, 1, 2, 4, 4, 2, 1, 1, 1, 4]],
+    X31: [[3, 4, 3, 4, 4, 1, 2, 1, 2, 2], [3, 4, 3, 2, 4, 2, 2, 2, 1, 2, 2]],
+    X32: [[4, 1, 4, 3, 4, 4, 4, 2, 4, 1, 1, 1], [2, 3, 4, 3, 2, 4, 3, 4, 3, 3, 4, 2, 1]],
+    X33: [[2, 4, 1, 4, 2, 4, 4, 2, 4, 4, 1, 1, 1, 1], [2, 4, 1, 2, 4, 4, 4, 3, 4, 3, 1, 1, 1]],
+    X34: [[1, 3, 2, 4, 1, 4, 4, 2, 4, 2, 2, 2], [4, 4, 2, 2, 4, 4, 4, 1, 4, 3, 2, 2]],
+    X35: [[4, 1, 4, 2, 4, 3, 3, 4, 3, 2, 2], [4, 2, 3, 3, 2, 4, 4, 3, 4, 2, 2]],
+    X36: [[1, 4, 4, 4, 2, 3, 3, 4, 2, 4], [2, 4, 2, 4, 2, 2, 4, 3, 4, 3, 4]],
+    X37: [[4, 4, 1, 4, 4, 2, 2, 2, 3, 3, 3], [4, 2, 4, 2, 4, 4, 2, 2, 4, 2, 4]],
+    X38: [[3, 4, 1, 4, 3, 3, 4, 2, 3, 3], [4, 1, 3, 2, 4, 1, 3, 4, 1, 3, 4]],
+    X39: [[1, 4, 3, 4, 2, 3, 4, 2, 2, 2, 2], [2, 4, 4, 2, 4, 4, 4, 1, 3, 3, 2]],
+    X40: [[2, 4, 3, 4, 4, 1, 1, 1, 4, 4, 3], [2, 4, 3, 2, 4, 2, 1, 1, 1, 4, 4, 3]],
+    X41: [[1, 4, 4, 1, 4, 4, 4, 1, 4, 1, 2, 2], [2, 4, 4, 2, 2, 4, 4, 1, 4, 1, 2, 2]],
+    X42: [[3, 4, 2, 4, 4, 2, 2, 2, 2, 4, 2], [3, 4, 2, 2, 4, 2, 3, 3, 4, 2, 4, 2]],
+    X43: [[1, 4, 3, 4, 3, 2, 2, 2, 4, 1, 4, 1], [2, 4, 3, 2, 4, 2, 3, 3, 4, 1, 4, 1]],
+    X44: [[2, 3, 4, 4, 4, 4, 2, 1, 1, 1, 3], [2, 4, 4, 3, 2, 4, 4, 2, 2, 1, 2]],
+    X45: [[3, 3, 4, 4, 2, 2, 2, 4, 2, 2], [2, 4, 4, 4, 1, 2, 2, 2, 4, 2, 4]],
+    X46: [[1, 2, 2, 3, 4, 1, 2, 2, 2, 4, 1, 2, 2], [2, 2, 2, 3, 4, 2, 2, 2, 3, 3, 2, 4]],
+    X47: [[3, 3, 3, 3, 3, 3, 3, 3, 2, 4], [2, 3, 4, 3, 3, 4, 3, 3, 2, 4]],
+    X48: [[4, 3, 2, 2, 2, 2, 4, 1, 2, 4], [4, 1, 3, 2, 2, 2, 3, 3, 4, 4]],
+    X28: [[1, 2, 4, 1, 4, 4, 1, 3, 4, 4, 2, 4], [2, 2, 4, 2, 2, 4, 4, 2, 4, 3, 2, 4, 1]],
+    X27: [[3, 4, 3, 4, 1, 3, 4, 2, 2, 4], [3, 4, 1, 3, 1, 2, 4, 1, 4, 1, 4, 2, 2, 4]],
+    X21: [[2, 4, 2, 1, 4, 1, 3, 2, 1, 4, 4, 2, 1, 1, 1], [3, 4, 1, 4, 1, 3, 2, 1, 4, 2, 2, 3, 2, 3, 4]],
+    X20: [[3, 4, 4, 3, 2, 3, 3, 2, 4, 3, 2, 3, 2], [4, 4, 4, 4, 2, 3, 2, 4, 2, 3, 2, 4, 2]],
+    X19: [[3, 4, 3, 4, 3, 4, 3, 3, 3, 4, 4, 3], [2, 4, 4, 4, 4, 2, 2, 4, 3, 3, 3, 3, 3]],
+    X18: [[3, 4, 4, 4, 3, 3, 3, 3, 3, 3], [3, 4, 4, 2, 2, 4, 4, 4, 4, 4, 3]],
+    X17: [[2, 2, 2, 4, 2, 4, 3, 3, 4, 2, 3, 2, 2], [2, 2, 2, 4, 3, 2, 3, 3, 3, 4, 3, 2, 2]],
+    X16: [[2, 4, 3, 2, 2, 2, 4, 4, 2, 4, 3], [4, 4, 2, 2, 2, 3, 2, 4, 2, 3, 4, 2, 3]],
+    X13: [[3, 4, 2, 3, 3, 3, 4, 3, 4, 2, 3], [3, 1, 4, 3, 2, 4, 3, 2, 3, 2, 4, 3, 2, 3]],
+    X14: [[4, 2, 3, 3, 2, 3, 3, 2, 3, 3, 4, 3, 3], [3, 2, 4, 3, 3, 2, 4, 2, 4, 3, 1, 2, 2, 3]],
+    X15: [[2, 2, 4, 2, 2, 3, 3, 2, 4, 4, 1, 1, 1, 1], [2, 2, 3, 2, 2, 3, 2, 3, 2, 3, 4, 2, 1, 1, 1]],
     X26: [[1, 4, 2, 4, 2, 3, 2, 3, 2, 1, 1, 2, 2, 3, 2, 2], [2, 4, 2, 4, 2, 3, 5, 3, 1, 1, 2, 2, 3, 4]],
+    X12: [[3, 2, 3, 4, 4, 2, 3, 2, 4, 2, 3, 3, 3, 2, 3], [3, 4, 3, 4, 2, 4, 3, 3, 2, 3, 3, 3, 2, 2]],
+    X11: [[2, 4, 3, 3, 3, 3, 1, 3, 3, 2, 3, 3], [2, 4, 2, 3, 3, 2, 3, 2, 3, 2, 3, 2, 3, 3]],
     X25: [[2, 3, 4, 2, 2, 3, 2, 2, 3, 4, 3, 2, 3], [4, 4, 3, 2, 4, 4, 2, 3, 4, 4, 2, 3]],
     X24: [[5, 5, 3, 2, 3, 2, 3, 5, 3, 3, 3, 2, 3, 4], [5, 5, 3, 3, 3, 2, 3, 5, 3, 3, 3, 3, 3, 4]],
     X23: [[3, 4, 5, 2, 3, 2, 4, 3, 2, 3, 3, 3], [5, 3, 3, 2, 2, 3, 2, 2, 4, 3, 2, 2, 2, 3, 3]],
@@ -3140,7 +5739,7 @@
     W2: [[2, 3, 4, 3, 3, 1, 2, 3, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 3, 2, 3], [3, 4, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 2, 3, 3, 2, 2, 2, 2]],
     W3: [[2, 4, 4, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 3, 2], [3, 4, 4, 1, 3, 3, 1, 3, 1, 4, 1, 4, 1, 3, 3, 2, 3, 2]],
   };
-  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X22, X23, X24, X25, X26 }[C]();
+  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, X16, X17, X18, X19, X20, X21, X22, X23, X24, X25, X26, X27, X28, X29, X30, X31, X32, X33, X34, X35, X36, X37, X38, X39, X40, X41, X42, X43, X44, X45, X46, X47, X48 }[C]();
   captions(GR[C][lang === 'de' ? 0 : 1]);
   stage.appendChild(document.getElementById('cap'));
   stage.appendChild(document.querySelector('.grain'));
