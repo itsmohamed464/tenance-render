@@ -5516,14 +5516,14 @@
       });
     });
     const shake = (t, a = 12) => tl.fromTo(cam, { x: 0, y: 0 }, { keyframes: [{ x: a, y: -a / 2 }, { x: -a, y: a / 2 }, { x: a / 2, y: 0 }, { x: 0, y: 0 }], duration: 0.3, immediateRender: false }, t);
-    const flash = (t) => { const f = el('div', 'tkflash', null, cam); tl.set(f, { opacity: 0 }, 0); tl.fromTo(f, { opacity: 0.55 }, { opacity: 0, duration: 0.45, ease: 'power2.out', immediateRender: false }, t); stripes(t - 0.12); ring(540, 820, t, 1.4); ring(540, 820, t + 0.12, 1.0); punch(t, 0.12); };
+    const flash = (t) => { const f = el('div', 'tkflash', null, cam); tl.set(f, { opacity: 0 }, 0); tl.fromTo(f, { opacity: 0.35 }, { opacity: 0, duration: 0.35, ease: 'power2.out', immediateRender: false }, t); stripes(t - 0.42); ring(540, 820, t, 1.4); punch(t, 0.12); };
     // gold diagonal stripe wipe across the frame
     const stripes = (t) => {
       const w = el('div', 'tkwipe', Array.from({ length: 6 }, (_, i) => `<i style="top:${i * 360 - 300}px"></i>`).join(''));
       const bars = [...w.querySelectorAll('i')]; tl.set(bars, { xPercent: -180, autoAlpha: 0 }, 0);
       tl.set(bars, { autoAlpha: 1 }, t);
-      tl.to(bars, { xPercent: 180, duration: 0.55, ease: 'power3.inOut', stagger: 0.035 }, t);
-      tl.set(bars, { autoAlpha: 0 }, t + 0.55 + 0.035 * 6); sfx('whoosh', t, -12);
+      tl.to(bars, { xPercent: 180, duration: 0.42, ease: 'power2.inOut', stagger: 0.02 }, t);
+      tl.set(bars, { autoAlpha: 0 }, t + 0.42 + 0.02 * 6); sfx('whoosh', t, -12);
     };
     // expanding shockwave ring
     const ring = (x, y, t, s = 1) => { const r = el('i', 'tkring', null, cam, { left: x + 'px', top: y + 'px' }); tl.set(r, { autoAlpha: 0, xPercent: -50, yPercent: -50 }, 0); tl.fromTo(r, { autoAlpha: 1, scale: 0.1 }, { autoAlpha: 0, scale: 4 * s, duration: 0.7, ease: 'power2.out', immediateRender: false }, t); };
@@ -5542,20 +5542,19 @@
       tl.fromTo(ls, { yPercent: 110, rotation: 8 }, { yPercent: 0, rotation: 0, duration: 0.45, ease: 'expo.out', stagger: o.st ?? 0.025, immediateRender: false }, t0);
       tl.fromTo(h, { scale: 1.9, filter: 'blur(14px)' }, { scale: 1, filter: 'blur(0px)', duration: 0.4, ease: 'expo.out', immediateRender: false }, t0);
       const es = [h]; perFrame(() => { if (h.dataset.fit) return; const rg = document.createRange(); rg.selectNodeContents(h); const hb = h.getBoundingClientRect().width, wd = hb > 0 ? rg.getBoundingClientRect().width * h.offsetWidth / hb : 0; if (!(wd > 0) || !isFinite(wd)) return; h.dataset.fit = 1; if (wd > 960) { const fs = Math.floor(parseFloat(getComputedStyle(h).fontSize) * 960 / wd) + 'px'; es.forEach((x) => { x.style.fontSize = fs; }); } });
-      [1, 2].forEach((n) => { const e = el('div', h.className + ' tkecho', h.textContent, cam, { top: top + 'px' }); es.push(e); tl.set(e, { autoAlpha: 0 }, 0); tl.fromTo(e, { autoAlpha: 0.7, scale: 1 }, { autoAlpha: 0, scale: 1 + 0.35 * n, duration: 0.7, ease: 'power2.out', immediateRender: false }, t0 + 0.25 + n * 0.08); });
       punch(t0 + 0.2, 0.05);
       if (o.sfx !== false) sfx(o.sfx || 'whoosh', t0, -15);
       if (o.out) tl.to(ls, { yPercent: -110, duration: 0.3, ease: 'power2.in', stagger: 0.01 }, o.out);
       return h;
     };
     // floating 3D phone with stacked screens
-    let phTop = 400;
+    let phTop = 400, zoneY = 1430; const PS = 1.1, PH = 978 * PS;
     const phone = (top, t0) => {
-      phTop = top;
+      phTop = top - 0.3 * 978 * (PS - 1); zoneY = Math.round(phTop + PH + 56);
       const ph = el('div', 'tkph', '<div class="bz"><div class="scr"></div><i class="notch"></i><b class="glare"></b></div>', cam, { top: top + 'px' });
       const scr = ph.querySelector('.scr'), glare = ph.querySelector('.glare');
       tl.set(ph, { xPercent: -50, autoAlpha: 0 }, 0);
-      tl.fromTo(ph, { autoAlpha: 0, y: 900, rotationX: 50, rotationY: -540, rotationZ: -12, scale: 0.9, transformPerspective: 2200, transformOrigin: '50% 30%' }, { autoAlpha: 1, y: 0, rotationX: 0, rotationY: 0, rotationZ: 0, scale: 1.17, duration: 1.1, ease: 'expo.out', immediateRender: false }, t0);
+      tl.fromTo(ph, { autoAlpha: 0, y: 900, rotationX: 50, rotationY: -540, rotationZ: -12, scale: 0.9, transformPerspective: 2200, transformOrigin: '50% 30%' }, { autoAlpha: 1, y: 0, rotationX: 0, rotationY: 0, rotationZ: 0, scale: PS, duration: 1.1, ease: 'expo.out', immediateRender: false }, t0);
       sfx('whoosh', t0, -11);
       perFrame((t) => {
         const d = Math.max(0, t - t0 - 0.9);
@@ -5565,10 +5564,10 @@
       const screen = (html, cls = '') => { const s = el('div', 'tks ' + cls, html, scr); return s; };
       const swap = (from, to, t) => {
         tl.set(to, { autoAlpha: 0 }, 0);
-        tl.fromTo(to, { autoAlpha: 1, xPercent: 100 }, { xPercent: 0, duration: 0.5, ease: 'expo.inOut', immediateRender: false }, t);
-        if (from) tl.to(from, { xPercent: -35, filter: 'brightness(0.4)', duration: 0.5, ease: 'expo.inOut' }, t);
+        tl.fromTo(to, { autoAlpha: 1, xPercent: 100 }, { xPercent: 0, duration: 0.42, ease: 'expo.out', immediateRender: false }, t);
+        if (from) tl.to(from, { xPercent: -30, filter: 'brightness(0.6)', duration: 0.42, ease: 'expo.out' }, t);
         tl.fromTo(ph, { rotationY: 0 }, { keyframes: [{ rotationY: -28, duration: 0.25, ease: 'power2.out' }, { rotationY: 0, duration: 0.45, ease: 'back.out(2.5)' }], immediateRender: false }, t);
-        whip(t + 0.05); punch(t + 0.3, 0.05);
+        punch(t + 0.3, 0.05);
         sfx('whoosh', t, -17);
       };
       return { ph, scr, screen, swap };
@@ -5580,26 +5579,30 @@
       tl.fromTo(h, { autoAlpha: 0, scale: 1.25 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, t);
       tl.to(h, { boxShadow: '0 0 0 10px rgba(224,155,107,0)', duration: 0.6, repeat: 2 }, t + 0.35);
       sfx('pop', t, -14);
-      boom(540, phTop + 1144 * (box[0] + box[1] / 2) / 100, t, 16);
+      boom(540, phTop + PH * (box[0] + box[1] / 2) / 100, t, 12);
       return h;
     };
-    // chip that shoots out of the phone to a side position
-    const chip = (html, top, side, t) => {
-      const c = el('div', 'tkchip', html, cam, { top: top + 'px', left: side < 0 ? '30%' : '70%' });
+    // callout chip: one at a time in the zone under the phone; the previous one flies up and out
+    let lastChip = null;
+    const dropChip = (t) => { if (lastChip) { tl.to(lastChip, { autoAlpha: 0, y: -50, scale: 0.85, duration: 0.25, ease: 'power2.in' }, t - 0.2); lastChip = null; } };
+    const chip = (html, t) => {
+      dropChip(t);
+      const c = el('div', 'tkchip', html, cam, { top: zoneY + 'px', left: '50%' });
       tl.set(c, { xPercent: -50, autoAlpha: 0 }, 0);
-      tl.fromTo(c, { autoAlpha: 0, x: -side * 220, scale: 0.3, rotation: -side * 25 }, { autoAlpha: 1, x: 0, scale: 1, rotation: side * 3, duration: 0.55, ease: 'back.out(1.8)', immediateRender: false }, t);
-      ring(side < 0 ? 324 : 756, top + 40, t + 0.15, 0.6); boom(side < 0 ? 324 : 756, top + 40, t + 0.15, 14); punch(t + 0.15, 0.04);
-      sfx('chime', t + 0.1, -14); return c;
+      tl.fromTo(c, { autoAlpha: 0, y: 70, scale: 0.4, rotation: -6 }, { autoAlpha: 1, y: 0, scale: 1, rotation: 0, duration: 0.5, ease: 'back.out(1.8)', immediateRender: false }, t);
+      boom(540, zoneY + 46, t + 0.1, 14); punch(t + 0.1, 0.04);
+      sfx('chime', t + 0.1, -14); lastChip = c; return c;
     };
     // in-app chat screen (Tenance dark UI tokens)
     const chat = (name, sub) => {
       const s = el('div', 'tks tkchat', `<div class="hd"><b class="av">${name.split(' ').map((x) => x[0]).join('').slice(0, 2)}</b><div><b>${name}</b><small>${sub}</small></div></div><div class="body"></div>`);
       const body = s.querySelector('.body');
       const msg = (txt, who, t, o = {}) => {
-        const m = el('div', 'tkm ' + who, (o.typing ? '<span class="typ"><i></i><i></i><i></i></span>' : '') + `<p>${txt}</p>`, body);
+        const m = el('div', 'tkm ' + who, (o.typing ? '<span class="tktyp"><i></i><i></i><i></i></span>' : '') + `<p>${txt}</p>`, body);
         tl.set(m, { autoAlpha: 0 }, 0);
         if (o.typing) {
-          const tp = m.querySelector('.typ'), p = m.querySelector('p');
+          const tp = m.querySelector('.tktyp'), p = m.querySelector('p');
+          tl.fromTo(tp.children, { y: 0 }, { y: -7, duration: 0.18, yoyo: true, repeat: Math.max(1, Math.floor(o.typing / 0.18) - 1), stagger: 0.09, ease: 'sine.inOut', immediateRender: false }, t - o.typing);
           tl.set(p, { display: 'none' }, 0); tl.set(m, { autoAlpha: 1 }, t - o.typing);
           tl.fromTo(m, { scale: 0.6, y: 30 }, { scale: 1, y: 0, duration: 0.3, ease: 'back.out(2)', immediateRender: false }, t - o.typing);
           tl.set(tp, { display: 'none' }, t); tl.set(p, { display: 'block' }, t);
@@ -5614,6 +5617,7 @@
     const notif = (s, html, t) => { const n = el('div', 'tknot', html, s); tl.set(n, { autoAlpha: 0 }, 0); tl.fromTo(n, { autoAlpha: 0, yPercent: -150 }, { autoAlpha: 1, yPercent: 0, duration: 0.45, ease: 'back.out(1.6)', immediateRender: false }, t); sfx('chime', t, -12); return n; };
     // end: tagline (two lines) + waitlist CTA button with tap
     const end = (tLine1, tLine2, tCta, txt) => {
+      dropChip(tLine1 - 0.3);
       const kids = [...cam.children].filter((c) => !c.classList.contains('tkbg') && !c.classList.contains('tksp'));
       tl.to(kids, { autoAlpha: 0, scale: 0.88, filter: 'blur(12px)', duration: 0.35, ease: 'power2.in' }, tLine1 - 0.35);
       setCapHidden((t) => t > tLine1 - 0.2);
@@ -5623,21 +5627,23 @@
       flash(tLine2); shake(tLine2 + 0.05, 10); burst(tLine2); boom(540, 780, tLine2 + 0.1, 30, 2);
       const cta = el('div', 'tkcta', `<span class="lg"><img src="assets/logo.png"></span><b class="btn">${de ? 'Jetzt auf die Warteliste' : 'Join the waitlist'}<i class="rp"></i></b><small>tenance.de</small><u class="cur"></u>`);
       const btn = cta.querySelector('.btn'), rp = cta.querySelector('.rp'), cur = cta.querySelector('.cur'), lg = cta.querySelector('.lg');
+      tl.set(rp, { scale: 0, opacity: 0 }, 0); tl.set(cur, { autoAlpha: 0 }, 0);
       tl.set(cta, { autoAlpha: 0 }, 0); tl.set(cta, { autoAlpha: 1 }, tCta - 0.25);
       tl.to([l1, l2], { y: -260, scale: 0.8, duration: 0.5, ease: 'expo.inOut' }, tCta - 0.35);
       tl.fromTo(lg, { scale: 0, rotation: -90 }, { scale: 1, rotation: 0, duration: 0.5, ease: 'back.out(2)', immediateRender: false }, tCta - 0.25);
       tl.fromTo(btn, { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.55, ease: 'elastic.out(1,0.6)', immediateRender: false }, tCta - 0.15);
       tl.fromTo(cta.querySelector('small'), { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.4, immediateRender: false }, tCta + 0.15);
-      tl.fromTo(cur, { x: 260, y: 260, autoAlpha: 0 }, { x: 40, y: 20, autoAlpha: 1, duration: 0.6, ease: 'power3.out', immediateRender: false }, tCta + 0.4);
-      tl.to(btn, { scale: 0.93, duration: 0.1, yoyo: true, repeat: 1 }, tCta + 1.05);
-      tl.fromTo(rp, { scale: 0, opacity: 0.9 }, { scale: 6, opacity: 0, duration: 0.7, ease: 'power2.out', immediateRender: false }, tCta + 1.05);
+      tl.fromTo(cur, { x: 260, y: 260, autoAlpha: 0 }, { x: 40, y: 20, autoAlpha: 1, duration: 0.45, ease: 'power3.out', immediateRender: false }, tCta + 0.3);
+      tl.to(btn, { scale: 0.93, duration: 0.1, yoyo: true, repeat: 1 }, tCta + 0.8);
+      tl.to(cur, { x: 300, y: 300, autoAlpha: 0, duration: 0.35, ease: 'power2.in' }, tCta + 1.0);
+      tl.fromTo(rp, { scale: 0, opacity: 0.9 }, { scale: 6, opacity: 0, duration: 0.7, ease: 'power2.out', immediateRender: false }, tCta + 0.8);
       perFrame((t) => { btn.style.boxShadow = `0 0 ${40 + Math.sin(t * 5) * 25}px rgba(224,155,107,${t > tCta ? 0.7 : 0})`; });
-      boom(540, 1020, tCta - 0.1, 36, 2.2); ring(540, 1020, tCta - 0.1, 1.6); punch(tCta - 0.1, 0.1); boom(540, 1020, tCta + 1.05, 24, 1.6); ring(540, 1020, tCta + 1.05, 1.2);
+      boom(540, 1020, tCta - 0.1, 36, 2.2); ring(540, 1020, tCta - 0.1, 1.6); punch(tCta - 0.1, 0.1); boom(540, 1020, tCta + 0.8, 24, 1.6); ring(540, 1020, tCta + 0.8, 1.2);
       tl.to(lg, { rotationY: 360, duration: 0.9, ease: 'power2.inOut' }, tCta + 0.3);
       const sh = el('i', 'tkshine', null, btn); perFrame((t) => { sh.style.transform = `translateX(${-150 + (((t - tCta) * 120) % 400)}%) skewX(-20deg)`; });
-      sfx('pop', tCta - 0.1, -11); sfx('kaching', tCta + 1.08, -12);
+      sfx('pop', tCta - 0.1, -11); sfx('kaching', tCta + 0.83, -12);
     };
-    return { cam, head, phone, img, hl, chip, chat, notif, end, flash, shake, burst, boom, ring, punch, whip, stripes };
+    return { zone: () => zoneY, dropChip, cam, head, phone, img, hl, chip, chat, notif, end, flash, shake, burst, boom, ring, punch, whip, stripes };
   }
 
   // ================= X47: 2 a.m., tenant writes "pipe leaking" → Tenance answers, spots damage, books plumber, informs landlord (real maintenance + dashboard UI) → tagline + waitlist =================
@@ -5652,7 +5658,7 @@
     const l1 = W(['Dein', 'your'], it.i); K.l1 = l1.start; const t2 = W(['Tenance', 'Tenance'], l1.i); K.l2 = t2.start; K.cta = W(['Jetzt', 'join'], t2.i).start;
     const k = TK();
     const h = k.head(S.h, 120, 0.05, { st: 0.04, sfx: 'impact', out: K.turn - 0.2 });
-    const P = k.phone(290, 0.25);
+    const P = k.phone(330, 0.25);
     const c = k.chat(S.name, S.sub); P.scr.appendChild(c.s);
     c.msg(S.m1, 'in', K.drip - 0.2, { typing: 0.9 });
     const ph = el('div', 'tkm in tkphoto', '<b>💧</b><span>IMG_0217</span>', c.s.querySelector('.body')); tl.set(ph, { autoAlpha: 0 }, 0);
@@ -5660,19 +5666,19 @@
     // Tenance answers: flash, burst, gold reply
     k.flash(K.turn); k.burst(K.turn); k.shake(K.turn + 0.05, 9);
     const hd2 = k.head(de ? 'Tenance *antwortet*' : 'Tenance *answers*', 120, K.turn, { sfx: 'impact' });
-    c.msg(S.m2, 'out ai', K.ans + 0.25, { typing: 0.5 });
+    c.msg(S.m2, 'out tkai', K.ans + 0.25, { typing: 0.5 });
     // real maintenance screen + damage highlight + chips
     const sm = P.screen(k.img('ll-maintenance'), 'tkimgs'); P.swap(c.s, sm, K.dmg - 0.35);
     k.hl(sm, [38.3, 12, 3, 94], K.dmg, S.lb);
-    k.chip(S.c1, 470, -1, K.dmg + 0.1);
-    k.chip(S.c2, 760, 1, K.hw);
+    k.chip(S.c1, K.dmg + 0.1);
+    k.chip(S.c2, K.hw);
     tl.to(hd2, { autoAlpha: 0, duration: 0.25 }, K.hw - 0.3);
     // real dashboard + push notification
     const sd = P.screen(k.img('ll-dashboard'), 'tkimgs'); P.swap(sm, sd, K.inf - 0.35);
     k.notif(sd, S.n, K.inf);
-    k.chip(S.c3, 1050, -1, K.inf + 0.2);
+    k.chip(S.c3, K.inf + 0.2);
     k.end(K.l1, K.l2, K.cta);
-    return { T: END + 2.4, K };
+    return { T: END + 0.9, K };
   }
 
   // ================= X48: 23 messages Monday → tenants write, Tenance answers (real tenants/maintenance UI) → approve → AI property manager → waitlist =================
@@ -5689,41 +5695,43 @@
     const k = TK();
     const h = k.head(S.h, 110, 0.0, { st: 0.035, sfx: 'impact', out: K.write - 0.2 });
     const h2 = k.head(S.mon, 250, K.mon - 0.1, { cls: 'tksub', sfx: false, out: K.write - 0.2 });
-    const P = k.phone(360, 0.2);
+    const P = k.phone(380, 0.2);
     // inbox list inside phone
     const inbox = el('div', 'tks tkinbox', `<div class="ttl">${de ? 'Nachrichten' : 'Messages'}<em>23</em></div>` + S.list.map(([a, n, m], i) => `<div class="row"><b class="av c${i}">${a}</b><div><b>${n}</b><small>${m}</small></div><u>1</u><s>${S.done}</s></div>`).join(''), P.scr);
     const rows = [...inbox.querySelectorAll('.row')];
     tl.set(rows, { autoAlpha: 0 }, 0);
     rows.forEach((r, i) => { tl.fromTo(r, { autoAlpha: 0, x: 120 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'back.out(1.8)', immediateRender: false }, 0.5 + i * 0.32); sfx('buzz', 0.55 + i * 0.32, -20); });
-    // spilled notifications around the phone
-    const spill = S.list.map(([a, n, m], i) => { const e = el('div', 'tkspill', `<b>${n}</b> ${m}`, k.cam, { top: `${560 + i * 150}px`, left: `${i % 2 ? 77 : 23}%` }); tl.set(e, { xPercent: -50, autoAlpha: 0 }, 0); tl.fromTo(e, { autoAlpha: 0, y: -400, rotation: (i % 2 ? 14 : -14) }, { autoAlpha: 1, y: 0, rotation: (i % 2 ? 5 : -5), duration: 0.5, ease: 'bounce.out', immediateRender: false }, 1.2 + i * 0.3); return e; });
-    tl.to(spill, { autoAlpha: 0, scale: 0.3, x: (i) => (i % 2 ? -300 : 300), duration: 0.4, ease: 'power3.in', stagger: 0.04 }, K.turn - 0.3);
+    // red unread badges popping around the phone edges (no text to read, nothing covered)
+    const BP = [[205, 520], [880, 600], [190, 860], [895, 940], [210, 1180], [870, 1260], [540, 1440]];
+    const spill = BP.map(([x, y], i) => { const e = el('div', 'tkbadge', '+' + (i < 6 ? [4, 3, 5, 2, 6, 2][i] : 1), k.cam, { left: x + 'px', top: y + 'px' }); tl.set(e, { xPercent: -50, yPercent: -50, autoAlpha: 0 }, 0); tl.fromTo(e, { autoAlpha: 0, scale: 0 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: 'back.out(3)', immediateRender: false }, 1.0 + i * 0.22); sfx('buzz', 1.0 + i * 0.22, -21); return e; });
+    tl.to(spill, { autoAlpha: 0, scale: 0.2, x: (i) => 540 - BP[i][0], y: (i) => 860 - BP[i][1], duration: 0.4, ease: 'power3.in', stagger: 0.03 }, K.turn - 0.35);
     // Tenance answers: gold sweep across each row
     k.flash(K.turn); k.burst(K.turn); k.shake(K.turn + 0.05, 9);
     const hd = k.head(de ? 'Tenance *antwortet*' : 'Tenance *answers*', 140, K.turn, { sfx: 'impact' });
     rows.forEach((r, i) => { const s = r.querySelector('s'), u = r.querySelector('u'); tl.set(s, { autoAlpha: 0 }, 0); tl.to(u, { scale: 0, duration: 0.15 }, K.turn + 0.3 + i * 0.12); tl.fromTo(s, { autoAlpha: 0, x: 40 }, { autoAlpha: 1, x: 0, duration: 0.25, immediateRender: false }, K.turn + 0.35 + i * 0.12); sfx('pop', K.turn + 0.35 + i * 0.12, -19); });
     const cnt = inbox.querySelector('.ttl em'); perFrame((t) => { cnt.textContent = Math.max(0, Math.round(23 * (1 - clamp((t - K.turn - 0.3) / 1.0, 0, 1)))); });
-    k.chip(S.c1, 300, -1, K.q);
+    k.chip(S.c1, K.q);
     tl.to(hd, { autoAlpha: 0, duration: 0.25 }, K.q - 0.2);
     // real maintenance screen
     const sm = P.screen(k.img('ll-maintenance'), 'tkimgs'); P.swap(inbox, sm, K.r - 0.35);
     k.hl(sm, [26.5, 10.5, 3, 94], K.r + 0.05, S.lb1); k.hl(sm, [53, 9, 3, 94], K.r + 0.3, S.lb1);
-    k.chip(S.c2, 520, 1, K.r + 0.1);
+    k.chip(S.c2, K.r + 0.1);
     // real tenants screen: overdue row
     const st = P.screen(k.img('ll-tenants'), 'tkimgs'); P.swap(sm, st, K.m - 0.35);
     k.hl(st, [79.5, 8.5, 3, 94], K.m + 0.05, S.lb2);
-    k.chip(S.c3, 760, -1, K.m + 0.1);
+    k.chip(S.c3, K.m + 0.1);
     // approve button over the phone
-    const ap = el('div', 'tkap', `<b>${S.ap}</b><i class="rp"></i>`, k.cam); const lab = ap.querySelector('b'), rp = ap.querySelector('.rp');
-    tl.set(ap, { xPercent: -50, autoAlpha: 0 }, 0);
+    k.dropChip(K.ok - 0.6);
+    const ap = el('div', 'tkap', `<b>${S.ap}</b><i class="rp"></i>`, k.cam, { top: k.zone() + 'px' }); const lab = ap.querySelector('b'), rp = ap.querySelector('.rp');
+    tl.set(ap, { xPercent: -50, autoAlpha: 0 }, 0); tl.set(rp, { scale: 0, opacity: 0 }, 0);
     tl.fromTo(ap, { autoAlpha: 0, y: 120, scale: 0.6 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(2)', immediateRender: false }, K.ok - 0.6);
     tl.to(ap, { scale: 0.92, duration: 0.1, yoyo: true, repeat: 1 }, K.ok);
     tl.fromTo(rp, { scale: 0, opacity: 0.9 }, { scale: 5, opacity: 0, duration: 0.6, ease: 'power2.out', immediateRender: false }, K.ok);
     perFrame((t) => { lab.textContent = t > K.ok + 0.1 ? S.apd : S.ap; ap.classList.toggle('on', t > K.ok + 0.1); });
-    k.burst(K.ok); k.boom(540, 1095, K.ok + 0.02, 30, 1.8); k.ring(540, 1095, K.ok, 1.3); k.punch(K.ok, 0.1); k.shake(K.ok + 0.05, 8); sfx('kaching', K.ok + 0.05, -11);
+    k.burst(K.ok); k.boom(540, k.zone() + 65, K.ok + 0.02, 30, 1.8); k.ring(540, k.zone() + 65, K.ok, 1.3); k.punch(K.ok, 0.1); k.shake(K.ok + 0.05, 8); sfx('kaching', K.ok + 0.05, -11);
     // AI property manager line then tagline/CTA
     k.end(K.mgr, K.mgr, K.cta, [S.mgr, null]);
-    return { T: END + 2.4, K };
+    return { T: END + 0.9, K };
   }
 
   const GR = {
