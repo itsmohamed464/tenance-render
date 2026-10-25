@@ -5625,12 +5625,13 @@
       const l1 = head(txt[0], 560, tLine1, { cls: 'tktag', sfx: 'impact' });
       const l2 = txt[1] ? head(txt[1], 720, tLine2, { cls: 'tktag', sfx: 'impact' }) : l1;
       flash(tLine2); shake(tLine2 + 0.05, 10); burst(tLine2); boom(540, 780, tLine2 + 0.1, 30, 2);
-      const cta = el('div', 'tkcta', `<span class="lg"><img src="assets/logo.png"></span><b class="btn">${de ? 'Jetzt auf die Warteliste' : 'Join the waitlist'}<i class="rp"></i></b><small>tenance.de</small><u class="cur"></u>`);
+      const cta = el('div', 'tkcta', `<span class="lg"><img src="assets/logo.png"></span><em class="wm">Tenance <i>${de ? 'KI' : 'AI'}</i></em><b class="btn">${de ? 'Jetzt auf die Warteliste' : 'Join the waitlist'}<i class="rp"></i></b><small>tenance.de</small><u class="cur"></u>`);
       const btn = cta.querySelector('.btn'), rp = cta.querySelector('.rp'), cur = cta.querySelector('.cur'), lg = cta.querySelector('.lg');
       tl.set(rp, { scale: 0, opacity: 0 }, 0); tl.set(cur, { autoAlpha: 0 }, 0);
       tl.set(cta, { autoAlpha: 0 }, 0); tl.set(cta, { autoAlpha: 1 }, tCta - 0.25);
       tl.to([l1, l2], { y: -260, scale: 0.8, duration: 0.5, ease: 'expo.inOut' }, tCta - 0.35);
       tl.fromTo(lg, { scale: 0, rotation: -90 }, { scale: 1, rotation: 0, duration: 0.5, ease: 'back.out(2)', immediateRender: false }, tCta - 0.25);
+      tl.fromTo(cta.querySelector('.wm'), { autoAlpha: 0, y: 24, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.4, ease: 'back.out(2)', immediateRender: false }, tCta - 0.2);
       tl.fromTo(btn, { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.55, ease: 'elastic.out(1,0.6)', immediateRender: false }, tCta - 0.15);
       tl.fromTo(cta.querySelector('small'), { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.4, immediateRender: false }, tCta + 0.15);
       tl.fromTo(cur, { x: 260, y: 260, autoAlpha: 0 }, { x: 40, y: 20, autoAlpha: 1, duration: 0.45, ease: 'power3.out', immediateRender: false }, tCta + 0.3);
@@ -5823,6 +5824,7 @@
     const G = gl3(wrap, { fov: o.fov || 30, envTop: o.envTop || '#c9d6f2', envBot: o.envBot || '#2a3348', envInt: o.envInt || 0.6, exposure: o.exposure || 1.0 });
     const { scene, cam } = G;
     const proj = (v) => { const p = v.clone().project(cam); return [(p.x + 1) / 2 * 1080, (1 - p.y) / 2 * 1920]; };
+    const BR = lang === 'de' ? 'KI' : 'AI';
     // overlay elements live in the wrap so the whole 3D world fades out under the end card
     const ov = (cls, html) => el('div', cls, html, wrap);
     const glow = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, 'rgba(255,214,150,1)'); g.addColorStop(0.35, 'rgba(255,176,96,0.45)'); g.addColorStop(1, 'rgba(255,170,80,0)'); x.fillStyle = g; x.fillRect(0, 0, 128, 128); const t = new T3.CanvasTexture(c); t.colorSpace = T3.SRGBColorSpace; return t; })();
@@ -5845,12 +5847,23 @@
     };
     // small brand notification card at the top (the UI is never the hero)
     const card = (title, lines, t0) => {
-      const c = ov('tdcard', `<div class="hd"><span class="lg"><img src="assets/logo.png"></span><b>${title}</b><small>Tenance AI</small></div>` + lines.map((l) => `<div class="ln"><span>${l}</span><i>✓</i></div>`).join(''));
+      const c = ov('tdcard', `<div class="hd"><span class="lg"><img src="assets/logo.png"></span><b>${title}</b><small>Tenance ${BR}</small></div>` + lines.map((l) => `<div class="ln"><span>${l}</span><i>✓</i></div>`).join(''));
       tl.set(c, { autoAlpha: 0, xPercent: -50 }, 0);
       tl.fromTo(c, { autoAlpha: 0, y: -160, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.6)', immediateRender: false }, t0);
       sfx('chime', t0 + 0.05, -12);
       const ls = [...c.querySelectorAll('.ln')]; tl.set(ls, { autoAlpha: 0, height: 0, marginTop: 0 }, 0);
       return { c, line: (i, t) => { tl.to(ls[i], { autoAlpha: 1, height: 'auto', marginTop: 10, duration: 0.3, ease: 'power2.out' }, t); tl.fromTo(ls[i].querySelector('i'), { scale: 0 }, { scale: 1, duration: 0.35, ease: 'back.out(3)', immediateRender: false }, t + 0.15); sfx('pop', t + 0.15, -14); k.punch(t + 0.15, 0.03); } };
+    };
+    // brand moment: big "Tenance KI/AI" badge pops when the VO says "Tenance", then docks as a small corner mark
+    const brand = (t, y = 806) => {
+      const b = ov('tdbrand', `<span class="lg"><img src="assets/logo.png"></span><b>Tenance <i>${BR}</i></b>`);
+      const wm = ov('tdwm', `<span class="lg"><img src="assets/logo.png"></span><b>Tenance <i>${BR}</i></b>`);
+      tl.set(b, { xPercent: -50, yPercent: -50, left: 540, top: y, autoAlpha: 0 }, 0); tl.set(wm, { autoAlpha: 0 }, 0);
+      tl.fromTo(b, { autoAlpha: 0, scale: 0.3, rotation: -6 }, { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.45, ease: 'back.out(2.2)', immediateRender: false }, t);
+      tl.to(b, { left: 190, top: 64, scale: 0.4, autoAlpha: 0, duration: 0.45, ease: 'power3.in' }, t + 1.0);
+      tl.fromTo(wm, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, t + 1.3);
+      const sh = el('i', 'tdsh', null, b); perFrame((tt) => { sh.style.transform = `translateX(${-160 + Math.max(0, tt - t - 0.2) * 420}%) skewX(-20deg)`; });
+      sfx('whoosh', t + 1.0, -18);
     };
     // end: 3D world fades, brand background + tagline + waitlist CTA
     const finish = (tLine, tCta, txt) => {
@@ -5858,7 +5871,7 @@
       tl.to([tkbg, tksp], { autoAlpha: 1, duration: 0.4 }, tLine - 0.4);
       k.end(tLine, tLine, tCta, txt);
     };
-    return Object.assign(k, { G, scene, cam, wrap, proj, ov, glow, person, phoneIn, snowfall, card, finish });
+    return Object.assign(k, { G, scene, cam, wrap, proj, ov, glow, person, phoneIn, snowfall, card, brand, finish });
   }
 
   // ================= X49 (3D): snowy evening, apartment house with one dark FOR RENT window → 40 inquiries fly in → applicants with phones on the sidewalk → Tenance answers all → window lights up, viewings booked, applicants walk in → landlord arrives with the key → waitlist =================
@@ -5990,6 +6003,7 @@
     // Tenance answers: brand pulse + small card on top
     k.burst(K.turn); sfx('impact', K.turn, -13);
     const pulse = ov('tdpulse', ''); tl.set(pulse, { autoAlpha: 0 }, 0); tl.fromTo(pulse, { autoAlpha: 0.9, scale: 0.2 }, { autoAlpha: 0, scale: 3, duration: 0.8, ease: 'power2.out', immediateRender: false }, K.turn);
+    k.brand(K.turn);
     const cd = k.card(S.ttl, [S.l1, S.l2, S.l3], K.turn + 0.15);
     cd.line(0, K.q); cd.line(1, K.d); cd.line(2, K.b + 0.15);
     tl.to(cd.c, { autoAlpha: 0, y: -80, duration: 0.3 }, K.du - 0.1);
@@ -6104,7 +6118,7 @@
     tl.to(chip, { autoAlpha: 0, y: -40, duration: 0.3 }, K.turn);
     const calLbl = ov('tdtag warn', `📅 31 · ${S.end31}`); tl.set(calLbl, { autoAlpha: 0 }, 0);
     tl.fromTo(calLbl, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.5)', immediateRender: false }, K.dec + 0.3); tl.to(calLbl, { autoAlpha: 0, duration: 0.2 }, K.turn); sfx('pop', K.dec + 0.3, -14); sfx('whoosh', K.dec - 0.05, -16);
-    const m1 = ov('tdchat in', `<b>James S.</b>${S.m1}`), m2 = ov('tdchat out', `<b>Tenance AI</b>${S.m2}`);
+    const m1 = ov('tdchat in', `<b>James S.</b>${S.m1}`), m2 = ov('tdchat out', `<b>Tenance ${de ? 'KI' : 'AI'}</b>${S.m2}`);
     tl.set([m1, m2], { autoAlpha: 0 }, 0);
     tl.fromTo(m1, { autoAlpha: 0, y: 30, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, K.ask - 0.35); sfx('send', K.ask - 0.3, -13);
     tl.fromTo(m2, { autoAlpha: 0, y: 30, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, K.ans + 0.1); sfx('pop', K.ans + 0.1, -12);
@@ -6112,6 +6126,7 @@
     perFrame(() => { const [x, y] = proj(A.localToWorld(new T3.Vector3(TN.position.x, 1.65, TN.position.z))); const bx = clamp(x + 120, 330, 750) + 'px'; m1.style.left = bx; m1.style.top = (y - 380) + 'px'; m2.style.left = bx; m2.style.top = (y - 210) + 'px'; const cp = proj(A.localToWorld(new T3.Vector3(-1.55, 2.55, -1.7))); calLbl.style.left = Math.max(190, cp[0]) + 'px'; calLbl.style.top = (cp[1] - 20) + 'px'; });
     k.burst(K.turn); sfx('impact', K.turn, -13);
     const pulse = ov('tdpulse', ''); tl.set(pulse, { autoAlpha: 0 }, 0); tl.fromTo(pulse, { autoAlpha: 0.9, scale: 0.2 }, { autoAlpha: 0, scale: 3, duration: 0.8, ease: 'power2.out', immediateRender: false }, K.turn);
+    k.brand(K.turn, 1290);
     sfx('shutter', K.prep, -14); sfx('whoosh', K.send, -12);
     const cd = k.card(S.ttl, [S.l1], K.fr - 0.35); cd.line(0, K.fr);
     const ap = ov('tdbtn', `<b>${S.ap}</b><i class="rp"></i>`); const lab = ap.querySelector('b'), rp = ap.querySelector('.rp');
@@ -6124,6 +6139,187 @@
     k.boom(540, 1480, K.click + 0.02, 30, 1.8); k.punch(K.click, 0.1); sfx('impact', K.click, -10); sfx('kaching', K.click + 0.08, -11);
     const okB = ov('tdtag ok', S.ok); tl.set(okB, { autoAlpha: 0 }, 0); tl.fromTo(okB, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2.5)', immediateRender: false }, K.done + 0.15); sfx('chime', K.done + 0.15, -12);
     perFrame(() => { const [x, y] = proj(A.localToWorld(new T3.Vector3(TN.position.x, 1.8, TN.position.z))); okB.style.left = clamp(x, 330, 750) + 'px'; okB.style.top = y + 'px'; });
+    k.finish(K.cta + 0.3, K.cta + 0.6, [S.end, null]);
+    return { T: END + 0.9, K };
+  }
+
+  // ================= X51 (3D): snowy midnight, cutaway apartment house — one flat's heating dies (radiator cools, frost, breath, blanket) → tenant writes → Tenance KI answers (brand moment) → first aid: emergency reset, radiator glows again → technician 08:00 booked → the landlord sleeps through it in the cottage next door → sunrise, service van arrives, all warm → waitlist =================
+  function X51() {
+    const de = lang === 'de';
+    const S = de ? { chip: '🕛 00:00', temp: '🌡️ -5 °C', off: '⚠️ Heizung aus', m1: 'Die Heizung ist komplett aus, es ist eiskalt 🥶', m2: 'Bin dran! Erst der Notfall-Reset, um 08:00 kommt ein Techniker ✓', ttl: 'Heizung · Whg 2B', l1: '🔥 Soforthilfe: Reset läuft', l2: '🔧 Techniker morgen 08:00', l3: '🌙 Vermieter nicht geweckt', ok: '✓ Heizung läuft wieder', clock: '🕗 08:00 · Techniker da', van: 'HEIZUNGSDIENST', end: 'Du schläfst *weiter*.' }
+      : { chip: '🕛 12:00 am', temp: '🌡️ -5 °C', off: '⚠️ Heating off', m1: "The heating is completely off, it's freezing 🥶", m2: 'On it! Emergency reset first, a technician comes at 8:00 am ✓', ttl: 'Heating · Apt 2B', l1: '🔥 First aid: reset running', l2: '🔧 Technician 8:00 am', l3: '🌙 Landlord not woken', ok: '✓ Heating back on', clock: '🕗 8:00 am · technician here', van: 'HEATING SERVICE', end: 'You sleep *through it*.' };
+    const K = {};
+    K.minus = W(['minus']).start;
+    K.heat = W(['Heizung', 'heating']).start; K.off = W(['aus', 'dies']).start;
+    K.write = W(['schreibt', 'writes']).start;
+    const it = W(['Tenance']); K.turn = it.start; K.ans = W(['antwortet', 'answers'], it.i).start;
+    K.aid = W(['Soforthilfe', 'first'], it.i).start; K.tech = W(['Techniker', 'technician'], it.i).start; K.eight = W(['acht', 'eight'], it.i).start;
+    const du = W(['Du', 'You'], it.i); K.du = du.start; K.weiter = W(['weiter', 'it'], du.i).start; K.cta = W(['Jetzt', 'Join'], du.i).start;
+    const k = TD({ sky: 'night', envTop: '#9fb4e6', envBot: '#1c2438', envInt: 0.5 });
+    const { scene, cam, proj, ov } = k;
+    // dawn sky fades in over the night sky for the morning reveal
+    const dawn = el('div', 'tdsky dawn', '<i class="sun"></i>'); k.wrap.insertBefore(dawn, k.wrap.querySelector('canvas'));
+    tl.set(dawn, { autoAlpha: 0 }, 0); tl.to(dawn, { autoAlpha: 1, duration: 0.75, ease: 'power1.inOut' }, K.du + 0.25);
+    const hemi = new T3.HemisphereLight('#9fb6ff', '#2a2f40', 0.5); scene.add(hemi);
+    const moon = new T3.DirectionalLight('#c9d8ff', 0.85); moon.position.set(-7, 11, 7); moon.castShadow = true; moon.shadow.mapSize.set(2048, 2048);
+    Object.assign(moon.shadow.camera, { left: -11, right: 11, top: 11, bottom: -11, near: 1, far: 40 }); moon.shadow.radius = 4; moon.shadow.bias = -0.0005; scene.add(moon);
+    const D = new T3.Group(); scene.add(D);
+    const snow = M.std('#eef3ff', { roughness: 0.85 });
+    mesh(rbox(15.4, 1.0, 9.6, 0.18), M.std('#232a3a', { roughness: 0.9 }), D, [0.6, -0.5, 0]);
+    mesh(new T3.BoxGeometry(15.3, 0.12, 9.5), snow, D, [0.6, 0.06, 0]);
+    mesh(new T3.BoxGeometry(15.3, 0.13, 1.7), M.std('#5f6672', { roughness: 0.8 }), D, [0.6, 0.07, 3.3]);
+    // ---- cutaway apartment house (front wall removed) ----
+    const H = new T3.Group(); H.position.set(-1.3, 0.12, -1.0); D.add(H);
+    const facade = M.std('#e7d3b8', { roughness: 0.9 }), trim = M.std('#c9a988', { roughness: 0.9 });
+    mesh(new T3.BoxGeometry(5.0, 5.1, 0.14), facade, H, [0, 2.55, -1.5]);
+    [-2.5, 2.5].forEach((x) => mesh(new T3.BoxGeometry(0.14, 5.1, 3.0), facade, H, [x, 2.55, 0]));
+    mesh(new T3.BoxGeometry(0.1, 5.1, 3.0), M.std('#d9c4a6', { roughness: 0.95 }), H, [0, 2.55, 0]);
+    [0, 1.7, 3.4, 5.1].forEach((y) => mesh(new T3.BoxGeometry(5.14, 0.14, 3.04), trim, H, [0, y, 0]));
+    const rs = new T3.Shape(); rs.moveTo(-1.62, 0); rs.lineTo(1.62, 0); rs.lineTo(0, 1.25); rs.lineTo(-1.62, 0);
+    const rgeo = new T3.ExtrudeGeometry(rs, { depth: 5.4, bevelEnabled: false }); rgeo.translate(0, 0, -2.7);
+    mesh(rgeo, M.std('#1f4a36', { roughness: 0.7 }), H, [0, 5.17, 0], [0, Math.PI / 2, 0]);
+    [-1, 1].forEach((sg) => { const m = mesh(new T3.BoxGeometry(5.5, 0.14, 2.1), snow, H, [0, 5.17 + 0.62 + 0.08, sg * 0.8]); m.rotation.x = sg * 0.66; });
+    const FX = -1.25, FY = 1.7;                // focus flat 2B: left column, middle floor
+    const flats = [[-1.25, 0], [1.25, 0], [-1.25, 1.7], [1.25, 1.7], [-1.25, 3.4], [1.25, 3.4]];
+    const walls = ['#cdbfae', '#c4c9d4', '#f1e2cc', '#cbd3c4', '#d4c4c8', '#c9c2b4'];
+    flats.forEach(([x, y], i) => {
+      const focus = x === FX && y === FY;
+      mesh(new T3.PlaneGeometry(2.36, 1.52), M.std(walls[i], { roughness: 0.95 }), H, [x, y + 0.85, -1.42]);
+      mesh(new T3.BoxGeometry(1.08, 0.74, 0.05), M.std('#eef1f5', { roughness: 0.6 }), H, [x, y + 1.08, -1.4]);
+      mesh(new T3.BoxGeometry(0.96, 0.62, 0.04), new T3.MeshStandardMaterial({ color: '#1b2a4a', emissive: new T3.Color('#1b2a4a'), emissiveIntensity: 0.4, roughness: 0.2 }), H, [x, y + 1.08, -1.38]);
+      if (!focus) {                           // everyone else is asleep: bed + sleeper in the dark
+        const bx = x + (i % 2 ? 0.35 : -0.35);
+        mesh(rbox(1.3, 0.34, 0.8, 0.05), M.std('#8a6a52', { roughness: 0.8 }), H, [bx, y + 0.24, -0.6]);
+        mesh(rbox(1.0, 0.14, 0.78, 0.05), M.std(['#5b6f9a', '#7a5b8a', '#4f7f6a', '#9a6b4f', '#6b7a8a'][i % 5], { roughness: 0.9 }), H, [bx + 0.12, y + 0.47, -0.6]);
+        mesh(new T3.SphereGeometry(0.15, 16, 12), M.std('#e8b98f', { roughness: 0.7 }), H, [bx - 0.42, y + 0.52, -0.6]);
+      }
+    });
+    // a TV flickers in one flat (life in the building)
+    const tvM = new T3.MeshBasicMaterial({ color: '#7fb2ff' }); mesh(new T3.BoxGeometry(0.6, 0.36, 0.04), tvM, H, [1.6, 0.75, -1.35]);
+    const tvL = new T3.PointLight('#7fb2ff', 0.8, 3); tvL.position.set(1.4, 0.9, -0.6); H.add(tvL);
+    // focus flat: radiator under the window, sofa, ceiling lamp, tenant
+    const radM = new T3.MeshStandardMaterial({ color: '#efe9e0', emissive: new T3.Color('#ff6a2a'), emissiveIntensity: 1.5, roughness: 0.5 });
+    const rad = new T3.Group(); rad.position.set(FX, FY + 0.42, -1.3); H.add(rad);
+    for (let i = 0; i < 8; i++) mesh(rbox(0.1, 0.5, 0.16, 0.03), radM, rad, [-0.42 + i * 0.12, 0, 0]);
+    mesh(new T3.BoxGeometry(0.98, 0.06, 0.12), radM, rad, [0, -0.24, 0]);
+    const radG = new T3.Sprite(new T3.SpriteMaterial({ map: k.glow, blending: T3.AdditiveBlending, transparent: true, depthWrite: false, color: '#ff8a4a' })); radG.position.set(FX, FY + 0.5, -1.0); radG.scale.setScalar(1.9); H.add(radG);
+    const frost = textPlane((x, w, h) => {
+      const g = x.createRadialGradient(w / 2, h / 2, h * 0.15, w / 2, h / 2, w * 0.62); g.addColorStop(0, 'rgba(230,242,255,0.15)'); g.addColorStop(1, 'rgba(240,248,255,0.95)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+      x.strokeStyle = 'rgba(255,255,255,0.9)'; x.lineWidth = 2;
+      for (let i = 0; i < 26; i++) { const a = i * 2.39, r0 = 40 + (i * 37) % 90, cx = w / 2 + Math.cos(a) * (w * 0.42), cy = h / 2 + Math.sin(a) * (h * 0.42); for (let j = 0; j < 6; j++) { const b = j * Math.PI / 3; x.beginPath(); x.moveTo(cx, cy); x.lineTo(cx + Math.cos(b) * r0 * 0.4, cy + Math.sin(b) * r0 * 0.4); x.stroke(); } }
+    }, 256, 160, 0.96, 0.62);
+    frost.position.set(FX, FY + 1.08, -1.355); H.add(frost);
+    mesh(rbox(1.0, 0.36, 0.56, 0.08), M.std('#2f5a44', { roughness: 0.8 }), H, [FX - 0.62, FY + 0.25, -0.75]);
+    mesh(rbox(1.0, 0.42, 0.16, 0.06), M.std('#2f5a44', { roughness: 0.8 }), H, [FX - 0.62, FY + 0.5, -1.0]);
+    mesh(new T3.SphereGeometry(0.08, 12, 10), new T3.MeshBasicMaterial({ color: '#ffe0a8' }), H, [FX, FY + 1.5, -0.2]);
+    const roomL = new T3.PointLight('#ffb76b', 2.6, 5.5); roomL.position.set(FX, FY + 1.35, 0.1); H.add(roomL);
+    const TN = k.person(H, '#3f8fd2', FX + 0.68, FY + 0.07, 0.2, 0.95); const tph = k.phoneIn(TN);
+    const blanket = mesh(new T3.CylinderGeometry(0.25, 0.33, 0.78, 18, 1, true), M.std('#b3473b', { roughness: 0.9, side: T3.DoubleSide }), TN, [0, 0.52, 0]);
+    const puffs = [0, 1, 2].map(() => mesh(new T3.SphereGeometry(0.07, 10, 8), new T3.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0, depthWrite: false }), H, [0, 0, 0]));
+    // ---- the landlord's cottage next door (front open): asleep, phone silent ----
+    const C = new T3.Group(); C.position.set(4.3, 0.12, -1.2); D.add(C);
+    mesh(new T3.BoxGeometry(2.6, 2.0, 0.12), facade, C, [0, 1.0, -1.1]);
+    [-1.3, 1.3].forEach((x) => mesh(new T3.BoxGeometry(0.12, 2.0, 2.2), facade, C, [x, 1.0, 0]));
+    mesh(new T3.BoxGeometry(2.72, 0.12, 2.24), trim, C, [0, 0.0, 0]); mesh(new T3.PlaneGeometry(2.48, 1.9), M.std('#d9cbb8', { roughness: 0.95 }), C, [0, 1.0, -1.03]);
+    const cs = new T3.Shape(); cs.moveTo(-1.5, 0); cs.lineTo(1.5, 0); cs.lineTo(0, 1.0); cs.lineTo(-1.5, 0);
+    const cgeo = new T3.ExtrudeGeometry(cs, { depth: 2.5, bevelEnabled: false }); cgeo.translate(0, 0, -1.25);
+    const roofC = mesh(cgeo, M.std('#1f4a36', { roughness: 0.7 }), C, [0, 2.0, 0]);
+    [-1, 1].forEach((sg) => { const m = mesh(new T3.BoxGeometry(1.75, 0.12, 2.6), snow, C, [sg * 0.72, 2.0 + 0.55, 0]); m.rotation.z = -sg * 0.59; });
+    mesh(new T3.BoxGeometry(0.9, 0.56, 0.04), new T3.MeshStandardMaterial({ color: '#1b2a4a', emissive: new T3.Color('#1b2a4a'), emissiveIntensity: 0.4 }), C, [0.35, 1.3, -1.02]);
+    mesh(rbox(1.7, 0.4, 1.0, 0.06), M.std('#8a6a52', { roughness: 0.8 }), C, [-0.25, 0.26, -0.45]);
+    mesh(rbox(0.36, 0.14, 0.62, 0.05), M.std('#faf6ee', { roughness: 0.9 }), C, [-0.92, 0.52, -0.45]);
+    const LLb = mesh(new T3.SphereGeometry(0.17, 18, 14), M.std('#e8b98f', { roughness: 0.7 }), C, [-0.88, 0.68, -0.45]);
+    mesh(new T3.SphereGeometry(0.175, 18, 14, 0, Math.PI * 2, 0, 1.4), M.std('#3a2a22', { roughness: 0.8 }), C, [-0.93, 0.7, -0.45], [0, 0, 1.2]);
+    const blanketC = mesh(rbox(1.25, 0.22, 0.98, 0.08), M.std('#1d4734', { roughness: 0.9 }), C, [0.0, 0.58, -0.45]);
+    mesh(rbox(0.4, 0.46, 0.4, 0.04), M.std('#6b4f3c', { roughness: 0.8 }), C, [0.92, 0.25, -0.75]);
+    const scrM = new T3.MeshStandardMaterial({ color: '#111', emissive: new T3.Color('#5ac86a'), emissiveIntensity: 0, roughness: 0.3 });
+    mesh(rbox(0.14, 0.025, 0.24, 0.01), scrM, C, [0.92, 0.5, -0.72]);
+    // street lamp, pines, the service van
+    const lamp = new T3.Group(); lamp.position.set(2.0, 0.12, 2.2); D.add(lamp);
+    mesh(new T3.CylinderGeometry(0.06, 0.08, 3.0, 10), M.std('#2b313c', { metalness: 0.5 }), lamp, [0, 1.5, 0]);
+    mesh(new T3.SphereGeometry(0.2, 16, 12), new T3.MeshBasicMaterial({ color: '#ffe0a8' }), lamp, [0, 3.05, 0]);
+    const ll = new T3.PointLight('#ffcf8a', 2.0, 7); ll.position.set(2.0, 3.0, 2.2); D.add(ll);
+    const lg = new T3.Sprite(new T3.SpriteMaterial({ map: k.glow, blending: T3.AdditiveBlending, transparent: true, depthWrite: false })); lg.position.set(2.0, 3.05, 2.2); lg.scale.setScalar(2.2); D.add(lg);
+    const pine = (x, z, s) => { const g = new T3.Group(); g.position.set(x, 0.12, z); g.scale.setScalar(s); D.add(g); mesh(new T3.CylinderGeometry(0.12, 0.16, 0.6, 8), M.std('#4a3326'), g, [0, 0.3, 0]); [[0.95, 1.2, 0.9], [0.75, 1.0, 1.55], [0.5, 0.8, 2.15]].forEach(([r, h, y]) => { mesh(new T3.ConeGeometry(r, h, 10), M.std('#24463a', { roughness: 0.9 }), g, [0, y, 0]); mesh(new T3.ConeGeometry(r * 0.8, h * 0.42, 10), snow, g, [0, y + h * 0.24, 0]); }); };
+    pine(-5.2, -1.8, 1.1); pine(-5.6, 1.2, 0.85); pine(6.6, -2.6, 1.15); pine(6.7, 0.6, 0.8); pine(2.1, -3.2, 0.9);
+    const snowT = k.snowfall(700, [18, 13, 12], 0.7);
+    const V = new T3.Group(); V.position.set(-11, 0.12, 3.25); D.add(V);
+    mesh(rbox(1.6, 0.95, 0.86, 0.08), M.std('#faf6ee', { roughness: 0.5 }), V, [-0.2, 0.68, 0]);
+    mesh(rbox(0.62, 0.7, 0.84, 0.08), M.std('#faf6ee', { roughness: 0.5 }), V, [0.88, 0.56, 0]);
+    mesh(new T3.BoxGeometry(0.05, 0.36, 0.7), M.std('#2a3550', { roughness: 0.2 }), V, [1.2, 0.72, 0]);
+    mesh(new T3.BoxGeometry(2.2, 0.12, 0.88), M.std('#e09b6b', { roughness: 0.5 }), V, [0.1, 0.42, 0]);
+    [[-0.6, 0.45], [0.8, 0.45], [-0.6, -0.45], [0.8, -0.45]].forEach(([x, z]) => mesh(new T3.CylinderGeometry(0.17, 0.17, 0.12, 16), M.std('#1a1a1a'), V, [x, 0.17, z], [Math.PI / 2, 0, 0]));
+    const hl = new T3.Sprite(new T3.SpriteMaterial({ map: k.glow, blending: T3.AdditiveBlending, transparent: true, depthWrite: false })); hl.position.set(1.25, 0.5, 0.2); hl.scale.setScalar(0.9); V.add(hl);
+    const vt = textPlane((x, w, h) => { x.fillStyle = '#14261b'; x.font = '700 64px Clash'; x.textAlign = 'center'; x.textBaseline = 'middle'; let fs = 64; while (x.measureText(S.van).width > w - 30 && fs > 30) { fs -= 2; x.font = `700 ${fs}px Clash`; } x.fillText(S.van, w / 2, h / 2 + 3); }, 512, 96, 1.4, 0.26);
+    vt.position.set(-0.2, 0.8, 0.44); V.add(vt);
+    // ---- camera ----
+    const P = (a, r, h, tx, ty, tz) => () => ({ a, r, h, tx, ty, tz });
+    const camT = track([
+      [0, P(-0.32, 23, 9.2, -1.1, 2.7, -0.9)],
+      [K.heat - 0.2, P(-0.26, 19.5, 8.2, -1.6, 2.7, -0.9), E.io],
+      [K.off + 0.55, P(-0.12, 9.6, 4.5, -2.35, 2.45, -0.8), E.io],
+      [K.write + 0.4, P(-0.05, 9.0, 4.3, -2.4, 2.5, -0.8), E.lin],
+      [K.turn + 0.25, P(0.0, 11.0, 4.9, -2.3, 2.55, -0.8), E.io],
+      [K.aid + 0.45, P(0.08, 9.2, 4.2, -2.45, 2.35, -0.9), E.io],
+      [K.tech + 0.45, P(0.05, 15, 6.4, -0.6, 2.6, -0.9), E.io],
+      [K.du - 0.05, P(0.24, 8.6, 3.6, 4.2, 1.0, -1.0), E.io],
+      [K.du + 0.35, P(0.2, 8.9, 3.7, 4.1, 1.05, -1.0), E.lin],
+      [K.weiter + 0.45, P(-0.08, 33, 11.5, 0.9, 2.5, -0.6), E.io],
+      [K.cta + 2, P(-0.04, 32, 11.2, 0.9, 2.5, -0.6), E.lin],
+    ]);
+    const cWarm = new T3.Color('#ffb76b'), cCold = new T3.Color('#8fb6ff'), mNight = new T3.Color('#c9d8ff'), mDawn = new T3.Color('#ffd2a0');
+    const FOC = (y = 0) => H.localToWorld(new T3.Vector3(FX, FY + y, -0.6));
+    perFrame((t) => {
+      snowT(t);
+      const cold = E.io(seg(t, K.heat + 0.1, 0.9)), aid = E.io(seg(t, K.aid + 0.15, 0.8)), morn = E.io(seg(t, K.du + 0.3, 0.7)), kick = Math.exp(-Math.pow((t - K.aid - 0.35) / 0.18, 2));
+      const c = cold * (1 - 0.65 * aid) * (1 - morn);
+      radM.emissiveIntensity = 1.5 * (1 - c) + 0.02 + 1.2 * kick; radG.material.opacity = Math.min(1, 0.8 * (1 - c) + kick); radG.scale.setScalar(1.9 + 1.4 * kick);
+      frost.material.opacity = 0.9 * E.io(seg(t, K.off, 1.0)) * (1 - 0.55 * aid) * (1 - morn);
+      roomL.color.copy(cWarm).lerp(cCold, c); roomL.intensity = 2.6 - 0.9 * c;
+      const bl = E.ob(seg(t, K.off + 0.45, 0.45), 1.6); blanket.visible = bl > 0.01; blanket.scale.setScalar(Math.max(0.001, bl));
+      TN.position.x = FX + 0.68 + Math.sin(t * 55) * 0.014 * c;
+      tph.rotation.x = -0.6 * E.io(seg(t, K.write - 0.6, 0.4));
+      puffs.forEach((p, i) => { const u = ((t * 0.9 + i / 3) % 1); p.position.set(FX + 0.68 + 0.05 + u * 0.12, FY + 1.2 + u * 0.35, 0.37 + u * 0.15); p.scale.setScalar(0.6 + u * 1.4); p.material.opacity = (c > 0.35 ? (1 - u) * 0.7 * c : 0); });
+      tvM.color.setHSL(0.6, 0.6, 0.55 + 0.15 * Math.sin(t * 13) * Math.sin(t * 5.3)); tvL.intensity = (0.6 + 0.3 * Math.sin(t * 13)) * (1 - morn);
+      LLb.position.y = 0.68 + 0.01 * Math.sin(t * 2.2); blanketC.scale.y = 1 + 0.06 * Math.sin(t * 2.2);
+      scrM.emissiveIntensity = 1.4 * E.io(seg(t, K.weiter + 0.2, 0.3));
+      moon.color.copy(mNight).lerp(mDawn, morn); moon.intensity = 0.85 + 0.9 * morn; hemi.intensity = 0.5 + 0.55 * morn; ll.intensity = 2.0 * (1 - morn); lg.material.opacity = 1 - morn;
+      const vu = E.oc(seg(t, K.du + 0.45, 0.9)); V.position.x = lerp(-11, -2.0, vu); V.visible = t > K.du + 0.4;
+      const cc = camT(t);
+      cam.position.set(cc.tx + Math.sin(cc.a) * cc.r, cc.h, cc.tz + Math.cos(cc.a) * cc.r); cam.lookAt(cc.tx, cc.ty, cc.tz);
+      k.G.r.render(scene, cam);
+    });
+    // ---- overlays ----
+    const chip = ov('tdchip', `${S.chip} <span class="tp">${S.temp}</span>`); tl.set(chip, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(chip, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'back.out(2)', immediateRender: false }, 0.1);
+    const tp = chip.querySelector('.tp'); tl.set(tp, { autoAlpha: 0 }, 0); tl.fromTo(tp, { autoAlpha: 0, scale: 0.3 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(3)', immediateRender: false }, K.minus); sfx('pop', K.minus, -15);
+    tl.to(chip, { autoAlpha: 0, y: -40, duration: 0.3 }, K.turn);
+    const warn = ov('tdtag warn', S.off); tl.set(warn, { autoAlpha: 0 }, 0);
+    tl.fromTo(warn, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.5)', immediateRender: false }, K.off + 0.1); tl.to(warn, { autoAlpha: 0, duration: 0.2 }, K.write - 0.35);
+    sfx('impact', K.off, -14); sfx('whoosh', K.heat, -18);
+    const m1 = ov('tdchat in', `<b>${de ? 'Mieter · Whg 2B' : 'Tenant · Apt 2B'}</b>${S.m1}`), m2 = ov('tdchat out', `<b>Tenance ${de ? 'KI' : 'AI'}</b>${S.m2}`);
+    tl.set([m1, m2], { autoAlpha: 0 }, 0);
+    tl.fromTo(m1, { autoAlpha: 0, y: 30, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, K.write - 0.3); sfx('send', K.write - 0.25, -13);
+    tl.fromTo(m2, { autoAlpha: 0, y: 30, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, K.ans + 0.1); sfx('pop', K.ans + 0.1, -12);
+    tl.to([m1, m2], { autoAlpha: 0, y: -40, duration: 0.3 }, K.aid - 0.15);
+    perFrame(() => {
+      const [x, y] = proj(H.localToWorld(new T3.Vector3(TN.position.x, FY + 1.25, TN.position.z))); const bx = clamp(x + 60, 330, 750) + 'px';
+      m1.style.left = bx; m1.style.top = (y - 470) + 'px'; m2.style.left = bx; m2.style.top = (y - 290) + 'px';
+      const [rx, ry] = proj(H.localToWorld(new T3.Vector3(FX, FY + 0.8, -1.2))); warn.style.left = clamp(rx, 200, 880) + 'px'; warn.style.top = ry + 'px';
+    });
+    k.burst(K.turn); sfx('impact', K.turn, -13);
+    const pulse = ov('tdpulse', ''); tl.set(pulse, { autoAlpha: 0 }, 0); tl.fromTo(pulse, { autoAlpha: 0.9, scale: 0.2 }, { autoAlpha: 0, scale: 3, duration: 0.8, ease: 'power2.out', immediateRender: false }, K.turn);
+    k.brand(K.turn, 1330);
+    const cd = k.card(S.ttl, [S.l1, S.l2, S.l3], K.aid - 0.1);
+    cd.line(0, K.aid + 0.1); cd.line(1, K.eight - 0.1); cd.line(2, K.du + 0.15);
+    tl.to(cd.c, { autoAlpha: 0, y: -80, duration: 0.25 }, K.weiter - 0.15);
+    const zz = ov('tdbub zz', '💤'); tl.set(zz, { autoAlpha: 0 }, 0); tl.fromTo(zz, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.5)', immediateRender: false }, K.du - 0.4); tl.to(zz, { autoAlpha: 0, duration: 0.25 }, K.weiter + 0.1);
+    const okT = ov('tdtag ok', S.ok); tl.set(okT, { autoAlpha: 0 }, 0); tl.fromTo(okT, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2.5)', immediateRender: false }, K.weiter + 0.2); sfx('chime', K.weiter + 0.2, -12);
+    const clk = ov('tdchip', S.clock); tl.set(clk, { xPercent: -50, autoAlpha: 0 }, 0); tl.fromTo(clk, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'back.out(2)', immediateRender: false }, K.weiter + 0.2); sfx('whoosh', K.du + 0.45, -14);
+    perFrame((t) => {
+      const [zx, zy] = proj(C.localToWorld(new T3.Vector3(-0.88, 1.0, -0.45))); zz.style.left = zx + 'px'; zz.style.top = (zy - 10 * Math.sin(t * 3)) + 'px';
+      const [ox, oy] = proj(FOC(2.0)); okT.style.left = clamp(ox, 260, 820) + 'px'; okT.style.top = oy + 'px';
+    });
     k.finish(K.cta + 0.3, K.cta + 0.6, [S.end, null]);
     return { T: END + 0.9, K };
   }
@@ -6151,6 +6347,7 @@
     X48: [[4, 3, 2, 2, 2, 2, 4, 1, 2, 4], [4, 1, 3, 2, 2, 2, 3, 3, 4, 4]],
     X49: [[2, 2, 3, 2, 2, 2, 4, 1, 4, 2, 4], [2, 2, 3, 2, 2, 2, 4, 2, 4, 4]],
     X50: [[3, 4, 2, 3, 3, 3, 4, 3, 2, 1, 4], [3, 4, 1, 3, 4, 4, 4, 2, 2, 1, 4]],
+    X51: [[1, 3, 4, 3, 3, 1, 4, 4, 4], [1, 2, 3, 3, 3, 4, 4, 2, 3, 3]],
     X28: [[1, 2, 4, 1, 4, 4, 1, 3, 4, 4, 2, 4], [2, 2, 4, 2, 2, 4, 4, 2, 4, 3, 2, 4, 1]],
     X27: [[3, 4, 3, 4, 1, 3, 4, 2, 2, 4], [3, 4, 1, 3, 1, 2, 4, 1, 4, 1, 4, 2, 2, 4]],
     X21: [[2, 4, 2, 1, 4, 1, 3, 2, 1, 4, 4, 2, 1, 1, 1], [3, 4, 1, 4, 1, 3, 2, 1, 4, 2, 2, 3, 2, 3, 4]],
@@ -6183,7 +6380,7 @@
     W2: [[2, 3, 4, 3, 3, 1, 2, 3, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 3, 2, 3], [3, 4, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 2, 3, 3, 2, 2, 2, 2]],
     W3: [[2, 4, 4, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 3, 2], [3, 4, 4, 1, 3, 3, 1, 3, 1, 4, 1, 4, 1, 3, 3, 2, 3, 2]],
   };
-  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, X16, X17, X18, X19, X20, X21, X22, X23, X24, X25, X26, X27, X28, X29, X30, X31, X32, X33, X34, X35, X36, X37, X38, X39, X40, X41, X42, X43, X44, X45, X46, X47, X48, X49, X50 }[C]();
+  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, X16, X17, X18, X19, X20, X21, X22, X23, X24, X25, X26, X27, X28, X29, X30, X31, X32, X33, X34, X35, X36, X37, X38, X39, X40, X41, X42, X43, X44, X45, X46, X47, X48, X49, X50, X51 }[C]();
   captions(GR[C][lang === 'de' ? 0 : 1]);
   stage.appendChild(document.getElementById('cap'));
   stage.appendChild(document.querySelector('.grain'));

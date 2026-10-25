@@ -1925,3 +1925,27 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
 .tdbtn{position:absolute;left:50%;top:1440px;width:600px;height:120px;border-radius:70px;background:#e09b6b;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.5);visibility:hidden}
 .tdbtn b{font:700 52px Clash;color:#14261b}.tdbtn.on{background:#5ac86a}
 .tdbtn .rp{position:absolute;left:50%;top:50%;width:160px;height:160px;margin:-80px;border-radius:50%;background:rgba(255,255,255,.7)}
+
+/* brand: Tenance KI/AI moment + corner mark + end-card wordmark */
+.tdbrand{position:absolute;display:flex;align-items:center;gap:22px;padding:18px 46px 18px 18px;border-radius:90px;background:rgba(20,38,27,.95);border:5px solid #e09b6b;box-shadow:0 0 0 12px rgba(224,155,107,.18),0 30px 80px rgba(0,0,0,.55);white-space:nowrap;overflow:hidden;visibility:hidden;z-index:40}
+.tdbrand .lg{display:flex;flex:none;width:104px;height:104px;border-radius:50%;background:#1d4734;align-items:center;justify-content:center;box-shadow:0 0 0 4px #e09b6b}
+.tdbrand .lg img{width:70px}
+.tdbrand b{font:700 84px Clash;color:#faf6ee;letter-spacing:-1px}
+.tdbrand b i,.tdwm b i,.tkcta .wm i{font-style:normal;color:#e09b6b}
+.tdbrand .tdsh{position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent)}
+.tdwm{position:absolute;left:34px;top:30px;display:flex;align-items:center;gap:12px;padding:8px 24px 8px 8px;border-radius:50px;background:rgba(20,38,27,.8);border:2px solid rgba(224,155,107,.9);white-space:nowrap;transform-origin:0 50%;visibility:hidden;z-index:40}
+.tdwm .lg{display:flex;flex:none;width:52px;height:52px;border-radius:50%;background:#1d4734;align-items:center;justify-content:center}
+.tdwm .lg img{width:34px}
+.tdwm b{font:700 36px Clash;color:#faf6ee}
+.tkcta .wm{display:block;margin-top:20px;font:700 78px Clash;font-style:normal;color:#faf6ee;letter-spacing:-1px}
+.tkcta .btn{margin-top:30px}
+.tkcta .cur{top:300px}
+
+/* X51 heating: dawn sky for the morning reveal, temperature pop in the chip */
+.X51 #cap{top:1640px}
+.tdsky.dawn{background:linear-gradient(180deg,#f0a878 0%,#f6c99a 30%,#f3dcc0 55%,#a9bde0 85%,#8aa3d6 100%)}
+.tdsky.dawn .sun{position:absolute;left:170px;top:430px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,#fff7d6 0%,#ffd98a 60%,#ffb85c 100%);box-shadow:0 0 120px 50px rgba(255,200,120,.55)}
+.tdchip .tp{display:inline-block;margin-left:10px;color:#9fd0ff}
+.tdcard{top:122px}
+.tdsky.dawn{opacity:0;visibility:hidden}
+.tdbub.zz{font-size:58px;padding:8px 18px;background:rgba(250,246,238,.92)}
