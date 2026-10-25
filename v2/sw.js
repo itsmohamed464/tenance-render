@@ -5735,7 +5735,7 @@
   }
 
   // ================= X49: one apartment, 40 inquiries → every applicant writes, Tenance answers → viewings in the real calendar → "you just show up" → waitlist =================
-  function X49() {
+  function X49tk() {
     const de = lang === 'de';
     const S = de ? { h: '*40* Anfragen', sub: 'für 1 Wohnung', ttl: 'Anfragen', list: [['LM', 'Lea M.', 'Ist die Wohnung noch frei?'], ['TK', 'Tom K.', 'Kann ich besichtigen?'], ['AS', 'Aylin S.', 'Sind Haustiere erlaubt?'], ['JB', 'Jonas B.', 'Ab wann ist sie frei?'], ['MR', 'Mia R.', 'Unterlagen anbei 📎']], done: 'beantwortet ✓', name: 'Lea M.', who: 'Interessentin · Apt 302', m1: 'Hallo! Ist die Wohnung noch frei? Kann ich sie besichtigen?', m2: 'Ja, noch frei! 🏡 Besichtigung am Di 17:00 oder Mi 18:30?', m3: 'Di 17:00 passt! 🙌', m4: 'Gebucht ✓ Bitte Selbstauskunft mitbringen.', c1: '💬 40 Fragen beantwortet', c2: '📄 12 Bewerbungen geprüft', c3: '📅 8 Besichtigungen gebucht', lb: 'Besichtigung ✓', end: 'Du kommst nur zum *Termin*.' }
       : { h: '*40* inquiries', sub: 'for 1 apartment', ttl: 'Inquiries', list: [['LM', 'Lea M.', 'Is the apartment still free?'], ['TK', 'Tom K.', 'Can I come see it?'], ['AS', 'Aylin S.', 'Are pets allowed?'], ['JB', 'Jonas B.', 'When can I move in?'], ['MR', 'Mia R.', 'Documents attached 📎']], done: 'answered ✓', name: 'Lea M.', who: 'Applicant · Apt 302', m1: 'Hi! Is the apartment still available? Can I see it?', m2: 'Yes, still free! 🏡 Viewing on Tue 5 pm or Wed 6:30 pm?', m3: 'Tue 5 pm works! 🙌', m4: 'Booked ✓ Please bring your ID and proof of income.', c1: '💬 40 questions answered', c2: '📄 12 applications checked', c3: '📅 8 viewings booked', lb: 'viewing ✓', end: 'You just *show up*.' };
@@ -5774,7 +5774,7 @@
   }
 
   // ================= X50: tenant asks to extend the lease (real tenant app) → Tenance answers, prepares the renewal → landlord approves with one tap (real tenants screen) → waitlist =================
-  function X50() {
+  function X50tk() {
     const de = lang === 'de';
     const S = de ? { h: 'Dein Mieter *schreibt*', name: 'James S.', who: 'Mieter · Palm Grove 1A', m1: 'Mein Vertrag läuft im Dezember aus. Kann ich verlängern? 🙏', m2: 'Klar! Ich bereite die Verlängerung vor und schicke sie deinem Vermieter zur Freigabe ✓', c1: '📄 Verlängerung vorbereitet', lbL: 'Dez. 2026', n: '<b>Tenance AI</b>Verlängerung für James S. bis Dez. 2027 bereit. Freigeben?', lbT: 'Verlängerung', ap: 'Freigeben', apd: 'Freigegeben ✓', end: 'Ein Klick. *Fertig.*' }
       : { h: 'Your tenant *writes*', name: 'James S.', who: 'Tenant · Palm Grove 1A', m1: 'My lease ends in December. Can I extend it? 🙏', m2: "Sure! I'm preparing the renewal and sending it to your landlord for approval ✓", c1: '📄 Renewal prepared', lbL: 'Dec 2026', n: '<b>Tenance AI</b>Renewal for James S. until Dec 2027 is ready. Approve?', lbT: 'renewal', ap: 'Approve', apd: 'Approved ✓', end: 'One tap. *Done.*' };
@@ -5810,6 +5810,321 @@
     perFrame((t) => { lab.textContent = t > K.click + 0.1 ? S.apd : S.ap; ap.classList.toggle('on', t > K.click + 0.1); });
     k.burst(K.click); k.boom(540, k.zone() + 55, K.click + 0.02, 30, 1.8); k.ring(540, k.zone() + 55, K.click, 1.3); k.punch(K.click, 0.1); k.shake(K.click + 0.05, 8); sfx('kaching', K.click + 0.05, -11);
     k.end(K.done, K.done, K.cta, [S.end, null]);
+    return { T: END + 0.9, K };
+  }
+
+  // ================= TD: 3D diorama kit (winner style: W1/X3/X9/X12 — physical 3D world is the hero, UI only as a small card on top) + Tenance brand end card =================
+  function TD(o = {}) {
+    const k = TK();                       // brand end card + effects; its background stays hidden until the end
+    const tkbg = k.cam.querySelector('.tkbg'), tksp = k.cam.querySelector('.tksp');
+    tl.set([tkbg, tksp], { autoAlpha: 0 }, 0);
+    const wrap = el('div', 'tdwrap');
+    el('div', 'tdsky ' + (o.sky || 'night'), '<i class="moon"></i>', wrap);
+    const G = gl3(wrap, { fov: o.fov || 30, envTop: o.envTop || '#c9d6f2', envBot: o.envBot || '#2a3348', envInt: o.envInt || 0.6, exposure: o.exposure || 1.0 });
+    const { scene, cam } = G;
+    const proj = (v) => { const p = v.clone().project(cam); return [(p.x + 1) / 2 * 1080, (1 - p.y) / 2 * 1920]; };
+    // overlay elements live in the wrap so the whole 3D world fades out under the end card
+    const ov = (cls, html) => el('div', cls, html, wrap);
+    const glow = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, 'rgba(255,214,150,1)'); g.addColorStop(0.35, 'rgba(255,176,96,0.45)'); g.addColorStop(1, 'rgba(255,170,80,0)'); x.fillStyle = g; x.fillRect(0, 0, 128, 128); const t = new T3.CanvasTexture(c); t.colorSpace = T3.SRGBColorSpace; return t; })();
+    const person = (parent, col, x, y, z, s = 1, hair = '#2b1d16') => {
+      const P = new T3.Group(); P.position.set(x, y, z); P.scale.setScalar(s); parent.add(P);
+      mesh(new T3.CapsuleGeometry(0.2, 0.55, 6, 14), M.std(col, { roughness: 0.7 }), P, [0, 0.55, 0]);
+      mesh(new T3.SphereGeometry(0.18, 20, 14), M.std('#e8b98f', { roughness: 0.7 }), P, [0, 1.12, 0]);
+      mesh(new T3.SphereGeometry(0.185, 20, 14, 0, Math.PI * 2, 0, 1.4), M.std(hair, { roughness: 0.8 }), P, [0, 1.15, -0.01]);
+      return P;
+    };
+    const phoneIn = (P) => { const g = new T3.Group(); g.position.set(0.2, 0.78, 0.2); P.add(g); mesh(rbox(0.13, 0.24, 0.03, 0.02), M.std('#111'), g); mesh(new T3.PlaneGeometry(0.11, 0.2), new T3.MeshBasicMaterial({ color: '#9fd0ff' }), g, [0, 0, 0.017]); return g; };
+    const snowfall = (n = 700, box = [16, 14, 12], speed = 0.7) => {
+      const geo = new T3.BufferGeometry(), pos = new Float32Array(n * 3), base = [];
+      const rnd = (i, k) => { const v = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return v - Math.floor(v); };
+      for (let i = 0; i < n; i++) base.push([(rnd(i, 1) - 0.5) * box[0], rnd(i, 2) * box[1], (rnd(i, 3) - 0.5) * box[2], 0.5 + rnd(i, 4)]);
+      geo.setAttribute('position', new T3.BufferAttribute(pos, 3));
+      const pts = new T3.Points(geo, new T3.PointsMaterial({ color: '#ffffff', size: 0.07, transparent: true, opacity: 0.85, depthWrite: false }));
+      scene.add(pts);
+      return (t) => { base.forEach(([x, y, z, sp], i) => { pos[i * 3] = x + Math.sin(t * 0.6 + i) * 0.25; pos[i * 3 + 1] = ((y - t * speed * sp) % box[1] + box[1]) % box[1]; pos[i * 3 + 2] = z; }); geo.attributes.position.needsUpdate = true; };
+    };
+    // small brand notification card at the top (the UI is never the hero)
+    const card = (title, lines, t0) => {
+      const c = ov('tdcard', `<div class="hd"><span class="lg"><img src="assets/logo.png"></span><b>${title}</b><small>Tenance AI</small></div>` + lines.map((l) => `<div class="ln"><span>${l}</span><i>✓</i></div>`).join(''));
+      tl.set(c, { autoAlpha: 0, xPercent: -50 }, 0);
+      tl.fromTo(c, { autoAlpha: 0, y: -160, scale: 0.9 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.6)', immediateRender: false }, t0);
+      sfx('chime', t0 + 0.05, -12);
+      const ls = [...c.querySelectorAll('.ln')]; tl.set(ls, { autoAlpha: 0, height: 0, marginTop: 0 }, 0);
+      return { c, line: (i, t) => { tl.to(ls[i], { autoAlpha: 1, height: 'auto', marginTop: 10, duration: 0.3, ease: 'power2.out' }, t); tl.fromTo(ls[i].querySelector('i'), { scale: 0 }, { scale: 1, duration: 0.35, ease: 'back.out(3)', immediateRender: false }, t + 0.15); sfx('pop', t + 0.15, -14); k.punch(t + 0.15, 0.03); } };
+    };
+    // end: 3D world fades, brand background + tagline + waitlist CTA
+    const finish = (tLine, tCta, txt) => {
+      tl.to(wrap, { autoAlpha: 0, scale: 1.08, filter: 'blur(10px)', duration: 0.45, ease: 'power2.in' }, tLine - 0.45);
+      tl.to([tkbg, tksp], { autoAlpha: 1, duration: 0.4 }, tLine - 0.4);
+      k.end(tLine, tLine, tCta, txt);
+    };
+    return Object.assign(k, { G, scene, cam, wrap, proj, ov, glow, person, phoneIn, snowfall, card, finish });
+  }
+
+  // ================= X49 (3D): snowy evening, apartment house with one dark FOR RENT window → 40 inquiries fly in → applicants with phones on the sidewalk → Tenance answers all → window lights up, viewings booked, applicants walk in → landlord arrives with the key → waitlist =================
+  function X49() {
+    const de = lang === 'de';
+    const S = de ? { chip: '🏠 1 Wohnung frei · Whg 4', rent: 'ZU VERMIETEN', booked: 'TERMIN ✓', ttl: '40 Anfragen', l1: '💬 40 Fragen beantwortet', l2: '📄 12 Bewerbungen geprüft', l3: '📅 8 Besichtigungen gebucht', tags: ['Di 17:00', 'Di 17:30', 'Mi 18:00', 'Mi 18:30', 'Do 17:00', 'Do 17:30'], typing: '💬', ans: '✓', key: '🔑', end: 'Du kommst nur zum *Termin*.' }
+      : { chip: '🏠 1 apartment free · Unit 4', rent: 'FOR RENT', booked: 'VIEWING ✓', ttl: '40 inquiries', l1: '💬 40 questions answered', l2: '📄 12 applications checked', l3: '📅 8 viewings booked', tags: ['Tue 5:00', 'Tue 5:30', 'Wed 6:00', 'Wed 6:30', 'Thu 5:00', 'Thu 5:30'], typing: '💬', ans: '✓', key: '🔑', end: 'You just *show up*.' };
+    const K = {};
+    K.v = W(['vierzig', 'forty']).start;
+    K.write = W(['Jeder', 'Every']).start;
+    const it = W(['Tenance']); K.turn = it.start; K.ans = W(['antwortet', 'answers'], it.i - 1).start;
+    K.q = W(['Fragen', 'questions'], it.i).start; K.d = W(['Unterlagen', 'documents'], it.i).start; K.b = W(['Besichtigungen', 'viewings'], it.i).start; K.cal = W(['Kalender', 'calendar'], it.i).start;
+    const du = W(['Du', 'You'], it.i); K.du = du.start; K.cta = W(['Jetzt', 'Join'], du.i).start;
+    const k = TD({ sky: 'night', envTop: '#9fb4e6', envBot: '#1c2438', envInt: 0.55 });
+    const { scene, cam, proj, ov } = k;
+    const hemi = new T3.HemisphereLight('#9fb6ff', '#2a2f40', 0.55); scene.add(hemi);
+    const moon = new T3.DirectionalLight('#c9d8ff', 0.9); moon.position.set(-6, 10, 6); moon.castShadow = true; moon.shadow.mapSize.set(2048, 2048);
+    Object.assign(moon.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 34 }); moon.shadow.radius = 4; moon.shadow.bias = -0.0005; scene.add(moon);
+    const D = new T3.Group(); scene.add(D);
+    const snow = M.std('#eef3ff', { roughness: 0.85 });
+    mesh(rbox(11.4, 1.0, 9.0, 0.18), M.std('#232a3a', { roughness: 0.9 }), D, [0, -0.5, 0]);
+    mesh(new T3.BoxGeometry(11.3, 0.12, 8.9), snow, D, [0, 0.06, 0]);
+    mesh(new T3.BoxGeometry(11.3, 0.13, 1.6), M.std('#5f6672', { roughness: 0.8 }), D, [0, 0.07, 2.6]);
+    const H = new T3.Group(); H.position.set(0, 0.12, -1.2); D.add(H);
+    mesh(new T3.BoxGeometry(4.6, 5.0, 3.4), M.std('#e7d3b8', { roughness: 0.9 }), H, [0, 2.5, 0]);
+    for (let f = 1; f < 3; f++) mesh(new T3.BoxGeometry(4.7, 0.12, 3.5), M.std('#c9a988', { roughness: 0.9 }), H, [0, f * 1.65, 0]);
+    const rs = new T3.Shape(); rs.moveTo(-1.95, 0); rs.lineTo(1.95, 0); rs.lineTo(0, 1.4); rs.lineTo(-1.95, 0);
+    const rg = new T3.ExtrudeGeometry(rs, { depth: 5.0, bevelEnabled: false }); rg.translate(0, 0, -2.5);
+    mesh(rg, M.std('#1f4a36', { roughness: 0.7 }), H, [0, 5.0, 0], [0, Math.PI / 2, 0]);
+    [-1, 1].forEach((sg) => { const m = mesh(new T3.BoxGeometry(5.1, 0.14, 2.45), snow, H, [0, 5.0 + 0.7 + 0.08, sg * 0.98]); m.rotation.x = sg * 0.62; });
+    const front = 1.72, wins = [], VAC = 3;
+    [[-1.15, 0.9], [1.15, 0.9], [-1.15, 2.55], [1.15, 2.55], [-1.15, 4.2], [1.15, 4.2]].forEach(([x, y], i) => {
+      mesh(new T3.BoxGeometry(1.0, 1.05, 0.08), M.std('#eef1f5', { roughness: 0.6 }), H, [x, y, front]);
+      const m = new T3.MeshStandardMaterial({ color: '#ffe2b0', emissive: new T3.Color('#ffb85c'), emissiveIntensity: 1.6, roughness: 0.25 });
+      mesh(new T3.BoxGeometry(0.84, 0.88, 0.06), m, H, [x, y, front + 0.03]);
+      mesh(new T3.BoxGeometry(0.05, 0.88, 0.07), M.std('#eef1f5'), H, [x, y, front + 0.05]);
+      const g = new T3.Sprite(new T3.SpriteMaterial({ map: k.glow, blending: T3.AdditiveBlending, transparent: true, depthWrite: false })); g.position.set(x, y, front + 0.45); g.scale.setScalar(1.7); H.add(g);
+      wins.push({ m, g, x, y });
+    });
+    // FOR RENT banner (flips to VIEWING ✓)
+    const ban = new T3.Group(); ban.position.set(1.15, 1.83, front + 0.12); H.add(ban);
+    const banner = (txt, bg, fg) => textPlane((x, w, h) => { x.fillStyle = bg; x.beginPath(); x.roundRect(4, 4, w - 8, h - 8, 26); x.fill(); x.fillStyle = fg; let fs = 64; x.font = `700 ${fs}px Clash`; while (x.measureText(txt).width > w - 64 && fs > 30) { fs -= 2; x.font = `700 ${fs}px Clash`; } x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(txt, w / 2, h / 2 + 4); }, 512, 140, 1.5, 0.41);
+    const bF = banner(S.rent, '#e09b6b', '#14261b'); ban.add(bF);
+    const bB = banner(S.booked, '#5ac86a', '#0f2a17'); bB.rotation.x = Math.PI; bB.position.z = -0.002; ban.add(bB);
+    // door (opens for the landlord) + warm light behind it
+    const door = new T3.Group(); door.position.set(-0.45, 0.12, front + 0.02); H.add(door);
+    mesh(new T3.BoxGeometry(0.9, 1.45, 0.08), M.std('#4b3428', { roughness: 0.6 }), door, [0.45, 0.72, 0]);
+    mesh(new T3.SphereGeometry(0.05, 10, 8), M.std('#e09b6b', { metalness: 0.8, roughness: 0.3 }), door, [0.8, 0.72, 0.06]);
+    mesh(new T3.BoxGeometry(0.88, 1.43, 0.02), new T3.MeshBasicMaterial({ color: '#ffcf8a' }), H, [0, 0.84, front - 0.03]);
+    const doorLight = new T3.PointLight('#ffb76b', 0, 6); doorLight.position.set(0, 1.0, front + 0.6); H.add(doorLight);
+    // street lamp + trees
+    const lamp = new T3.Group(); lamp.position.set(-3.6, 0.12, 2.05); D.add(lamp);
+    mesh(new T3.CylinderGeometry(0.06, 0.08, 3.0, 10), M.std('#2b313c', { metalness: 0.5 }), lamp, [0, 1.5, 0]);
+    mesh(new T3.SphereGeometry(0.2, 16, 12), new T3.MeshBasicMaterial({ color: '#ffe0a8' }), lamp, [0, 3.05, 0]);
+    const ll = new T3.PointLight('#ffcf8a', 2.2, 7); ll.position.set(-3.6, 3.0, 2.05); D.add(ll);
+    const lg = new T3.Sprite(new T3.SpriteMaterial({ map: k.glow, blending: T3.AdditiveBlending, transparent: true, depthWrite: false })); lg.position.set(-3.6, 3.05, 2.05); lg.scale.setScalar(2.2); D.add(lg);
+    const pine = (x, z, s) => { const g = new T3.Group(); g.position.set(x, 0.12, z); g.scale.setScalar(s); D.add(g); mesh(new T3.CylinderGeometry(0.12, 0.16, 0.6, 8), M.std('#4a3326'), g, [0, 0.3, 0]); [[0.95, 1.2, 0.9], [0.75, 1.0, 1.55], [0.5, 0.8, 2.15]].forEach(([r, h, y]) => { mesh(new T3.ConeGeometry(r, h, 10), M.std('#24463a', { roughness: 0.9 }), g, [0, y, 0]); mesh(new T3.ConeGeometry(r * 0.8, h * 0.42, 10), snow, g, [0, y + h * 0.24, 0]); }); };
+    pine(-4.6, -1.0, 1.0); pine(4.4, -2.2, 1.2); pine(4.6, 0.6, 0.8); pine(-4.2, -3.2, 0.85);
+    const snowT = k.snowfall(650, [16, 13, 12], 0.6);
+    // applicants on the sidewalk, each with a phone
+    const cols = ['#e0603e', '#3f8fd2', '#8a5cc7', '#2fa38a', '#d9a23a', '#c74f7a'];
+    const ppl = cols.map((c, i) => { const P = k.person(D, c, -2.15 + i * 0.86, 0.13, 2.45 + (i % 2) * 0.35, 0.95); k.phoneIn(P); return { P, x0: P.position.x, z0: P.position.z }; });
+    const appear = (i) => K.write - 0.15 + i * 0.12, walk = (i) => K.b + 0.2 + i * 0.28;
+    const DOOR = new T3.Vector3(0, 0.13, -1.2 + front + 0.35);
+    // landlord with the key
+    const LL = k.person(D, '#1d4734', -5.2, 0.13, 2.4, 1.05, '#3a2a22');
+    mesh(new T3.TorusGeometry(0.08, 0.025, 8, 16), M.std('#e09b6b', { metalness: 0.9, roughness: 0.25 }), LL, [0.26, 0.72, 0.18]);
+    mesh(new T3.BoxGeometry(0.03, 0.16, 0.03), M.std('#e09b6b', { metalness: 0.9, roughness: 0.25 }), LL, [0.26, 0.6, 0.18]);
+    const P = (a, r, h, tx, ty, tz) => () => ({ a, r, h, tx, ty, tz });
+    const camT = track([
+      [0, P(-0.5, 27, 11, 0, 2.6, -0.6)],
+      [K.v + 0.2, P(-0.25, 19, 8.5, 0.8, 3.0, -0.8), E.io],
+      [K.write + 0.3, P(-0.15, 24, 8.2, 0.2, 3.0, 0.4), E.io],
+      [K.b, P(0.05, 23, 8.4, 0.3, 3.1, 0.2), E.lin],
+      [K.du + 0.2, P(0.18, 15, 5.6, 0, 1.4, 0.6), E.io],
+      [K.cta + 1, P(0.24, 14, 5.2, 0, 1.3, 0.6), E.lin],
+    ]);
+    const cWarm = new T3.Color('#ffb85c'), cDark = new T3.Color('#1a2236'), bWarm = new T3.Color('#ffe2b0'), bDark = new T3.Color('#2a3550');
+    perFrame((t) => {
+      snowT(t);
+      const lit = E.io(seg(t, K.b - 0.1, 0.6));
+      const w = wins[VAC]; w.m.emissive.copy(cDark).lerp(cWarm, lit); w.m.color.copy(bDark).lerp(bWarm, lit); w.m.emissiveIntensity = 0.3 + 1.3 * lit; w.g.material.opacity = 0.05 + 0.7 * lit;
+      ban.rotation.x = Math.PI * E.io(seg(t, K.b, 0.5)); ban.position.y = 1.83 + 0.05 * Math.sin(t * 2);
+      ppl.forEach(({ P, x0, z0 }, i) => {
+        const a = E.ob(seg(t, appear(i), 0.35), 2.2), u = E.io(seg(t, walk(i), 0.9));
+        P.visible = t > appear(i);
+        P.position.set(lerp(x0, DOOR.x + (i - 2.5) * 0.08, u), 0.13 + Math.abs(Math.sin((t - walk(i)) * 9)) * 0.06 * (u > 0 && u < 1 ? 1 : 0), lerp(z0, DOOR.z, u));
+        P.scale.setScalar(0.95 * a * (1 - E.io(seg(t, walk(i) + 0.8, 0.25))));
+        P.rotation.y = u > 0 && u < 1 ? Math.atan2(DOOR.x - x0, DOOR.z - z0) : 0;
+      });
+      const lu = E.io(seg(t, K.du - 0.2, 1.1)); LL.visible = t > K.du - 0.35;
+      LL.position.set(lerp(-5.2, DOOR.x - 0.55, lu), 0.13 + (lu > 0 && lu < 1 ? Math.abs(Math.sin(t * 9)) * 0.06 : 0), lerp(2.4, DOOR.z + 0.15, lu)); LL.rotation.y = lu < 1 ? Math.atan2(DOOR.x + 5.2, DOOR.z - 2.4) : 0;
+      const op = E.io(seg(t, K.du + 0.7, 0.5)); door.rotation.y = -1.6 * op; doorLight.intensity = 3 * op;
+      const c = camT(t);
+      cam.position.set(c.tx + Math.sin(c.a) * c.r, c.h, c.tz + Math.cos(c.a) * c.r); cam.lookAt(c.tx, c.ty, c.tz);
+      k.G.r.render(scene, cam);
+    });
+    // ---- overlays ----
+    const chip = ov('tdchip', S.chip); tl.set(chip, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(chip, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'back.out(2)', immediateRender: false }, 0.15);
+    tl.to(chip, { autoAlpha: 0, y: -40, duration: 0.3 }, K.turn);
+    const winW = () => H.localToWorld(new T3.Vector3(wins[VAC].x, wins[VAC].y, front + 0.1));
+    // 40 inquiries fly into the dark window
+    const N = 40, env = [...Array(N)].map((_, i) => ov('tdenv', i % 3 ? '✉️' : '💬'));
+    const ET = (i) => K.v - 0.15 + i * ((K.turn - 0.6 - K.v) / N);
+    const from = env.map((_, i) => { const a = (i * 137.5) * Math.PI / 180; return [540 + Math.cos(a) * 760, 900 + Math.sin(a) * 1050]; });
+    const badge = ov('tdbadge', '📩 0'); tl.set(badge, { autoAlpha: 0 }, 0); tl.to(badge, { autoAlpha: 1, duration: 0.2 }, K.v - 0.1); tl.to(badge, { autoAlpha: 0, duration: 0.25 }, K.turn + 0.1);
+    perFrame((t) => {
+      const [wx, wy] = proj(winW());
+      let n = 0;
+      env.forEach((e, i) => {
+        const u = (t - ET(i)) / 0.55;
+        if (u >= 1) n++;
+        if (u < 0 || u >= 1) { e.style.visibility = 'hidden'; return; }
+        const p = E.io(u); e.style.visibility = 'visible';
+        e.style.transform = `translate(${lerp(from[i][0], wx, p) - 32}px, ${lerp(from[i][1], wy, p) - 32}px) scale(${1.25 - 0.8 * p}) rotate(${(1 - p) * (i % 2 ? 40 : -40)}deg)`;
+      });
+      const lbl = `📩 ${n}`; if (badge.textContent !== lbl) badge.textContent = lbl;
+      badge.style.transform = `translate(${wx - 70}px, ${wy - 150}px) scale(${1 + 0.12 * Math.sin(t * 14) * (n > 0 && n < N ? 1 : 0)})`;
+    });
+    env.forEach((_, i) => { if (i % 4 === 0) sfx('buzz', ET(i) + 0.5, -20); });
+    // bubbles above the applicants: typing → answered by Tenance → viewing time
+    const head = (i) => { const p = ppl[i].P; return new T3.Vector3(p.position.x, p.position.y + 1.55 * p.scale.x, p.position.z); };
+    const bub = ppl.map(() => ov('tdbub', `<span class="a">${S.typing}</span><span class="b">${S.ans}</span>`));
+    const tag = ppl.map((_, i) => ov('tdtag', S.tags[i]));
+    bub.forEach((b, i) => { tl.set(b, { autoAlpha: 0 }, 0); tl.fromTo(b, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.5)', immediateRender: false }, appear(i) + 0.2); tl.set(b, { className: 'tdbub ok' }, K.ans + 0.15 + i * 0.09); tl.to(b, { autoAlpha: 0, duration: 0.2 }, walk(i) - 0.1); sfx('pop', K.ans + 0.15 + i * 0.09, -17); });
+    tag.forEach((g, i) => { tl.set(g, { autoAlpha: 0 }, 0); tl.fromTo(g, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.5)', immediateRender: false }, walk(i) - 0.05); tl.to(g, { autoAlpha: 0, duration: 0.15 }, walk(i) + 0.34); sfx('chime', walk(i), -19); });
+    perFrame((t) => ppl.forEach((_, i) => { const [x, y] = proj(head(i)); bub[i].style.left = x + 'px'; bub[i].style.top = y + 'px'; tag[i].style.left = x + 'px'; tag[i].style.top = (y - (i % 2 ? 0 : 66)) + 'px'; }));
+    // Tenance answers: brand pulse + small card on top
+    k.burst(K.turn); sfx('impact', K.turn, -13);
+    const pulse = ov('tdpulse', ''); tl.set(pulse, { autoAlpha: 0 }, 0); tl.fromTo(pulse, { autoAlpha: 0.9, scale: 0.2 }, { autoAlpha: 0, scale: 3, duration: 0.8, ease: 'power2.out', immediateRender: false }, K.turn);
+    const cd = k.card(S.ttl, [S.l1, S.l2, S.l3], K.turn + 0.15);
+    cd.line(0, K.q); cd.line(1, K.d); cd.line(2, K.b + 0.15);
+    tl.to(cd.c, { autoAlpha: 0, y: -80, duration: 0.3 }, K.du - 0.1);
+    // the landlord's key
+    const keyT = ov('tdtag key', `${S.key}`); tl.set(keyT, { autoAlpha: 0 }, 0); tl.fromTo(keyT, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.5)', immediateRender: false }, K.du); tl.to(keyT, { autoAlpha: 0, duration: 0.2 }, K.cta - 0.5);
+    perFrame(() => { const [x, y] = proj(new T3.Vector3(LL.position.x, 1.75, LL.position.z)); keyT.style.left = x + 'px'; keyT.style.top = y + 'px'; });
+    sfx('kaching', K.du + 0.75, -13);
+    k.finish(K.cta - 0.15, K.cta + 0.25, [S.end, null]);
+    return { T: END + 0.9, K };
+  }
+
+  // ================= X50 (3D): two floating islands — tenant's cozy flat (wall calendar flips to December) and the landlord's desk → chat → Tenance prepares the renewal (3D document) → flies along a gold arc to the landlord → one tap: gold stamp → waitlist =================
+  function X50() {
+    const de = lang === 'de';
+    const S = de ? { chip: '🏠 Whg 1A · James S.', m1: 'Mein Vertrag läuft im Dezember aus. Kann ich verlängern? 🙏', m2: 'Klar! Ich bereite die Verlängerung vor ✓', ttl: 'Verlängerung · James S.', l1: '📄 Mietvertrag bis Dez. 2027', ap: 'Freigeben', apd: 'Freigegeben ✓', mon1: 'NOV', mon2: 'DEZ', end31: 'Vertragsende', doc: 'Mietvertrag', docS: 'Verlängerung bis Dez. 2027', ok: '🎉 Verlängert bis Dez. 2027!', end: 'Ein Klick. *Fertig.*' }
+      : { chip: '🏠 Unit 1A · James S.', m1: 'My lease ends in December. Can I extend it? 🙏', m2: "Sure! I'm preparing your renewal ✓", ttl: 'Renewal · James S.', l1: '📄 Lease until Dec 2027', ap: 'Approve', apd: 'Approved ✓', mon1: 'NOV', mon2: 'DEC', end31: 'lease ends', doc: 'Lease', docS: 'Renewal until Dec 2027', ok: '🎉 Renewed until Dec 2027!', end: 'One tap. *Done.*' };
+    const K = {};
+    K.vert = W(['Vertrag', 'lease']).start; K.dec = W(['Dezember', 'December']).start; K.ask = W(['kann', 'can']).start; K.ext = W(['verlängern', 'extend']).start;
+    const it = W(['Tenance']); K.turn = it.start; K.ans = W(['antwortet', 'answers'], it.i - 1).start;
+    K.prep = W(['bereitet', 'prepares'], it.i).start; K.send = W(['schickt', 'sends'], it.i).start; K.fr = W(['Freigabe', 'approval'], it.i).start;
+    const one = W(['Ein', 'One'], it.i); K.click = W(['Klick', 'tap'], one.i).start; K.done = W(['fertig', 'done'], one.i).start; K.cta = W(['Jetzt', 'Join'], one.i).start;
+    const k = TD({ sky: 'dusk', envTop: '#e8dccb', envBot: '#2a3348', envInt: 0.75 });
+    const { scene, cam, proj, ov } = k;
+    scene.add(new T3.HemisphereLight('#ffe9d2', '#33405a', 0.8));
+    const key = new T3.DirectionalLight('#fff1dc', 1.2); key.position.set(-4, 9, 8); key.castShadow = true; key.shadow.mapSize.set(2048, 2048);
+    Object.assign(key.shadow.camera, { left: -10, right: 10, top: 10, bottom: -10, near: 1, far: 40 }); key.shadow.radius = 4; key.shadow.bias = -0.0005; scene.add(key);
+    const RX = 7.2;                         // landlord island offset
+    const isl = (x, w, d) => { const g = new T3.Group(); g.position.set(x, 0, 0); scene.add(g); mesh(rbox(w + 0.4, 0.8, d + 0.4, 0.15), M.std('#23324a', { roughness: 0.9 }), g, [0, -0.4, 0]); mesh(new T3.BoxGeometry(w, 0.06, d), M.std('#c8935f', { roughness: 0.7 }), g, [0, 0.03, 0]); return g; };
+    // tenant flat (cutaway: back + left wall)
+    const A = isl(0, 5.0, 3.6);
+    mesh(new T3.BoxGeometry(5.0, 3.0, 0.14), M.std('#f1e2cc', { roughness: 0.95 }), A, [0, 1.5, -1.8]);
+    mesh(new T3.BoxGeometry(0.14, 3.0, 3.6), M.std('#e9d6bc', { roughness: 0.95 }), A, [-2.5, 1.5, 0]);
+    // window with snowy night outside
+    mesh(new T3.BoxGeometry(1.5, 1.2, 0.05), new T3.MeshBasicMaterial({ color: '#2b3c63' }), A, [1.1, 1.8, -1.72]);
+    mesh(new T3.BoxGeometry(1.62, 0.08, 0.16), M.std('#ffffff'), A, [1.1, 1.18, -1.7]); mesh(new T3.BoxGeometry(0.06, 1.2, 0.08), M.std('#ffffff'), A, [1.1, 1.8, -1.69]);
+    // sofa, lamp, plant, rug
+    const sofaM = M.std('#2f5f4a', { roughness: 0.8 });
+    mesh(rbox(1.9, 0.42, 0.85, 0.12), sofaM, A, [-1.1, 0.27, -1.1]); mesh(rbox(1.9, 0.6, 0.24, 0.1), sofaM, A, [-1.1, 0.62, -1.45]);
+    mesh(new T3.CylinderGeometry(0.9, 0.9, 0.02, 40), M.std('#e09b6b', { roughness: 0.9 }), A, [-0.2, 0.065, 0.2]);
+    mesh(new T3.CylinderGeometry(0.03, 0.03, 1.6, 10), M.std('#2b313c'), A, [-2.15, 0.8, -1.4]);
+    mesh(new T3.ConeGeometry(0.28, 0.32, 20, 1, true), new T3.MeshStandardMaterial({ color: '#ffe0a8', emissive: new T3.Color('#ffb85c'), emissiveIntensity: 1.2, side: T3.DoubleSide }), A, [-2.15, 1.7, -1.4]);
+    const lampL = new T3.PointLight('#ffb76b', 2.5, 6); lampL.position.set(-2.0, 1.6, -1.2); A.add(lampL);
+    mesh(new T3.CylinderGeometry(0.2, 0.16, 0.36, 16), M.std('#c97b4a'), A, [2.1, 0.2, -1.3]);
+    [0, 1, 2, 3, 4].forEach((i) => mesh(new T3.SphereGeometry(0.22, 12, 10), M.std('#3d7a52', { roughness: 0.8 }), A, [2.1 + Math.sin(i * 1.3) * 0.15, 0.55 + i * 0.12, -1.3 + Math.cos(i * 1.3) * 0.12], null, [1, 1.3, 1]));
+    mesh(rbox(0.9, 0.35, 0.6, 0.05), M.std('#7a5a3f', { roughness: 0.6 }), A, [-0.2, 0.2, 0.2]);
+    // wall calendar: NOV page flips up, DEC page with the red-circled 31
+    const calG = new T3.Group(); calG.position.set(-1.55, 1.95, -1.72); A.add(calG);
+    mesh(new T3.BoxGeometry(0.9, 1.0, 0.03), M.std('#ffffff', { roughness: 0.6 }), calG, [0, 0, 0]);
+    const calPage = (mon, ring) => textPlane((x, w, h) => { x.fillStyle = '#ffffff'; x.fillRect(0, 0, w, h); x.fillStyle = ring ? '#c0392b' : '#1d4734'; x.fillRect(0, 0, w, 120); x.fillStyle = '#fff'; x.font = '700 84px Clash'; x.textAlign = 'center'; x.fillText(mon, w / 2, 92); x.fillStyle = '#333'; x.font = '600 34px Gothic'; for (let r = 0; r < 5; r++) for (let c = 0; c < 7; c++) { const n = r * 7 + c + 1; if (n <= 31) x.fillText(String(n), 40 + c * 64, 180 + r * 62); } if (ring) { x.strokeStyle = '#e74c3c'; x.lineWidth = 9; x.beginPath(); x.arc(40 + 2 * 64, 180 + 4 * 62 - 12, 32, 0, 6.283); x.stroke(); } }, 470, 500, 0.86, 0.92);
+    const pDec = calPage(S.mon2, true); pDec.position.z = 0.02; calG.add(pDec);
+    const flipG = new T3.Group(); flipG.position.set(0, 0.46, 0.03); calG.add(flipG);
+    const pNov = calPage(S.mon1, false); pNov.position.set(0, -0.46, 0.0); flipG.add(pNov);
+    // tenant
+    const TN = k.person(A, '#3f8fd2', 0.55, 0.06, 0.55, 1.0); const tph = k.phoneIn(TN);
+    // landlord island: desk, laptop, chair, landlord
+    const B = isl(RX, 3.6, 3.0);
+    mesh(new T3.BoxGeometry(3.6, 2.2, 0.12), M.std('#dfe7ef', { roughness: 0.95 }), B, [0, 1.1, -1.5]);
+    mesh(rbox(1.8, 0.08, 0.9, 0.03), M.std('#8a6446', { roughness: 0.5 }), B, [0, 0.82, -0.6]);
+    [[-0.8, -0.95], [0.8, -0.95], [-0.8, -0.25], [0.8, -0.25]].forEach(([x, z]) => mesh(new T3.BoxGeometry(0.06, 0.78, 0.06), M.std('#5d4430'), B, [x, 0.4, z]));
+    mesh(new T3.BoxGeometry(0.62, 0.03, 0.42), M.std('#c9ced4', { metalness: 0.7, roughness: 0.3 }), B, [-0.45, 0.88, -0.7]);
+    const scr = mesh(new T3.BoxGeometry(0.62, 0.4, 0.02), new T3.MeshStandardMaterial({ color: '#1d4734', emissive: new T3.Color('#1d4734'), emissiveIntensity: 0.6 }), B, [-0.45, 1.08, -0.9], [-0.2, 0, 0]);
+    const LLp = k.person(B, '#1d4734', 0.1, 0.06, 0.25, 1.0, '#3a2a22'); LLp.rotation.y = Math.PI;
+    // gold arc + document
+    const arc = new T3.QuadraticBezierCurve3(new T3.Vector3(-0.2, 1.4, 0.2), new T3.Vector3(RX / 2, 4.6, 0.6), new T3.Vector3(RX + 0.25, 0.9, -0.6));
+    const dots = [...Array(26)].map((_, i) => mesh(new T3.SphereGeometry(0.05, 10, 8), new T3.MeshBasicMaterial({ color: '#e09b6b' }), scene, arc.getPoint(i / 25).toArray()));
+    const DOC = new T3.Group(); scene.add(DOC);
+    mesh(rbox(0.62, 0.84, 0.03, 0.02), M.std('#faf6ee', { roughness: 0.7 }), DOC);
+    const face = textPlane((x, w, h) => { x.fillStyle = '#faf6ee'; x.fillRect(0, 0, w, h); x.fillStyle = '#1d4734'; x.fillRect(0, 0, w, 70); x.fillStyle = '#fff'; x.font = '700 40px Clash'; x.textAlign = 'center'; x.fillText(S.doc, w / 2, 50); x.fillStyle = '#1d4734'; x.font = '600 26px Gothic'; x.fillText(S.docS, w / 2, 120); x.fillStyle = '#cfc6b4'; for (let i = 0; i < 7; i++) x.fillRect(40, 160 + i * 34, w - 80 - (i % 3) * 40, 12); x.strokeStyle = '#1d4734'; x.lineWidth = 3; x.beginPath(); x.moveTo(w - 200, h - 50); x.lineTo(w - 40, h - 50); x.stroke(); }, 300, 410, 0.58, 0.79);
+    face.position.z = 0.017; DOC.add(face);
+    const stampG = new T3.Group(); scene.add(stampG);
+    mesh(new T3.CylinderGeometry(0.22, 0.24, 0.12, 24), M.std('#e09b6b', { metalness: 0.8, roughness: 0.3 }), stampG, [0, 0, 0]);
+    mesh(new T3.CylinderGeometry(0.06, 0.06, 0.32, 12), M.std('#7a4e3a'), stampG, [0, 0.22, 0]);
+    mesh(new T3.SphereGeometry(0.12, 14, 10), M.std('#7a4e3a'), stampG, [0, 0.42, 0]);
+    const seal = textPlane((x, w, h) => { x.fillStyle = 'rgba(90,200,106,0.95)'; x.beginPath(); x.arc(w / 2, h / 2, w / 2 - 6, 0, 6.283); x.fill(); x.fillStyle = '#fff'; x.font = '700 120px Clash'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('✓', w / 2, h / 2 + 6); }, 200, 200, 0.36, 0.36);
+    seal.position.set(0.12, -0.2, 0.02); DOC.add(seal);
+    const DESK = new T3.Vector3(RX + 0.25, 0.88, -0.6);
+    const P = (a, r, h, tx, ty, tz) => () => ({ a, r, h, tx, ty, tz });
+    const camT = track([
+      [0, P(0.25, 13.5, 4.6, 0.0, 1.35, -0.2)],
+      [K.dec, P(0.12, 10.5, 3.8, -0.4, 1.6, -0.6), E.io],
+      [K.ext + 0.2, P(0.18, 11, 3.6, 0.2, 1.55, 0.0), E.io],
+      [K.prep, P(0.18, 11.5, 3.8, 0.2, 1.5, 0.0), E.lin],
+      [K.send + 1.0, P(0.0, 15.5, 6.0, RX / 2 + 0.4, 2.2, 0.0), E.io],
+      [K.fr + 0.2, P(-0.15, 10.5, 3.6, RX + 0.1, 1.2, -0.3), E.io],
+      [K.click + 0.35, P(-0.15, 10, 3.5, RX + 0.1, 1.15, -0.3), E.lin],
+      [K.done + 0.3, P(0.05, 21, 7.5, RX / 2, 1.6, 0.0), E.io],
+      [K.cta + 1, P(0.08, 22, 7.8, RX / 2, 1.6, 0.0), E.lin],
+    ]);
+    const docSpawn = K.prep - 0.1, flyA = K.send - 0.05, flyB = K.fr + 0.1;
+    perFrame((t) => {
+      flipG.rotation.x = -2.6 * E.io(seg(t, K.dec - 0.05, 0.45)); flipG.visible = flipG.rotation.x > -2.5;
+      tph.rotation.x = -0.5 * E.io(seg(t, K.vert - 0.4, 0.4));
+      const sp = E.ob(seg(t, docSpawn, 0.5), 1.8), f = E.io(seg(t, flyA, flyB - flyA));
+      DOC.visible = t > docSpawn;
+      if (f <= 0) { DOC.position.set(-0.2, 1.05 + 0.06 * Math.sin(t * 3), 0.3); DOC.rotation.set(0, Math.sin(t * 1.6) * 0.6, 0); DOC.scale.setScalar(Math.max(0.001, sp * 1.5)); }
+      else if (f < 1) { DOC.position.copy(arc.getPoint(f)); DOC.rotation.set(-1.2 * f, (1 - f) * 6, 0); DOC.scale.setScalar(1.5 - 0.5 * f); }
+      else { DOC.position.copy(DESK); DOC.rotation.set(-Math.PI / 2, 0, 0); DOC.scale.setScalar(1); }
+      dots.forEach((d, i) => { const vis = E.io(seg(t, K.send - 0.3 + i * 0.02, 0.2)) * (1 - E.io(seg(t, K.done + 0.6, 0.4))); d.visible = vis > 0.01; d.scale.setScalar(Math.max(0.001, vis * (1 + 0.4 * Math.sin(t * 8 - i)))); });
+      const st = seg(t, K.click - 0.35, 0.35), up = seg(t, K.click + 0.25, 0.3);
+      stampG.visible = t > K.fr && t < K.click + 0.7;
+      stampG.position.set(DESK.x + 0.12, DESK.y + 0.95 - 0.88 * E.ic(st) + 0.9 * E.io(up), DESK.z + 0.2);
+      seal.visible = t > K.click; seal.scale.setScalar(E.ob(seg(t, K.click, 0.3), 2.5) + 0.0001);
+      scr.material.emissiveIntensity = 0.6 + 1.2 * E.io(seg(t, K.click, 0.3));
+      TN.position.y = 0.06 + (t > K.done ? Math.abs(Math.sin((t - K.done) * 8)) * 0.25 * (1 - seg(t, K.done + 0.8, 0.4)) : 0);
+      const c = camT(t);
+      cam.position.set(c.tx + Math.sin(c.a) * c.r, c.h, c.tz + Math.cos(c.a) * c.r); cam.lookAt(c.tx, c.ty, c.tz);
+      k.G.r.render(scene, cam);
+    });
+    // ---- overlays ----
+    const chip = ov('tdchip', S.chip); tl.set(chip, { xPercent: -50, autoAlpha: 0 }, 0);
+    tl.fromTo(chip, { autoAlpha: 0, y: -40 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'back.out(2)', immediateRender: false }, 0.15);
+    tl.to(chip, { autoAlpha: 0, y: -40, duration: 0.3 }, K.turn);
+    const calLbl = ov('tdtag warn', `📅 31 · ${S.end31}`); tl.set(calLbl, { autoAlpha: 0 }, 0);
+    tl.fromTo(calLbl, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'back.out(2.5)', immediateRender: false }, K.dec + 0.3); tl.to(calLbl, { autoAlpha: 0, duration: 0.2 }, K.turn); sfx('pop', K.dec + 0.3, -14); sfx('whoosh', K.dec - 0.05, -16);
+    const m1 = ov('tdchat in', `<b>James S.</b>${S.m1}`), m2 = ov('tdchat out', `<b>Tenance AI</b>${S.m2}`);
+    tl.set([m1, m2], { autoAlpha: 0 }, 0);
+    tl.fromTo(m1, { autoAlpha: 0, y: 30, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, K.ask - 0.35); sfx('send', K.ask - 0.3, -13);
+    tl.fromTo(m2, { autoAlpha: 0, y: 30, scale: 0.8 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, K.ans + 0.1); sfx('pop', K.ans + 0.1, -12);
+    tl.to([m1, m2], { autoAlpha: 0, y: -40, duration: 0.3 }, K.send - 0.1);
+    perFrame(() => { const [x, y] = proj(A.localToWorld(new T3.Vector3(TN.position.x, 1.65, TN.position.z))); const bx = clamp(x + 120, 330, 750) + 'px'; m1.style.left = bx; m1.style.top = (y - 380) + 'px'; m2.style.left = bx; m2.style.top = (y - 210) + 'px'; const cp = proj(A.localToWorld(new T3.Vector3(-1.55, 2.55, -1.7))); calLbl.style.left = Math.max(190, cp[0]) + 'px'; calLbl.style.top = (cp[1] - 20) + 'px'; });
+    k.burst(K.turn); sfx('impact', K.turn, -13);
+    const pulse = ov('tdpulse', ''); tl.set(pulse, { autoAlpha: 0 }, 0); tl.fromTo(pulse, { autoAlpha: 0.9, scale: 0.2 }, { autoAlpha: 0, scale: 3, duration: 0.8, ease: 'power2.out', immediateRender: false }, K.turn);
+    sfx('shutter', K.prep, -14); sfx('whoosh', K.send, -12);
+    const cd = k.card(S.ttl, [S.l1], K.fr - 0.35); cd.line(0, K.fr);
+    const ap = ov('tdbtn', `<b>${S.ap}</b><i class="rp"></i>`); const lab = ap.querySelector('b'), rp = ap.querySelector('.rp');
+    tl.set(ap, { xPercent: -50, autoAlpha: 0 }, 0); tl.set(rp, { scale: 0, opacity: 0 }, 0);
+    tl.fromTo(ap, { autoAlpha: 0, y: 100, scale: 0.6 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(2)', immediateRender: false }, K.fr - 0.1);
+    tl.to(ap, { scale: 0.92, duration: 0.1, yoyo: true, repeat: 1 }, K.click);
+    tl.fromTo(rp, { scale: 0, opacity: 0.9 }, { scale: 5, opacity: 0, duration: 0.6, ease: 'power2.out', immediateRender: false }, K.click);
+    perFrame((t) => { lab.textContent = t > K.click + 0.1 ? S.apd : S.ap; ap.classList.toggle('on', t > K.click + 0.1); });
+    tl.to([ap, cd.c], { autoAlpha: 0, y: -30, duration: 0.3 }, K.done + 0.1);
+    k.boom(540, 1480, K.click + 0.02, 30, 1.8); k.punch(K.click, 0.1); sfx('impact', K.click, -10); sfx('kaching', K.click + 0.08, -11);
+    const okB = ov('tdtag ok', S.ok); tl.set(okB, { autoAlpha: 0 }, 0); tl.fromTo(okB, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2.5)', immediateRender: false }, K.done + 0.15); sfx('chime', K.done + 0.15, -12);
+    perFrame(() => { const [x, y] = proj(A.localToWorld(new T3.Vector3(TN.position.x, 1.8, TN.position.z))); okB.style.left = clamp(x, 250, 830) + 'px'; okB.style.top = y + 'px'; });
+    k.finish(K.cta + 0.3, K.cta + 0.6, [S.end, null]);
     return { T: END + 0.9, K };
   }
 
