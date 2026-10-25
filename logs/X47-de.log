@@ -1,1 +1,5 @@
-X47-de 0/955X47-de 120/955X47-de 240/955X47-de 360/955X47-de 480/955X47-de 600/955X47-de 720/955X47-de 840/955X47-de -> kichat26-de.mp4 T=15.91 frames=955 render=66s inLUFS=-21.80 size=12026294
+X47-de 0/812X47-de 120/812X47-de 240/812X47-de 360/812X47-de 480/812X47-de 600/812X47-de 720/812
+Enter command: <target>|all <time>|-1 <command>[ <argument>]
+
+Parse error, at least 3 arguments were expected, only 1 given in string 'laude'
+X47-de -> kichat26-de.mp4 T=13.54 frames=812 render=48s inLUFS=-21.79 size=10164428
