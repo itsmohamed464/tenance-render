@@ -1865,3 +1865,16 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
 .tkcta small{display:block;margin-top:28px;font:700 52px Gothic;color:#faf6ee;letter-spacing:1px}
 .tkcta .cur{position:absolute;left:58%;top:300px;width:90px;height:90px;text-decoration:none}
 .tkcta .cur:after{content:'👆';font-size:90px}
+
+/* TK v2: crazier layer */
+.tkbg .floor{position:absolute;left:-40%;right:-40%;bottom:220px;height:1100px;background-image:linear-gradient(rgba(224,155,107,.28) 3px,transparent 3px),linear-gradient(90deg,rgba(224,155,107,.28) 3px,transparent 3px);background-size:110px 110px;transform:perspective(700px) rotateX(72deg);transform-origin:50% 100%;-webkit-mask-image:linear-gradient(to top,#000 0%,transparent 85%);mask-image:linear-gradient(to top,#000 0%,transparent 85%)}
+.tkbg .beam{position:absolute;left:50%;top:-200px;width:260px;height:2600px;margin-left:-130px;transform-origin:50% 0;background:linear-gradient(180deg,rgba(224,155,107,.22),rgba(224,155,107,0) 80%);filter:blur(30px)}
+.tkecho{color:transparent!important;-webkit-text-stroke:3px #e09b6b;pointer-events:none}
+.tkecho .gold,.tkecho i{color:transparent!important}
+.tkwipe{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:50}
+.tkwipe i{position:absolute;left:-30%;width:160%;height:200px;background:#e09b6b;transform:rotate(-24deg);box-shadow:0 0 0 70px #1d4734}
+.tkring{position:absolute;width:200px;height:200px;border-radius:50%;border:10px solid #e09b6b;box-shadow:0 0 40px rgba(224,155,107,.8);pointer-events:none;visibility:hidden}
+.tkboom{position:absolute;width:0;height:0;pointer-events:none;z-index:40}
+.tkboom i{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:4px;background:#e09b6b;visibility:hidden}
+.tkboom i.c{background:#faf6ee;border-radius:50%}
+.tkshine{position:absolute;top:0;bottom:0;left:0;width:30%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent)}

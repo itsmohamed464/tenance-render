@@ -5486,8 +5486,17 @@
   function TK() {
     const de = lang === 'de';
     const cam = el('div', 'tkcam');
-    const bg = el('div', 'tkbg', '<i class="g1"></i><i class="g2"></i><b class="grid"></b>', cam);
-    const [g1, g2] = [...bg.querySelectorAll('i')], grid = bg.querySelector('.grid');
+    const bg = el('div', 'tkbg', '<i class="g1"></i><i class="g2"></i><b class="grid"></b><b class="beam bm1"></b><b class="beam bm2"></b><b class="floor"></b>', cam);
+    const [g1, g2] = [...bg.querySelectorAll('i')], grid = bg.querySelector('.grid'), floor = bg.querySelector('.floor'), bm1 = bg.querySelector('.bm1'), bm2 = bg.querySelector('.bm2');
+    // camera life: continuous drift + beat punches (CSS scale/rotate compose with GSAP transform)
+    const punches = []; const punch = (t, a = 0.07) => punches.push([t, a]);
+    perFrame((t) => {
+      const p = punches.reduce((s, [t0, a]) => s + (t >= t0 ? a * Math.exp(-(t - t0) * 7) * Math.min(1, (t - t0) * 30) : 0), 0);
+      cam.style.scale = String(1.02 + Math.sin(t * 0.7) * 0.02 + p);
+      cam.style.rotate = `${Math.sin(t * 0.55) * 1.2 + p * 12 * Math.sin(t * 40) * 0.2}deg`;
+      floor.style.backgroundPosition = `0px ${t * 160}px`;
+      bm1.style.transform = `rotate(${-30 + Math.sin(t * 0.8) * 25}deg)`; bm2.style.transform = `rotate(${30 + Math.cos(t * 0.7) * 25}deg)`;
+    });
     perFrame((t) => {
       g1.style.transform = `translate(${Math.sin(t * 0.5) * 160}px,${Math.cos(t * 0.4) * 120}px)`;
       g2.style.transform = `translate(${Math.cos(t * 0.45) * 140}px,${Math.sin(t * 0.35) * 160}px)`;
@@ -5507,23 +5516,46 @@
       });
     });
     const shake = (t, a = 12) => tl.fromTo(cam, { x: 0, y: 0 }, { keyframes: [{ x: a, y: -a / 2 }, { x: -a, y: a / 2 }, { x: a / 2, y: 0 }, { x: 0, y: 0 }], duration: 0.3, immediateRender: false }, t);
-    const flash = (t) => { const f = el('div', 'tkflash', null, cam); tl.set(f, { opacity: 0 }, 0); tl.fromTo(f, { opacity: 0.55 }, { opacity: 0, duration: 0.45, ease: 'power2.out', immediateRender: false }, t); };
+    const flash = (t) => { const f = el('div', 'tkflash', null, cam); tl.set(f, { opacity: 0 }, 0); tl.fromTo(f, { opacity: 0.55 }, { opacity: 0, duration: 0.45, ease: 'power2.out', immediateRender: false }, t); stripes(t - 0.12); ring(540, 820, t, 1.4); ring(540, 820, t + 0.12, 1.0); punch(t, 0.12); };
+    // gold diagonal stripe wipe across the frame
+    const stripes = (t) => {
+      const w = el('div', 'tkwipe', Array.from({ length: 6 }, (_, i) => `<i style="top:${i * 360 - 300}px"></i>`).join(''));
+      const bars = [...w.querySelectorAll('i')]; tl.set(bars, { xPercent: -180, autoAlpha: 0 }, 0);
+      tl.set(bars, { autoAlpha: 1 }, t);
+      tl.to(bars, { xPercent: 180, duration: 0.55, ease: 'power3.inOut', stagger: 0.035 }, t);
+      tl.set(bars, { autoAlpha: 0 }, t + 0.55 + 0.035 * 6); sfx('whoosh', t, -12);
+    };
+    // expanding shockwave ring
+    const ring = (x, y, t, s = 1) => { const r = el('i', 'tkring', null, cam, { left: x + 'px', top: y + 'px' }); tl.set(r, { autoAlpha: 0, xPercent: -50, yPercent: -50 }, 0); tl.fromTo(r, { autoAlpha: 1, scale: 0.1 }, { autoAlpha: 0, scale: 4 * s, duration: 0.7, ease: 'power2.out', immediateRender: false }, t); };
+    // gold confetti burst
+    const boom = (x, y, t, n = 18, big = 1) => {
+      const b = el('div', 'tkboom', Array.from({ length: n }, (_, i) => `<i class="${i % 3 ? '' : 'c'}"></i>`).join(''), cam, { left: x + 'px', top: y + 'px' });
+      [...b.children].forEach((e, i) => { const a = (i / n) * 6.283 + (i % 2) * 0.3, r = (120 + (i * 37) % 160) * big; tl.set(e, { autoAlpha: 0 }, 0); tl.fromTo(e, { autoAlpha: 1, x: 0, y: 0, rotation: 0, scale: 1 }, { autoAlpha: 0, x: Math.cos(a) * r, y: Math.sin(a) * r + 60 * big, rotation: 400 + i * 30, scale: 0.4, duration: 0.8 + (i % 4) * 0.08, ease: 'power3.out', immediateRender: false }, t); });
+    };
+    // motion-blur whip on the camera
+    const whip = (t) => tl.fromTo(cam, { filter: 'blur(0px)', skewX: 0 }, { keyframes: [{ filter: 'blur(9px)', skewX: -6, duration: 0.12 }, { filter: 'blur(0px)', skewX: 0, duration: 0.25 }], immediateRender: false }, t);
     // kinetic headline: words masked, letters rise; *word* = gold
     const head = (txt, top, t0, o = {}) => {
       const h = el('div', 'tkhead' + (o.cls ? ' ' + o.cls : ''), txt.split(' ').map((w) => { const g = /^\*.*\*$/.test(w); w = w.replace(/\*/g, ''); return `<span class="w${g ? ' gold' : ''}">${[...w].map((c) => `<i>${c}</i>`).join('')}</span>`; }).join(' '), cam, { top: top + 'px' });
       const ls = [...h.querySelectorAll('i')];
       tl.set(h, { autoAlpha: 0 }, 0); tl.set(h, { autoAlpha: 1 }, t0);
       tl.fromTo(ls, { yPercent: 110, rotation: 8 }, { yPercent: 0, rotation: 0, duration: 0.45, ease: 'expo.out', stagger: o.st ?? 0.025, immediateRender: false }, t0);
+      tl.fromTo(h, { scale: 1.9, filter: 'blur(14px)' }, { scale: 1, filter: 'blur(0px)', duration: 0.4, ease: 'expo.out', immediateRender: false }, t0);
+      const es = [h]; perFrame(() => { if (h.dataset.fit) return; const rg = document.createRange(); rg.selectNodeContents(h); const hb = h.getBoundingClientRect().width, wd = hb > 0 ? rg.getBoundingClientRect().width * h.offsetWidth / hb : 0; if (!(wd > 0) || !isFinite(wd)) return; h.dataset.fit = 1; if (wd > 960) { const fs = Math.floor(parseFloat(getComputedStyle(h).fontSize) * 960 / wd) + 'px'; es.forEach((x) => { x.style.fontSize = fs; }); } });
+      [1, 2].forEach((n) => { const e = el('div', h.className + ' tkecho', h.textContent, cam, { top: top + 'px' }); es.push(e); tl.set(e, { autoAlpha: 0 }, 0); tl.fromTo(e, { autoAlpha: 0.7, scale: 1 }, { autoAlpha: 0, scale: 1 + 0.35 * n, duration: 0.7, ease: 'power2.out', immediateRender: false }, t0 + 0.25 + n * 0.08); });
+      punch(t0 + 0.2, 0.05);
       if (o.sfx !== false) sfx(o.sfx || 'whoosh', t0, -15);
       if (o.out) tl.to(ls, { yPercent: -110, duration: 0.3, ease: 'power2.in', stagger: 0.01 }, o.out);
       return h;
     };
     // floating 3D phone with stacked screens
+    let phTop = 400;
     const phone = (top, t0) => {
+      phTop = top;
       const ph = el('div', 'tkph', '<div class="bz"><div class="scr"></div><i class="notch"></i><b class="glare"></b></div>', cam, { top: top + 'px' });
       const scr = ph.querySelector('.scr'), glare = ph.querySelector('.glare');
       tl.set(ph, { xPercent: -50, autoAlpha: 0 }, 0);
-      tl.fromTo(ph, { autoAlpha: 0, y: 900, rotationX: 50, rotationZ: -12, scale: 0.9, transformPerspective: 2200, transformOrigin: '50% 0%' }, { autoAlpha: 1, y: 0, rotationX: 0, rotationZ: 0, scale: 1.17, duration: 0.9, ease: 'expo.out', immediateRender: false }, t0);
+      tl.fromTo(ph, { autoAlpha: 0, y: 900, rotationX: 50, rotationY: -540, rotationZ: -12, scale: 0.9, transformPerspective: 2200, transformOrigin: '50% 30%' }, { autoAlpha: 1, y: 0, rotationX: 0, rotationY: 0, rotationZ: 0, scale: 1.17, duration: 1.1, ease: 'expo.out', immediateRender: false }, t0);
       sfx('whoosh', t0, -11);
       perFrame((t) => {
         const d = Math.max(0, t - t0 - 0.9);
@@ -5535,6 +5567,8 @@
         tl.set(to, { autoAlpha: 0 }, 0);
         tl.fromTo(to, { autoAlpha: 1, xPercent: 100 }, { xPercent: 0, duration: 0.5, ease: 'expo.inOut', immediateRender: false }, t);
         if (from) tl.to(from, { xPercent: -35, filter: 'brightness(0.4)', duration: 0.5, ease: 'expo.inOut' }, t);
+        tl.fromTo(ph, { rotationY: 0 }, { keyframes: [{ rotationY: -28, duration: 0.25, ease: 'power2.out' }, { rotationY: 0, duration: 0.45, ease: 'back.out(2.5)' }], immediateRender: false }, t);
+        whip(t + 0.05); punch(t + 0.3, 0.05);
         sfx('whoosh', t, -17);
       };
       return { ph, scr, screen, swap };
@@ -5545,13 +5579,16 @@
       tl.set(h, { autoAlpha: 0 }, 0);
       tl.fromTo(h, { autoAlpha: 0, scale: 1.25 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2)', immediateRender: false }, t);
       tl.to(h, { boxShadow: '0 0 0 10px rgba(224,155,107,0)', duration: 0.6, repeat: 2 }, t + 0.35);
-      sfx('pop', t, -14); return h;
+      sfx('pop', t, -14);
+      boom(540, phTop + 1144 * (box[0] + box[1] / 2) / 100, t, 16);
+      return h;
     };
     // chip that shoots out of the phone to a side position
     const chip = (html, top, side, t) => {
       const c = el('div', 'tkchip', html, cam, { top: top + 'px', left: side < 0 ? '30%' : '70%' });
       tl.set(c, { xPercent: -50, autoAlpha: 0 }, 0);
       tl.fromTo(c, { autoAlpha: 0, x: -side * 220, scale: 0.3, rotation: -side * 25 }, { autoAlpha: 1, x: 0, scale: 1, rotation: side * 3, duration: 0.55, ease: 'back.out(1.8)', immediateRender: false }, t);
+      ring(side < 0 ? 324 : 756, top + 40, t + 0.15, 0.6); boom(side < 0 ? 324 : 756, top + 40, t + 0.15, 14); punch(t + 0.15, 0.04);
       sfx('chime', t + 0.1, -14); return c;
     };
     // in-app chat screen (Tenance dark UI tokens)
@@ -5568,7 +5605,7 @@
           tl.set(tp, { display: 'none' }, t); tl.set(p, { display: 'block' }, t);
           tl.fromTo(p, { opacity: 0 }, { opacity: 1, duration: 0.2, immediateRender: false }, t);
         } else tl.fromTo(m, { autoAlpha: 0, scale: 0.5, y: 40 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.4, ease: 'back.out(2.2)', immediateRender: false }, t);
-        sfx(who === 'in' ? 'send' : 'pop', t, -13);
+        sfx(who === 'in' ? 'send' : 'pop', t, -13); punch(t, who === 'in' ? 0.03 : 0.06);
         return m;
       };
       return { s, msg };
@@ -5583,7 +5620,7 @@
       txt = txt || [de ? 'Dein Mieter schreibt.' : 'Your tenant writes.', de ? '*Tenance* antwortet.' : '*Tenance* answers.'];
       const l1 = head(txt[0], 560, tLine1, { cls: 'tktag', sfx: 'impact' });
       const l2 = txt[1] ? head(txt[1], 720, tLine2, { cls: 'tktag', sfx: 'impact' }) : l1;
-      flash(tLine2); shake(tLine2 + 0.05, 10); burst(tLine2);
+      flash(tLine2); shake(tLine2 + 0.05, 10); burst(tLine2); boom(540, 780, tLine2 + 0.1, 30, 2);
       const cta = el('div', 'tkcta', `<span class="lg"><img src="assets/logo.png"></span><b class="btn">${de ? 'Jetzt auf die Warteliste' : 'Join the waitlist'}<i class="rp"></i></b><small>tenance.de</small><u class="cur"></u>`);
       const btn = cta.querySelector('.btn'), rp = cta.querySelector('.rp'), cur = cta.querySelector('.cur'), lg = cta.querySelector('.lg');
       tl.set(cta, { autoAlpha: 0 }, 0); tl.set(cta, { autoAlpha: 1 }, tCta - 0.25);
@@ -5595,9 +5632,12 @@
       tl.to(btn, { scale: 0.93, duration: 0.1, yoyo: true, repeat: 1 }, tCta + 1.05);
       tl.fromTo(rp, { scale: 0, opacity: 0.9 }, { scale: 6, opacity: 0, duration: 0.7, ease: 'power2.out', immediateRender: false }, tCta + 1.05);
       perFrame((t) => { btn.style.boxShadow = `0 0 ${40 + Math.sin(t * 5) * 25}px rgba(224,155,107,${t > tCta ? 0.7 : 0})`; });
+      boom(540, 1020, tCta - 0.1, 36, 2.2); ring(540, 1020, tCta - 0.1, 1.6); punch(tCta - 0.1, 0.1); boom(540, 1020, tCta + 1.05, 24, 1.6); ring(540, 1020, tCta + 1.05, 1.2);
+      tl.to(lg, { rotationY: 360, duration: 0.9, ease: 'power2.inOut' }, tCta + 0.3);
+      const sh = el('i', 'tkshine', null, btn); perFrame((t) => { sh.style.transform = `translateX(${-150 + (((t - tCta) * 120) % 400)}%) skewX(-20deg)`; });
       sfx('pop', tCta - 0.1, -11); sfx('kaching', tCta + 1.08, -12);
     };
-    return { cam, head, phone, img, hl, chip, chat, notif, end, flash, shake, burst };
+    return { cam, head, phone, img, hl, chip, chat, notif, end, flash, shake, burst, boom, ring, punch, whip, stripes };
   }
 
   // ================= X47: 2 a.m., tenant writes "pipe leaking" → Tenance answers, spots damage, books plumber, informs landlord (real maintenance + dashboard UI) → tagline + waitlist =================
@@ -5638,7 +5678,7 @@
   // ================= X48: 23 messages Monday → tenants write, Tenance answers (real tenants/maintenance UI) → approve → AI property manager → waitlist =================
   function X48() {
     const de = lang === 'de';
-    const S = de ? { h: '*23* Nachrichten', mon: 'Montagmorgen', list: [['JS', 'James', 'Wann ist die nächste Abnahme?'], ['CB', 'Chandler', 'Der Wasserhahn tropft'], ['NP', 'Nicole', 'Klima macht Geräusche'], ['PR', 'Pamela', 'Wann läuft mein Vertrag aus?'], ['JK', 'Jack', 'Miete kommt Freitag']], done: 'beantwortet ✓', c1: '💬 23 Fragen geklärt', c2: '🔧 4 Reparaturen geplant', c3: '💶 2 Erinnerungen gesendet', ap: 'Alles freigeben', apd: 'Freigegeben ✓', mgr: 'Dein *KI-Hausverwalter*.', lb1: 'Termin ✓', lb2: 'erinnert ✓' }
+    const S = de ? { h: '*23* Nachrichten', mon: 'Montagmorgen', list: [['JS', 'James', 'Wann ist die nächste Abnahme?'], ['CB', 'Chandler', 'Der Wasserhahn tropft'], ['NP', 'Nicole', 'Klima macht Geräusche'], ['PR', 'Pamela', 'Wann läuft mein Vertrag aus?'], ['JK', 'Jack', 'Miete kommt Freitag']], done: 'beantwortet ✓', c1: '💬 23 Fragen geklärt', c2: '🔧 4 Reparaturen geplant', c3: '💶 2 Erinnerungen gesendet', ap: 'Alles freigeben', apd: 'Freigegeben ✓', mgr: 'Dein *KI-Hausverwalter.*', lb1: 'Termin ✓', lb2: 'erinnert ✓' }
       : { h: '*23* messages', mon: 'Monday morning', list: [['JS', 'James', 'When is the next inspection?'], ['CB', 'Chandler', 'The kitchen tap is dripping'], ['NP', 'Nicole', 'The AC is making noise'], ['PR', 'Pamela', 'When is my lease renewal?'], ['JK', 'Jack', 'Rent comes Friday']], done: 'answered ✓', c1: '💬 23 questions handled', c2: '🔧 4 repairs scheduled', c3: '💶 2 reminders sent', ap: 'Approve all', apd: 'Approved ✓', mgr: 'Your *AI* property manager.', lb1: 'booked ✓', lb2: 'reminded ✓' };
     const K = {};
     K.mon = W(['Montagmorgen', 'monday']).start;
@@ -5680,7 +5720,7 @@
     tl.to(ap, { scale: 0.92, duration: 0.1, yoyo: true, repeat: 1 }, K.ok);
     tl.fromTo(rp, { scale: 0, opacity: 0.9 }, { scale: 5, opacity: 0, duration: 0.6, ease: 'power2.out', immediateRender: false }, K.ok);
     perFrame((t) => { lab.textContent = t > K.ok + 0.1 ? S.apd : S.ap; ap.classList.toggle('on', t > K.ok + 0.1); });
-    k.burst(K.ok); sfx('kaching', K.ok + 0.05, -11);
+    k.burst(K.ok); k.boom(540, 1095, K.ok + 0.02, 30, 1.8); k.ring(540, 1095, K.ok, 1.3); k.punch(K.ok, 0.1); k.shake(K.ok + 0.05, 8); sfx('kaching', K.ok + 0.05, -11);
     // AI property manager line then tagline/CTA
     k.end(K.mgr, K.mgr, K.cta, [S.mgr, null]);
     return { T: END + 2.4, K };
