@@ -6123,7 +6123,7 @@
     tl.to([ap, cd.c], { autoAlpha: 0, y: -30, duration: 0.3 }, K.done + 0.1);
     k.boom(540, 1480, K.click + 0.02, 30, 1.8); k.punch(K.click, 0.1); sfx('impact', K.click, -10); sfx('kaching', K.click + 0.08, -11);
     const okB = ov('tdtag ok', S.ok); tl.set(okB, { autoAlpha: 0 }, 0); tl.fromTo(okB, { autoAlpha: 0, scale: 0.4 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: 'back.out(2.5)', immediateRender: false }, K.done + 0.15); sfx('chime', K.done + 0.15, -12);
-    perFrame(() => { const [x, y] = proj(A.localToWorld(new T3.Vector3(TN.position.x, 1.8, TN.position.z))); okB.style.left = clamp(x, 250, 830) + 'px'; okB.style.top = y + 'px'; });
+    perFrame(() => { const [x, y] = proj(A.localToWorld(new T3.Vector3(TN.position.x, 1.8, TN.position.z))); okB.style.left = clamp(x, 330, 750) + 'px'; okB.style.top = y + 'px'; });
     k.finish(K.cta + 0.3, K.cta + 0.6, [S.end, null]);
     return { T: END + 0.9, K };
   }
