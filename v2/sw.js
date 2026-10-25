@@ -5734,6 +5734,85 @@
     return { T: END + 0.9, K };
   }
 
+  // ================= X49: one apartment, 40 inquiries → every applicant writes, Tenance answers → viewings in the real calendar → "you just show up" → waitlist =================
+  function X49() {
+    const de = lang === 'de';
+    const S = de ? { h: '*40* Anfragen', sub: 'für 1 Wohnung', ttl: 'Anfragen', list: [['LM', 'Lea M.', 'Ist die Wohnung noch frei?'], ['TK', 'Tom K.', 'Kann ich besichtigen?'], ['AS', 'Aylin S.', 'Sind Haustiere erlaubt?'], ['JB', 'Jonas B.', 'Ab wann ist sie frei?'], ['MR', 'Mia R.', 'Unterlagen anbei 📎']], done: 'beantwortet ✓', name: 'Lea M.', who: 'Interessentin · Apt 302', m1: 'Hallo! Ist die Wohnung noch frei? Kann ich sie besichtigen?', m2: 'Ja, noch frei! 🏡 Besichtigung am Di 17:00 oder Mi 18:30?', m3: 'Di 17:00 passt! 🙌', m4: 'Gebucht ✓ Bitte Selbstauskunft mitbringen.', c1: '💬 40 Fragen beantwortet', c2: '📄 12 Bewerbungen geprüft', c3: '📅 8 Besichtigungen gebucht', lb: 'Besichtigung ✓', end: 'Du kommst nur zum *Termin*.' }
+      : { h: '*40* inquiries', sub: 'for 1 apartment', ttl: 'Inquiries', list: [['LM', 'Lea M.', 'Is the apartment still free?'], ['TK', 'Tom K.', 'Can I come see it?'], ['AS', 'Aylin S.', 'Are pets allowed?'], ['JB', 'Jonas B.', 'When can I move in?'], ['MR', 'Mia R.', 'Documents attached 📎']], done: 'answered ✓', name: 'Lea M.', who: 'Applicant · Apt 302', m1: 'Hi! Is the apartment still available? Can I see it?', m2: 'Yes, still free! 🏡 Viewing on Tue 5 pm or Wed 6:30 pm?', m3: 'Tue 5 pm works! 🙌', m4: 'Booked ✓ Please bring your ID and proof of income.', c1: '💬 40 questions answered', c2: '📄 12 applications checked', c3: '📅 8 viewings booked', lb: 'viewing ✓', end: 'You just *show up*.' };
+    const K = {};
+    K.v = W(['vierzig', 'forty']).start;
+    K.write = W(['Jeder', 'Every']).start; K.wrEnd = W(['schreibt', 'writes']).start;
+    const it = W(['Tenance']); K.turn = it.start; K.ans = W(['antwortet', 'answers'], it.i - 1).start;
+    K.q = W(['Fragen', 'questions'], it.i).start; K.d = W(['Unterlagen', 'documents'], it.i).start; K.b = W(['Besichtigungen', 'viewings'], it.i).start; K.cal = W(['Kalender', 'calendar'], it.i).start;
+    const du = W(['Du', 'You'], it.i); K.du = du.start; K.cta = W(['Jetzt', 'Join'], du.i).start;
+    const k = TK();
+    k.head(S.sub, 250, 0.05, { cls: 'tksub', sfx: false, out: K.turn - 0.2 });
+    k.head(S.h, 110, Math.max(0.3, K.v - 0.1), { st: 0.035, sfx: 'impact', out: K.turn - 0.2 });
+    const P = k.phone(380, 0.2);
+    // inbox filling up: counter races to 40
+    const inbox = el('div', 'tks tkinbox', `<div class="ttl">${S.ttl}<em>0</em></div>` + S.list.map(([a, n, m], i) => `<div class="row"><b class="av c${i}">${a}</b><div><b>${n}</b><small>${m}</small></div><u>1</u><s>${S.done}</s></div>`).join(''), P.scr);
+    const rows = [...inbox.querySelectorAll('.row')]; tl.set(rows, { autoAlpha: 0 }, 0);
+    rows.forEach((r, i) => { tl.fromTo(r, { autoAlpha: 0, x: 120 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'back.out(1.8)', immediateRender: false }, 0.5 + i * 0.32); sfx('buzz', 0.55 + i * 0.32, -20); });
+    const cnt = inbox.querySelector('.ttl em'); perFrame((t) => { cnt.textContent = Math.round(40 * clamp((t - 0.45) / Math.max(0.5, K.write - 0.9), 0, 1)); });
+    k.punch(K.v, 0.06);
+    // one applicant's chat: Tenance answers and books the viewing
+    const c = k.chat(S.name, S.who); P.scr.appendChild(c.s);
+    P.swap(inbox, c.s, K.write - 0.35);
+    c.msg(S.m1, 'in', K.wrEnd + 0.1, { typing: 0.6 });
+    k.flash(K.turn); k.burst(K.turn); k.shake(K.turn + 0.05, 9);
+    k.head(de ? 'Tenance *antwortet*' : 'Tenance *answers*', 130, K.turn, { sfx: 'impact' });
+    c.msg(S.m2, 'out tkai', K.ans + 0.25, { typing: 0.45 });
+    c.msg(S.m3, 'in', K.q + 0.4);
+    c.msg(S.m4, 'out tkai', K.d + 0.35, { typing: 0.35 });
+    k.chip(S.c1, K.q); k.chip(S.c2, K.d);
+    // real calendar: the viewing lands in Upcoming Events
+    const sc = P.screen(k.img('ll-calendar'), 'tkimgs'); P.swap(c.s, sc, K.b - 0.35);
+    k.hl(sc, [64.6, 6.2, 4, 92], K.b + 0.45, S.lb);
+    k.chip(S.c3, K.b + 0.1);
+    k.end(K.du, K.du, K.cta, [S.end, null]);
+    return { T: END + 0.9, K };
+  }
+
+  // ================= X50: tenant asks to extend the lease (real tenant app) → Tenance answers, prepares the renewal → landlord approves with one tap (real tenants screen) → waitlist =================
+  function X50() {
+    const de = lang === 'de';
+    const S = de ? { h: 'Dein Mieter *schreibt*', name: 'James S.', who: 'Mieter · Palm Grove 1A', m1: 'Mein Vertrag läuft im Dezember aus. Kann ich verlängern? 🙏', m2: 'Klar! Ich bereite die Verlängerung vor und schicke sie deinem Vermieter zur Freigabe ✓', c1: '📄 Verlängerung vorbereitet', lbL: 'Dez. 2026', n: '<b>Tenance AI</b>Verlängerung für James S. bis Dez. 2027 bereit. Freigeben?', lbT: 'Verlängerung', ap: 'Freigeben', apd: 'Freigegeben ✓', end: 'Ein Klick. *Fertig.*' }
+      : { h: 'Your tenant *writes*', name: 'James S.', who: 'Tenant · Palm Grove 1A', m1: 'My lease ends in December. Can I extend it? 🙏', m2: "Sure! I'm preparing the renewal and sending it to your landlord for approval ✓", c1: '📄 Renewal prepared', lbL: 'Dec 2026', n: '<b>Tenance AI</b>Renewal for James S. until Dec 2027 is ready. Approve?', lbT: 'renewal', ap: 'Approve', apd: 'Approved ✓', end: 'One tap. *Done.*' };
+    const K = {};
+    K.vert = W(['Vertrag', 'lease']).start; K.ask = W(['kann', 'can']).start; K.ext = W(['verlängern', 'extend']).start;
+    const it = W(['Tenance']); K.turn = it.start; K.ans = W(['antwortet', 'answers'], it.i - 1).start;
+    K.prep = W(['bereitet', 'prepares'], it.i).start; K.send = W(['schickt', 'sends'], it.i).start; K.fr = W(['Freigabe', 'approval'], it.i).start;
+    const one = W(['Ein', 'One'], it.i); K.click = W(['Klick', 'tap'], one.i).start; K.done = W(['fertig', 'done'], one.i).start; K.cta = W(['Jetzt', 'Join'], one.i).start;
+    const k = TK();
+    k.head(S.h, 120, 0.05, { st: 0.035, sfx: 'impact', out: K.turn - 0.2 });
+    const P = k.phone(330, 0.25);
+    // tenant's own app: lease expires in December
+    const sd = P.screen(k.img('tn-t-dashboard'), 'tkimgs');
+    k.hl(sd, [11.2, 13.6, 51, 46], K.vert, S.lbL);
+    // tenant writes
+    const c = k.chat(S.name, S.who); P.scr.appendChild(c.s);
+    P.swap(sd, c.s, K.ask - 0.35);
+    c.msg(S.m1, 'in', K.ext + 0.2, { typing: 0.5 });
+    k.flash(K.turn); k.burst(K.turn); k.shake(K.turn + 0.05, 9);
+    k.head(de ? 'Tenance *antwortet*' : 'Tenance *answers*', 120, K.turn, { sfx: 'impact' });
+    c.msg(S.m2, 'out tkai', K.ans + 0.25, { typing: 0.45 });
+    k.chip(S.c1, K.prep);
+    // landlord side: real tenants screen + approval
+    const st = P.screen(k.img('ll-tenants'), 'tkimgs'); P.swap(c.s, st, K.send - 0.35);
+    k.hl(st, [30.5, 8.5, 3, 94], K.send + 0.1, S.lbT);
+    k.notif(st, S.n, K.fr - 0.25);
+    k.dropChip(K.fr - 0.35);
+    const ap = el('div', 'tkap', `<b>${S.ap}</b><i class="rp"></i>`, k.cam, { top: k.zone() + 'px' }); const lab = ap.querySelector('b'), rp = ap.querySelector('.rp');
+    tl.set(ap, { xPercent: -50, autoAlpha: 0 }, 0); tl.set(rp, { scale: 0, opacity: 0 }, 0);
+    tl.fromTo(ap, { autoAlpha: 0, y: 120, scale: 0.6 }, { autoAlpha: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(2)', immediateRender: false }, K.fr - 0.15);
+    tl.to(ap, { scale: 0.92, duration: 0.1, yoyo: true, repeat: 1 }, K.click);
+    tl.fromTo(rp, { scale: 0, opacity: 0.9 }, { scale: 5, opacity: 0, duration: 0.6, ease: 'power2.out', immediateRender: false }, K.click);
+    perFrame((t) => { lab.textContent = t > K.click + 0.1 ? S.apd : S.ap; ap.classList.toggle('on', t > K.click + 0.1); });
+    k.burst(K.click); k.boom(540, k.zone() + 55, K.click + 0.02, 30, 1.8); k.ring(540, k.zone() + 55, K.click, 1.3); k.punch(K.click, 0.1); k.shake(K.click + 0.05, 8); sfx('kaching', K.click + 0.05, -11);
+    k.end(K.done, K.done, K.cta, [S.end, null]);
+    return { T: END + 0.9, K };
+  }
+
   const GR = {
     X29: [[2, 4, 1, 4, 3, 4, 2, 1, 1, 2, 1, 4, 4], [2, 4, 2, 4, 4, 2, 2, 1, 4, 1, 4, 4, 1]],
     X30: [[4, 2, 4, 4, 4, 2, 4, 3, 1, 1, 1, 4], [4, 2, 4, 4, 1, 2, 4, 4, 2, 1, 1, 1, 4]],
@@ -5755,6 +5834,8 @@
     X46: [[1, 2, 2, 3, 4, 1, 2, 2, 2, 4, 1, 2, 2], [2, 2, 2, 3, 4, 2, 2, 2, 3, 3, 2, 4]],
     X47: [[3, 3, 3, 3, 3, 3, 3, 3, 2, 4], [2, 3, 4, 3, 3, 4, 3, 3, 2, 4]],
     X48: [[4, 3, 2, 2, 2, 2, 4, 1, 2, 4], [4, 1, 3, 2, 2, 2, 3, 3, 4, 4]],
+    X49: [[2, 2, 3, 2, 2, 2, 4, 1, 4, 2, 4], [2, 2, 3, 2, 2, 2, 4, 2, 4, 4]],
+    X50: [[3, 4, 2, 3, 3, 3, 4, 3, 2, 1, 4], [3, 4, 1, 3, 4, 4, 4, 2, 2, 1, 4]],
     X28: [[1, 2, 4, 1, 4, 4, 1, 3, 4, 4, 2, 4], [2, 2, 4, 2, 2, 4, 4, 2, 4, 3, 2, 4, 1]],
     X27: [[3, 4, 3, 4, 1, 3, 4, 2, 2, 4], [3, 4, 1, 3, 1, 2, 4, 1, 4, 1, 4, 2, 2, 4]],
     X21: [[2, 4, 2, 1, 4, 1, 3, 2, 1, 4, 4, 2, 1, 1, 1], [3, 4, 1, 4, 1, 3, 2, 1, 4, 2, 2, 3, 2, 3, 4]],
@@ -5787,7 +5868,7 @@
     W2: [[2, 3, 4, 3, 3, 1, 2, 3, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 3, 2, 3], [3, 4, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 2, 3, 3, 2, 2, 2, 2]],
     W3: [[2, 4, 4, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 3, 2], [3, 4, 4, 1, 3, 3, 1, 3, 1, 4, 1, 4, 1, 3, 3, 2, 3, 2]],
   };
-  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, X16, X17, X18, X19, X20, X21, X22, X23, X24, X25, X26, X27, X28, X29, X30, X31, X32, X33, X34, X35, X36, X37, X38, X39, X40, X41, X42, X43, X44, X45, X46, X47, X48 }[C]();
+  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, X16, X17, X18, X19, X20, X21, X22, X23, X24, X25, X26, X27, X28, X29, X30, X31, X32, X33, X34, X35, X36, X37, X38, X39, X40, X41, X42, X43, X44, X45, X46, X47, X48, X49, X50 }[C]();
   captions(GR[C][lang === 'de' ? 0 : 1]);
   stage.appendChild(document.getElementById('cap'));
   stage.appendChild(document.querySelector('.grain'));
