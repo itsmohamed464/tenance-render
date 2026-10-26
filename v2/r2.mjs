@@ -71,6 +71,9 @@ const MUSIC = {
   X49: { f: 'm3D2.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X50: { f: 'm3F2.mp3', segs: [{ f: 'm2B2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X51: { f: 'm3E2.mp3', segs: [{ f: 'm2C2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
+  X52: { f: 'm3D3.mp3', segs: [{ f: 'm2A3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
+  X53: { f: 'm3E3.mp3', segs: [{ f: 'm2B3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
+  X54: { f: 'm3F3.mp3', segs: [{ f: 'm2C3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X21: { f: 'm2A3.mp3', segs: [{ f: 'm2A1.mp3', src: 0, at: 0, db: -4 }, { src: 9.1, at: 'turn', lead: -0.05 }], db: -18, boost: 0.8 },
   X12: { f: 'm3D1.mp3', segs: [{ f: 'm3E3.mp3', src: 0.8, at: 0, db: -5 }, { src: 8.9, at: 'turn', lead: -0.05 }], db: -18, boost: 0.8 },
   X11: { f: 'm2B2.mp3', segs: [{ f: 'm2C3.mp3', src: 0, at: 0, db: -3 }, { src: 8.2, at: 'turn', lead: -0.05 }], db: -18, boost: 0.8 },
@@ -199,6 +202,12 @@ const V = {
   'X50-en': { name: 'ailease26e-en', concept: 'X50', lang: 'en', tempo: 1.07, off: 0.15 },
   'X51-de': { name: 'kiheizung26-de', concept: 'X51', lang: 'de', tempo: 1.07, off: 0.15 },
   'X51-en': { name: 'aiheating26-en', concept: 'X51', lang: 'en', tempo: 1.07, off: 0.15 },
+  'X52-de': { name: 'kiwasser27-de', concept: 'X52', lang: 'de', tempo: 1.07, off: 0.15 },
+  'X52-en': { name: 'aileak27-en', concept: 'X52', lang: 'en', tempo: 1.07, off: 0.15 },
+  'X53-de': { name: 'kischluessel27-de', concept: 'X53', lang: 'de', tempo: 1.07, off: 0.15 },
+  'X53-en': { name: 'ailockout27-en', concept: 'X53', lang: 'en', tempo: 1.07, off: 0.15 },
+  'X54-de': { name: 'kischimmel27-de', concept: 'X54', lang: 'de', tempo: 1.07, off: 0.15 },
+  'X54-en': { name: 'aimold27-en', concept: 'X54', lang: 'en', tempo: 1.07, off: 0.15 },
   'X21-de': { name: 'nachrichten19-de', concept: 'X21', lang: 'de', tempo: 1.0, off: 0.15 },
   'X21-en': { name: 'messages19-en', concept: 'X21', lang: 'en', tempo: 1.0, off: 0.15 },
   'X22-de': { name: 'abnahme20-de', concept: 'X22', lang: 'de', tempo: 1.0, off: 0.15 },
@@ -313,7 +322,7 @@ for (const id of ids) {
   v.words = words(v);
   const t0 = Date.now();
   const CFG = { id, concept: v.concept, lang: v.lang, words: v.words };
-  const html = `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="st.css"></head><body><div id="stage"></div><script>window.CFG=${JSON.stringify(CFG)};</script>${/^[WX]/.test(v.concept) ? `<script type="module">import * as THREE from './three.module.min.js'; window.THREE = THREE; const ld = (s) => new Promise((r, j) => { const e = document.createElement('script'); e.src = s; e.onload = r; e.onerror = () => j(new Error('load ' + s)); document.body.appendChild(e); }); try { await ld('../vid/gsap.min.js'); await ld('rt.js'); await ld('sw.js'); window.__ok = 1; } catch (e) { window.__err = String(e.stack || e); window.__ok = 1; }</script>` : '<script src="../vid/gsap.min.js"></script><script src="rt.js"></script><script src="sc.js"></script>'}</body></html>`;
+  const html = `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="st.css"></head><body><div id="stage"></div><script>window.CFG=${JSON.stringify(CFG)};window.MBN=${+(process.env.MBN||0)};</script>${/^[WX]/.test(v.concept) ? `<script type="module">import * as THREE from './three.module.min.js'; window.THREE = THREE; const ld = (s) => new Promise((r, j) => { const e = document.createElement('script'); e.src = s; e.onload = r; e.onerror = () => j(new Error('load ' + s)); document.body.appendChild(e); }); try { await ld('../vid/gsap.min.js'); await ld('rt.js'); await ld('sw.js'); window.__ok = 1; } catch (e) { window.__err = String(e.stack || e); window.__ok = 1; }</script>` : '<script src="../vid/gsap.min.js"></script><script src="rt.js"></script><script src="sc.js"></script>'}</body></html>`;
   const hp = path.join(D, `${id}.html`);
   fs.writeFileSync(hp, html);
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });

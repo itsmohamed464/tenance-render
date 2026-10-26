@@ -6324,6 +6324,345 @@
     return { T: END + 0.9, K };
   }
 
+  // ================= TDX: TD kit + motion craft (Tue Oct 27+) =================
+  // real motion blur + depth of field (sub-frame accumulation), anticipation/overshoot eases, damped springs,
+  // follow-through wobbles, handheld camera, rigged pill figures with walk cycle / lean / squash / arm swing / head lag
+  const MC = {
+    // ease with anticipation (small backwards dip) and overshoot; s ~0.5 subtle .. 1.7 strong
+    ant: (s = 1) => (x) => { const c1 = 1.70158 * s, c2 = c1 * 1.525; x = clamp(x); return x < 0.5 ? (Math.pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2 : (Math.pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2; },
+    // overshoot-only (no wind-up)
+    out: (s = 1.4) => (x) => E.ob(clamp(x), s),
+    // damped spring step response: 0 before t0, then rises past 1 and settles
+    spring: (t, t0, f = 2.2, z = 0.32) => { const d = t - t0; if (d <= 0) return 0; const w = 2 * Math.PI * f; return 1 - Math.exp(-z * w * d) * Math.cos(w * Math.sqrt(1 - z * z) * d); },
+    // decaying wobble impulse (impacts, follow-through)
+    wob: (t, t0, f = 3, decay = 5) => { const d = t - t0; return d <= 0 ? 0 : Math.exp(-decay * d) * Math.sin(2 * Math.PI * f * d); },
+    noise: (t, s = 1) => Math.sin(t * 1.3 * s + 1.7) * 0.5 + Math.sin(t * 2.9 * s + 0.4) * 0.3 + Math.sin(t * 5.1 * s + 2.2) * 0.2,
+    rnd: (i, k = 0) => { const v = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return v - Math.floor(v); },
+  };
+  // wind-up then move: value goes a -> slightly behind a -> past b -> b (anticipation + follow-through) over [t0, t0+d]
+  const antMove = (t, t0, d, a, b, s = 1) => lerp(a, b, MC.ant(s)(seg(t, t0, d)));
+
+  function TDX(o = {}) {
+    const k = TD(o);
+    const { scene, cam } = k; const r = k.G.r;
+    const NS = Math.max(1, (window.MBN || o.mb || 6) | 0), SHUT = o.shutter || 1 / 50;
+    const rtS = new T3.WebGLRenderTarget(1080, 1920, { type: T3.HalfFloatType, samples: 4 });
+    const rtA = new T3.WebGLRenderTarget(1080, 1920, { type: T3.HalfFloatType, depthBuffer: false });
+    const oc = new T3.OrthographicCamera(-1, 1, 1, -1, 0, 1), quad = new T3.PlaneGeometry(2, 2);
+    const accM = new T3.ShaderMaterial({
+      uniforms: { tS: { value: rtS.texture }, w: { value: 1 } },
+      vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+      fragmentShader: 'uniform sampler2D tS; uniform float w; varying vec2 vUv; void main(){ gl_FragColor = texture2D(tS, vUv) * w; }',
+      blending: T3.CustomBlending, blendEquation: T3.AddEquation, blendSrc: T3.OneFactor, blendDst: T3.OneFactor, blendSrcAlpha: T3.OneFactor, blendDstAlpha: T3.OneFactor,
+      depthTest: false, depthWrite: false, toneMapped: false,
+    });
+    const accS = new T3.Scene(); accS.add(new T3.Mesh(quad, accM));
+    const outS = new T3.Scene(); outS.add(new T3.Mesh(quad, new T3.MeshBasicMaterial({ map: rtA.texture, depthTest: false, depthWrite: false })));
+    const right = new T3.Vector3(), up = new T3.Vector3();
+    let upd = null;
+    k.dof = null;                                   // { focus: Vector3, ap: aperture in world units }
+    k.frame = (fn) => { upd = fn; };
+    perFrame((t) => {
+      if (!upd) return;
+      const ac = r.autoClear; r.autoClear = false;
+      r.setRenderTarget(rtA); r.setClearColor(0x000000, 0); r.clear(true, false, false);
+      for (let i = 0; i < NS; i++) {
+        const ts = t + SHUT * ((i + 0.5) / NS - 0.5);           // shutter centred on t
+        upd(ts);
+        if (k.dof && k.dof.ap > 0 && NS > 1) {
+          cam.updateMatrixWorld(); right.setFromMatrixColumn(cam.matrixWorld, 0); up.setFromMatrixColumn(cam.matrixWorld, 1);
+          const a = i * 2.39996, rr = Math.sqrt((i + 0.5) / NS) * k.dof.ap;
+          cam.position.addScaledVector(right, Math.cos(a) * rr).addScaledVector(up, Math.sin(a) * rr); cam.lookAt(k.dof.focus);
+        }
+        r.setRenderTarget(rtS); r.clear(); r.render(scene, cam);
+        accM.uniforms.w.value = 1 / NS; r.setRenderTarget(rtA); r.render(accS, oc);
+      }
+      r.setRenderTarget(null); r.clear(); r.render(outS, oc); r.autoClear = ac;
+      upd(t);                                       // leave the world at t for overlay projection
+    });
+    // rigged pill figure
+    k.fig = (parent, col, x, y, z, s = 1, hair = '#2b1d16', o2 = {}) => {
+      const P = new T3.Group(); P.position.set(x, y, z); P.scale.setScalar(s); parent.add(P);
+      const B = new T3.Group(); P.add(B);
+      const mat = M.std(col, { roughness: 0.62 });
+      mesh(new T3.CapsuleGeometry(0.2, 0.55, 8, 18), mat, B, [0, 0.55, 0]);
+      if (o2.belt) mesh(new T3.CylinderGeometry(0.205, 0.205, 0.07, 20), M.std(o2.belt), B, [0, 0.42, 0]);
+      const H = new T3.Group(); H.position.set(0, 0.98, 0); B.add(H);
+      mesh(new T3.SphereGeometry(0.18, 24, 16), M.std('#e8b98f', { roughness: 0.7 }), H, [0, 0.15, 0]);
+      mesh(new T3.SphereGeometry(0.186, 24, 16, 0, Math.PI * 2, 0, 1.35), M.std(hair, { roughness: 0.8 }), H, [0, 0.17, -0.012]);
+      if (o2.cap) { mesh(new T3.SphereGeometry(0.19, 20, 12, 0, Math.PI * 2, 0, 1.2), M.std(o2.cap, { roughness: 0.6 }), H, [0, 0.2, 0]); mesh(new T3.CylinderGeometry(0.15, 0.15, 0.02, 20, 1, false, -Math.PI / 2, Math.PI), M.std(o2.cap), H, [0, 0.21, 0.1]); }
+      [-0.065, 0.065].forEach((ex) => mesh(new T3.SphereGeometry(0.022, 8, 6), M.std('#1a1a1a', { roughness: 0.3 }), H, [ex, 0.17, 0.162]));
+      const arm = (sx) => { const A = new T3.Group(); A.position.set(sx * 0.215, 0.8, 0); B.add(A); mesh(new T3.CapsuleGeometry(0.058, 0.3, 6, 10), mat, A, [0, -0.18, 0]); mesh(new T3.SphereGeometry(0.06, 10, 8), M.std('#e8b98f', { roughness: 0.7 }), A, [0, -0.37, 0]); return A; };
+      const AL = arm(-1), AR = arm(1);
+      const hand = new T3.Group(); hand.position.set(0, -0.38, 0.03); AR.add(hand);
+      P.userData = { B, H, AL, AR, hand };
+      return P;
+    };
+    // drive a rigged figure along path(t) -> Vector3 (pure function of t): walk cycle, lean into acceleration,
+    // bob + squash/stretch at foot contact, offset arm swing, head follow-through; o.face sets the yaw when standing
+    k.drive = (P, t, path, o2 = {}) => {
+      const { B, H, AL, AR } = P.userData, dt = 0.05;
+      const p0 = path(t - dt), p1 = path(t), p2 = path(t + dt);
+      const vx = (p2.x - p0.x) / (2 * dt), vz = (p2.z - p0.z) / (2 * dt), sp = Math.hypot(vx, vz);
+      const ac = sp > 1e-3 ? (((p2.x - 2 * p1.x + p0.x) * vx + (p2.z - 2 * p1.z + p0.z) * vz) / (dt * dt * sp)) : 0;
+      P.position.copy(p1);
+      const kk = clamp(sp / 0.9), ph = (o2.phase || 0) + t * (o2.cad || 10);
+      P.rotation.y = sp > 0.15 ? Math.atan2(vx, vz) : (o2.face !== undefined ? o2.face : P.rotation.y);
+      const step = Math.abs(Math.sin(ph)), sq = (1 - step) * kk;
+      B.position.y = step * 0.08 * kk + (o2.lift || 0);
+      B.rotation.x = 0.16 * kk + clamp(ac * 0.035, -0.22, 0.22) + (o2.lean || 0);
+      B.rotation.z = Math.sin(ph) * 0.05 * kk + (o2.tilt || 0);
+      const sy = 1 - 0.07 * sq + (o2.squash || 0), sxz = 1 / Math.sqrt(Math.max(0.5, sy));
+      B.scale.set(sxz, sy, sxz);
+      AL.rotation.x = o2.armL !== undefined ? o2.armL : Math.sin(ph) * 0.75 * kk;
+      AR.rotation.x = o2.armR !== undefined ? o2.armR : -Math.sin(ph) * 0.75 * kk;
+      AL.rotation.z = -0.08 - (o2.armLz || 0); AR.rotation.z = 0.08 + (o2.armRz || 0);
+      H.rotation.x = -B.rotation.x * 0.55 + Math.sin(ph - 0.7) * 0.06 * kk + (o2.nod || 0);   // head lags the body
+      H.rotation.y = o2.look || 0;
+    };
+    // handheld camera micro-motion + target lag (offset), applied after the track pose
+    k.shoot = (c, t, hh = 1) => {
+      const n1 = MC.noise(t * 0.9) * 0.035 * hh, n2 = MC.noise(t * 0.7 + 3) * 0.03 * hh, n3 = MC.noise(t * 0.8 + 7) * 0.02 * hh;
+      cam.position.set(c.tx + Math.sin(c.a) * c.r + n1, c.h + n2, c.tz + Math.cos(c.a) * c.r + n3);
+      cam.lookAt(c.tx + n2 * 0.5, c.ty + n1 * 0.4, c.tz);
+      cam.rotation.z += MC.noise(t * 0.5 + 11) * 0.004 * hh + (c.roll || 0);
+    };
+    // DOM entrance with anticipation + motion blur (blur while moving, crisp on landing)
+    k.popIn = (e, t, o2 = {}) => {
+      tl.set(e, { autoAlpha: 0 }, 0);
+      tl.fromTo(e, { autoAlpha: 0, y: o2.y ?? 70, scale: o2.s0 ?? 0.7, filter: 'blur(14px)' }, { autoAlpha: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: o2.d || 0.42, ease: 'back.out(2.2)', immediateRender: false }, t);
+    };
+    k.popOut = (e, t, o2 = {}) => {
+      tl.to(e, { y: o2.wind ?? 10, scale: 1.04, duration: 0.1, ease: 'power1.out' }, t - 0.1);           // anticipation
+      tl.to(e, { autoAlpha: 0, y: o2.y ?? -90, scale: 0.85, filter: 'blur(12px)', duration: 0.26, ease: 'power3.in' }, t);
+    };
+    return Object.assign(k, { MC, antMove });
+  }
+
+  // ================= X52 (TDX): water drips through the ceiling → camera cranes up: burst pipe upstairs → tenant writes → Tenance KI answers →
+  // upstairs neighbour's phone buzzes, he jumps up and runs to the main valve → valve spins shut, spray dies, last drip falls → plumber arrives, new pipe → damage stopped =================
+  function X52() {
+    const de = lang === 'de';
+    const S = de ? { chip: '🕙 22:14 · Whg 1B', m1: 'Es tropft von der Decke! 💧', m2: 'Bin dran! Ich sage oben Bescheid und schicke einen Installateur ✓', who: 'Mieterin · Whg 1B', ttl: 'Wasserschaden · Whg 1B', l1: '📲 Nachbar oben informiert', l2: '🔧 Haupthahn zu', l3: '🧰 Installateur · 23:15', valve: 'Haupthahn', time: '🕚 23:15', ok: '✓ Schaden gestoppt', end: 'Schaden *gestoppt*.' }
+      : { chip: '🕙 10:14 pm · Apt 1B', m1: 'Water is dripping from my ceiling! 💧', m2: "On it! I'm alerting upstairs and sending a plumber ✓", who: 'Tenant · Apt 1B', ttl: 'Water leak · Apt 1B', l1: '📲 Upstairs neighbor alerted', l2: '🔧 Main valve off', l3: '🧰 Plumber · 11:15 pm', valve: 'Main valve', time: '🕚 11:15 pm', ok: '✓ Damage stopped', end: 'Damage *stopped*.' };
+    const K = {};
+    K.drip = W(['tropft', 'dripping']).start; K.oben = W(['oben', 'upstairs']).start;
+    K.write = W(['schreibt', 'writes']).start;
+    const it = W(['Tenance']); K.turn = it.start; K.ans = W(['antwortet', 'answers'], it.i).start;
+    K.nb = W(['Nachbar', 'neighbor'], it.i).start; K.hahn = W(['Haupthahn', 'main'], it.i).start; K.inst = W(['Installateur', 'plumber'], it.i).start;
+    K.stop = W(['Schaden', 'Damage'], it.i).start; K.cta = W(['Jetzt', 'Join'], it.i).start;
+    const k = TDX({ sky: 'night', envTop: '#8fa3d6', envBot: '#141b2c', envInt: 0.5, fov: 32 });
+    const { scene, MC, ov } = k;
+    const hemi = new T3.HemisphereLight('#8fa7e6', '#1d2232', 0.45); scene.add(hemi);
+    const moon = new T3.DirectionalLight('#b9c8ff', 0.7); moon.position.set(-6, 12, 8); moon.castShadow = true; moon.shadow.mapSize.set(2048, 2048);
+    Object.assign(moon.shadow.camera, { left: -10, right: 10, top: 10, bottom: -10, near: 1, far: 40 }); moon.shadow.radius = 4; moon.shadow.bias = -0.0005; scene.add(moon);
+    const D = new T3.Group(); scene.add(D);
+    // wet street, city backdrop
+    mesh(new T3.PlaneGeometry(60, 40), M.std('#151b28', { roughness: 0.22, metalness: 0.35 }), D, [0, 0, -4], [-Math.PI / 2, 0, 0]);
+    const city = new T3.Group(); D.add(city);
+    const winM = new T3.MeshBasicMaterial({ color: '#ffd59a' }), winM2 = new T3.MeshBasicMaterial({ color: '#9fc4ff' });
+    for (let i = 0; i < 16; i++) {
+      const w = 1.4 + MC.rnd(i, 1) * 1.8, h = 3 + MC.rnd(i, 2) * 8, x = -16 + i * 2.2 + MC.rnd(i, 3) * 0.6, z = -13 - MC.rnd(i, 4) * 5;
+      mesh(new T3.BoxGeometry(w, h, 1.5), M.std('#1b2236', { roughness: 0.9 }), city, [x, h / 2, z]);
+      for (let j = 0; j < 7; j++) { if (MC.rnd(i * 7 + j, 5) < 0.45) continue; mesh(new T3.PlaneGeometry(0.22, 0.3), MC.rnd(i, j) < 0.7 ? winM : winM2, city, [x - w / 2 + 0.3 + MC.rnd(i * 9 + j, 6) * (w - 0.6), 0.6 + MC.rnd(i * 5 + j, 7) * (h - 1.2), z + 0.76]); }
+    }
+    // ---- the building section (front wall removed) ----
+    const B = new T3.Group(); B.position.set(0, 0.12, -0.8); D.add(B);
+    const facade = M.std('#c9a98c', { roughness: 0.9 }), trim = M.std('#e8dccb', { roughness: 0.85 });
+    mesh(rbox(6.6, 0.24, 3.8, 0.06), M.std('#2a3142', { roughness: 0.8 }), B, [0, -0.12, 0]);
+    mesh(new T3.BoxGeometry(6.3, 4.6, 0.16), facade, B, [0, 2.3, -1.66]);
+    [-3.08, 3.08].forEach((x) => mesh(new T3.BoxGeometry(0.16, 4.6, 3.4), facade, B, [x, 2.3, 0]));
+    mesh(new T3.BoxGeometry(6.3, 0.22, 3.42), trim, B, [0, 2.2, 0]);
+    mesh(new T3.BoxGeometry(6.4, 0.22, 3.5), trim, B, [0, 4.5, 0]);
+    mesh(new T3.BoxGeometry(6.0, 0.03, 3.2), M.std('#c8935f', { roughness: 0.6 }), B, [0, 0.015, 0]);
+    mesh(new T3.BoxGeometry(6.0, 0.03, 3.2), M.std('#b07f55', { roughness: 0.6 }), B, [0, 2.325, 0]);
+    mesh(new T3.PlaneGeometry(6.0, 2.08), M.std('#efe3d0', { roughness: 0.95 }), B, [0, 1.06, -1.57]);
+    mesh(new T3.PlaneGeometry(6.0, 2.06), M.std('#dfe8e2', { roughness: 0.95 }), B, [0, 3.37, -1.57]);
+    const nightWin = (x, y) => { mesh(new T3.BoxGeometry(1.1, 0.8, 0.05), M.std('#eef1f5'), B, [x, y, -1.55]); mesh(new T3.PlaneGeometry(0.96, 0.66), new T3.MeshBasicMaterial({ color: '#16233f' }), B, [x, y, -1.52]); };
+    nightWin(-1.7, 1.25); nightWin(-1.7, 3.55);
+    // lower flat: sofa, lamp, rug, tv
+    mesh(rbox(1.5, 0.42, 0.7, 0.1), M.std('#2f5a44', { roughness: 0.8 }), B, [-1.95, 0.27, -0.95]);
+    mesh(rbox(1.5, 0.5, 0.2, 0.08), M.std('#2f5a44', { roughness: 0.8 }), B, [-1.95, 0.55, -1.25]);
+    mesh(new T3.CircleGeometry(1.1, 40), M.std('#d9b48a', { roughness: 0.95 }), B, [0.1, 0.035, 0.1], [-Math.PI / 2, 0, 0]);
+    mesh(new T3.CylinderGeometry(0.02, 0.03, 1.5, 8), M.std('#2b313c', { metalness: 0.6 }), B, [-2.75, 0.75, -1.25]);
+    mesh(new T3.ConeGeometry(0.2, 0.25, 20, 1, true), M.std('#f3e2c2', { side: T3.DoubleSide, emissive: new T3.Color('#ffcf8a'), emissiveIntensity: 0.6 }), B, [-2.75, 1.55, -1.25]);
+    const lampL = new T3.PointLight('#ffc27a', 2.4, 6); lampL.position.set(-2.4, 1.6, -0.8); B.add(lampL);
+    mesh(rbox(1.2, 0.5, 0.45, 0.04), M.std('#6b4f3c', { roughness: 0.7 }), B, [2.15, 0.25, -1.3]);
+    const tvM = new T3.MeshBasicMaterial({ color: '#6fa8ff' }); mesh(new T3.BoxGeometry(1.0, 0.58, 0.04), tvM, B, [2.15, 0.85, -1.36]);
+    // bucket, ceiling stain, drips, splash crowns, floor puddle
+    const DX = 0.6, DZ = -0.25, WY0 = 0.12, WY1 = 0.3;
+    const bucket = new T3.Group(); bucket.position.set(DX, 0.03, DZ); B.add(bucket);
+    mesh(new T3.CylinderGeometry(0.25, 0.19, 0.42, 28, 1, true), M.std('#8d99a8', { metalness: 0.7, roughness: 0.3, side: T3.DoubleSide }), bucket, [0, 0.21, 0]);
+    mesh(new T3.TorusGeometry(0.25, 0.012, 8, 32), M.std('#aab4c0', { metalness: 0.8, roughness: 0.25 }), bucket, [0, 0.42, 0], [Math.PI / 2, 0, 0]);
+    const waterM = new T3.MeshStandardMaterial({ color: '#5d8fc9', roughness: 0.08, metalness: 0.1, transparent: true, opacity: 0.85 });
+    const water = mesh(new T3.CircleGeometry(0.21, 28), waterM, bucket, [0, 0.12, 0], [-Math.PI / 2, 0, 0]);
+    const stainM = new T3.MeshStandardMaterial({ color: '#7a5a3a', roughness: 0.9, transparent: true, opacity: 0.85, depthWrite: false });
+    const stain = mesh(new T3.CircleGeometry(1, 48), stainM, B, [DX, 2.087, DZ], [Math.PI / 2, 0, 0]);
+    const stainRing = mesh(new T3.RingGeometry(0.92, 1, 48), new T3.MeshStandardMaterial({ color: '#4e3820', roughness: 0.9, transparent: true, opacity: 0.8, depthWrite: false }), B, [DX, 2.086, DZ], [Math.PI / 2, 0, 0]);
+    const puddleM = new T3.MeshStandardMaterial({ color: '#7fa9d8', roughness: 0.05, metalness: 0.2, transparent: true, opacity: 0.55, depthWrite: false });
+    const puddle = mesh(new T3.CircleGeometry(1, 40), puddleM, B, [DX + 0.08, 0.034, DZ + 0.05], [-Math.PI / 2, 0, 0]);
+    const dropM = new T3.MeshStandardMaterial({ color: '#cfe6ff', roughness: 0.02, metalness: 0.1, transparent: true, opacity: 0.9 });
+    const drops = [0, 1, 2, 3].map(() => mesh(new T3.SphereGeometry(0.045, 14, 10), dropM, B, [DX, 2, DZ]));
+    const crowns = [0, 1, 2, 3].map(() => mesh(new T3.TorusGeometry(1, 0.08, 6, 24), new T3.MeshStandardMaterial({ color: '#d8ecff', roughness: 0.05, transparent: true, opacity: 0.8 }), B, [DX, 0.3, DZ], [Math.PI / 2, 0, 0]));
+    const splN = 24, spl = new T3.InstancedMesh(new T3.SphereGeometry(0.018, 6, 5), dropM, splN); B.add(spl);
+    // drip schedule: drops form at the stain, fall, splash; the last one falls right after the valve closes
+    const PER = 0.48, TF = Math.sqrt(2 * (2.05 - 0.4) / 9.8), FORM = 0.28;
+    const dripEnd = K.hahn + 0.55, firstHit = K.drip + 0.15;
+    const spawn = (n) => firstHit - TF - FORM + n * PER;            // n = 0,1,2...
+    const nMax = Math.floor((dripEnd - spawn(0)) / PER);
+    // ---- upper flat (the neighbour's kitchen): counter, sink, pipe under the sink, main valve, sofa + TV ----
+    const UY = 2.34;
+    const ctr = new T3.Group(); ctr.position.set(0.55, UY, -1.22); B.add(ctr);
+    mesh(new T3.BoxGeometry(2.3, 0.84, 0.62), M.std('#e9e2d6', { roughness: 0.7 }), ctr, [0, 0.42, -0.02]);
+    mesh(new T3.BoxGeometry(2.4, 0.06, 0.7), M.std('#3a3f48', { roughness: 0.35 }), ctr, [0, 0.87, 0]);
+    mesh(new T3.BoxGeometry(0.7, 0.62, 0.05), M.std('#1e2228'), ctr, [0.05, 0.46, 0.3]);       // dark open cabinet (front cut away)
+    mesh(new T3.BoxGeometry(0.56, 0.08, 0.4), M.std('#c7ccd3', { metalness: 0.7, roughness: 0.2 }), ctr, [0.05, 0.86, 0.02]);
+    mesh(new T3.CylinderGeometry(0.02, 0.02, 0.36, 8), M.std('#c7ccd3', { metalness: 0.8, roughness: 0.2 }), ctr, [0.05, 1.05, -0.2]);
+    const pipeM = M.std('#b8c0c8', { metalness: 0.8, roughness: 0.25 });
+    mesh(new T3.CylinderGeometry(0.035, 0.035, 0.7, 12), pipeM, ctr, [0.05, 0.42, 0.18]);
+    const newPipe = mesh(new T3.CylinderGeometry(0.05, 0.05, 0.14, 16), M.std('#d98c4a', { metalness: 0.9, roughness: 0.25, emissive: new T3.Color('#e09b6b'), emissiveIntensity: 0 }), ctr, [0.05, 0.45, 0.18]);
+    const CRACK = new T3.Vector3(0.6, UY + 0.45, -1.0);                 // B-local spray origin
+    const valve = new T3.Group(); valve.position.set(-0.75, UY + 0.62, -1.47); B.add(valve);
+    mesh(new T3.CylinderGeometry(0.035, 0.035, 1.3, 12), pipeM, B, [-0.75, UY + 0.6, -1.5]);
+    const wheel = new T3.Group(); wheel.position.z = 0.08; valve.add(wheel);
+    mesh(new T3.TorusGeometry(0.12, 0.022, 10, 28), M.std('#d23b30', { roughness: 0.45 }), wheel, [0, 0, 0]);
+    [0, 1, 2].forEach((i) => mesh(new T3.BoxGeometry(0.24, 0.02, 0.02), M.std('#d23b30', { roughness: 0.45 }), wheel, [0, 0, 0], [0, 0, i * Math.PI / 3]));
+    mesh(new T3.CylinderGeometry(0.03, 0.03, 0.06, 12), M.std('#8f2620'), wheel, [0, 0, 0], [Math.PI / 2, 0, 0]);
+    mesh(rbox(1.4, 0.38, 0.7, 0.1), M.std('#8a5c7a', { roughness: 0.8 }), B, [1.8, UY + 0.24, 0.25]);
+    mesh(rbox(0.2, 0.5, 0.7, 0.08), M.std('#8a5c7a', { roughness: 0.8 }), B, [1.15, UY + 0.45, 0.25]);
+    const tv2 = new T3.MeshBasicMaterial({ color: '#8fb8ff' }); mesh(new T3.BoxGeometry(0.04, 0.6, 1.0), tv2, B, [2.98, UY + 1.0, 0.25]);
+    const tvL2 = new T3.PointLight('#8fb8ff', 1.2, 4); tvL2.position.set(2.4, UY + 1.0, 0.25); B.add(tvL2);
+    const ceilL = new T3.PointLight('#ffd7a0', 1.8, 6); ceilL.position.set(0.2, UY + 1.7, -0.2); B.add(ceilL);
+    const upPud = mesh(new T3.CircleGeometry(1, 44), puddleM, B, [0.65, UY + 0.012, -0.55], [-Math.PI / 2, 0, 0]);
+    const sprN = 70, spr = new T3.InstancedMesh(new T3.SphereGeometry(0.02, 6, 5), dropM, sprN); B.add(spr);
+    // rain around the building
+    const rainN = 420, rain = new T3.InstancedMesh(new T3.BoxGeometry(0.01, 0.42, 0.01), new T3.MeshBasicMaterial({ color: '#a9bfe6', transparent: true, opacity: 0.55 }), rainN); D.add(rain);
+    const rainP = []; for (let i = 0; rainP.length < rainN && i < 4000; i++) { const x = (MC.rnd(i, 1) - 0.5) * 22, z = -10 + MC.rnd(i, 2) * 14; if (Math.abs(x) < 3.6 && z > -3.0 && z < 1.5) continue; rainP.push([x, z, MC.rnd(i, 3), 0.8 + MC.rnd(i, 4) * 0.4]); }
+    // ---- people ----
+    const TN = k.fig(B, '#d9734e', -0.35, 0, 0.45, 0.95, '#3a2418'); const phone = (() => { const g = new T3.Group(); g.position.set(0, 0, 0.04); TN.userData.hand.add(g); mesh(rbox(0.13, 0.24, 0.025, 0.02), M.std('#111'), g, [0, 0.06, 0], [Math.PI / 2, 0, 0]); const scr = mesh(new T3.PlaneGeometry(0.11, 0.2), new T3.MeshBasicMaterial({ color: '#9fd0ff' }), g, [0, 0.074, 0], [-Math.PI / 2, 0, 0]); return g; })();
+    const NB = k.fig(B, '#3f6fb5', 1.75, UY + 0.1, 0.25, 0.95, '#1d140f');
+    const nbPh = new T3.Group(); nbPh.position.set(1.25, UY + 0.45, 0.62); B.add(nbPh); mesh(rbox(0.13, 0.24, 0.025, 0.02), M.std('#111'), nbPh, [0, 0, 0], [-Math.PI / 2, 0, 0.3]);
+    const nbScrM = new T3.MeshBasicMaterial({ color: '#0b0f18' }); mesh(new T3.PlaneGeometry(0.11, 0.2), nbScrM, nbPh, [0, 0.016, 0], [-Math.PI / 2, 0, 0.3]);
+    const PL = k.fig(B, '#e0782f', 3.6, UY, 0.6, 0.97, '#2b1d16', { cap: '#1d4734', belt: '#1d4734' });
+    const tool = new T3.Group(); PL.userData.hand.add(tool); mesh(rbox(0.32, 0.18, 0.16, 0.03), M.std('#c0392b', { roughness: 0.4 }), tool, [0, -0.08, 0.05]);
+    // neighbour path: sitting on the sofa → jump up (anticipation crouch) → run to the valve → turn it → step aside
+    const vNB = (t) => {
+      const sit = new T3.Vector3(1.75, UY + 0.1, 0.25), up0 = new T3.Vector3(1.6, UY, 0.55), at = new T3.Vector3(-0.75, UY, -0.95), aside = new T3.Vector3(-1.45, UY, -0.55);
+      const j = K.nb + 0.35;
+      if (t < j) return sit.clone();
+      const u1 = seg(t, j, 0.25), u2 = E.io(seg(t, j + 0.2, K.hahn - 0.05 - (j + 0.2))), u3 = E.io(seg(t, K.inst - 0.2, 0.8));
+      const p = sit.clone().lerp(up0, E.oc(u1)); p.lerp(at, u2); p.lerp(aside, u3);
+      if (u1 > 0 && u1 < 1) p.y += Math.sin(u1 * Math.PI) * 0.18;           // hop off the sofa
+      return p;
+    };
+    const vPL = (t) => { const a = new T3.Vector3(3.4, UY, 0.75), b = new T3.Vector3(0.95, UY, -0.45); return a.lerp(b, E.io(seg(t, K.inst + 0.05, 1.0))); };
+    // ---- camera (anticipation / overshoot eases on every big move) ----
+    const P = (a, r, h, tx, ty, tz) => () => ({ a, r, h, tx, ty, tz });
+    const A6 = MC.ant(0.6), A9 = MC.ant(0.9);
+    const camT = track([
+      [0, P(0.42, 4.6, 1.15, 0.6, 1.75, -1.05)],
+      [K.drip + 0.55, P(0.3, 4.0, 1.0, 0.6, 1.0, -1.05), A6],
+      [K.oben + 0.75, P(0.16, 7.0, 5.0, 0.55, 3.15, -1.45), A9],
+      [K.write + 0.35, P(-0.14, 6.0, 1.9, -0.15, 1.15, -0.45), A9],
+      [K.turn + 0.35, P(0.0, 12.6, 3.3, 0.2, 2.25, -0.8), A6],
+      [K.nb + 0.25, P(0.22, 7.4, 4.1, 0.95, 3.05, -0.7), A9],
+      [K.hahn - 0.05, P(-0.06, 6.0, 3.6, -0.35, 3.0, -1.2), E.io],
+      [K.hahn + 0.7, P(-0.1, 4.6, 3.35, -0.6, 2.95, -1.55), A6],
+      [K.inst + 0.35, P(0.2, 8.0, 4.0, 0.7, 3.0, -0.85), A9],
+      [K.stop + 0.1, P(-0.18, 15.8, 4.3, 0.2, 2.3, -0.8), A6],
+      [K.cta + 2.5, P(-0.1, 17.0, 4.6, 0.2, 2.3, -0.8), E.lin],
+    ]);
+    const FOC = new T3.Vector3(), dum = new T3.Object3D(), tmp = new T3.Vector3();
+    const cWarm = new T3.Color('#ffd7a0'), tvC = new T3.Color();
+    k.frame((t) => {
+      // rain
+      rainP.forEach(([x, z, ph, sp], i) => { const y = 9 - (((t * 1.4 * sp + ph) % 1) * 9.5); dum.position.set(x, y, z); dum.rotation.set(0, 0, 0.06); dum.scale.setScalar(1); dum.updateMatrix(); rain.setMatrixAt(i, dum.matrix); });
+      rain.instanceMatrix.needsUpdate = true;
+      // drips + splashes
+      let lastHit = -9, hits = 0;
+      drops.forEach((d) => { d.visible = false; });
+      for (let n = 0; n <= nMax; n++) {
+        const s0 = spawn(n), fall = s0 + FORM, hit = fall + TF;
+        if (hit <= t) { hits++; lastHit = hit; }
+        if (t < s0 || t > hit) continue;
+        const d = drops[n % 4]; d.visible = true;
+        if (t < fall) { const g = seg(t, s0, FORM); d.position.set(DX, 2.07 - 0.04 * g, DZ); d.scale.set(0.6 + 0.5 * g, 0.5 + 0.9 * g, 0.6 + 0.5 * g); }
+        else { const a = t - fall, v = 9.8 * a; d.position.set(DX, 2.03 - 0.5 * 9.8 * a * a, DZ); d.scale.set(0.85, 1 + Math.min(1.6, v * 0.25), 0.85); }       // stretch with speed
+      }
+      const wl = WY0 + (WY1 - WY0) * clamp(hits / Math.max(1, nMax));
+      water.position.y = wl; const wob = MC.wob(t, lastHit, 4, 6) * 0.004; water.position.y += wob;
+      crowns.forEach((c, i) => { c.visible = false; });
+      let ci = 0; for (let n = Math.max(0, hits - 2); n < hits; n++) { const hit = spawn(n) + FORM + TF, a = t - hit; if (a > 0.32) continue; const c = crowns[ci++ % 4]; c.visible = true; const u = a / 0.32; c.position.set(DX, 0.03 + wl + 0.02 + u * 0.05, DZ); c.scale.set(0.05 + 0.14 * E.oc(u), 0.05 + 0.14 * E.oc(u), 0.4 * (1 - u)); c.material.opacity = 0.85 * (1 - u); }
+      for (let i = 0; i < splN; i++) {
+        const n = hits - 1 - Math.floor(i / 6), hit = spawn(Math.max(0, n)) + FORM + TF, a = t - hit;
+        if (n < 0 || a < 0 || a > 0.35) { dum.scale.setScalar(0); }
+        else { const ang = (i % 6) / 6 * Math.PI * 2 + n, vh = 0.5 + MC.rnd(i, n) * 0.5, vy = 1.3 + MC.rnd(n, i) * 0.8; dum.position.set(DX + Math.cos(ang) * vh * a, 0.03 + wl + vy * a - 4.9 * a * a, DZ + Math.sin(ang) * vh * a); dum.scale.setScalar(1 - a / 0.35); }
+        dum.updateMatrix(); spl.setMatrixAt(i, dum.matrix);
+      }
+      spl.instanceMatrix.needsUpdate = true;
+      const stR = 0.25 + 0.45 * E.oc(seg(t, -1, K.hahn + 1)) * (1 - 0.12 * E.io(seg(t, K.stop, 0.8)));
+      stain.scale.setScalar(stR); stainRing.scale.setScalar(stR); stainM.opacity = 0.85 * (1 - 0.45 * E.io(seg(t, K.stop, 0.9)));
+      const pr = 0.12 + 0.5 * clamp(hits / Math.max(1, nMax)); puddle.scale.setScalar(pr);
+      // spray from the burst pipe (dies when the valve closes)
+      const flow = 1 - E.io(seg(t, K.hahn + 0.25, 0.6));
+      for (let i = 0; i < sprN; i++) {
+        const life = 0.42, ph = MC.rnd(i, 9), a = ((t / life + ph) % 1) * life, born = t - a;
+        const alive = MC.rnd(i, Math.floor(t / life + ph)) < (born < K.hahn + 0.25 ? 1 : flow);
+        if (!alive) { dum.scale.setScalar(0); }
+        else { const sx = (MC.rnd(i, 1) - 0.5) * 1.6, sy = 0.4 + MC.rnd(i, 2) * 1.6, sz = 1.2 + MC.rnd(i, 3) * 1.4; dum.position.set(CRACK.x + sx * a, CRACK.y + sy * a - 4.9 * a * a, CRACK.z + sz * a); const v = Math.hypot(sx, sy - 9.8 * a, sz); dum.scale.set(0.8, 0.8 + v * 0.18, 0.8); dum.lookAt(B.localToWorld(tmp.set(CRACK.x + sx, CRACK.y + sy - 9.8 * a, CRACK.z + sz))); }
+        dum.updateMatrix(); spr.setMatrixAt(i, dum.matrix);
+      }
+      spr.instanceMatrix.needsUpdate = true;
+      upPud.scale.setScalar(0.5 + 0.75 * E.oc(seg(t, -1, K.hahn + 1.5)));
+      // valve: wind back a little (anticipation), spin shut with overshoot
+      wheel.rotation.z = -antMove(t, K.hahn, 0.9, 0, Math.PI * 3.2, 0.9);
+      // neighbour phone buzz + people
+      const buzz = t > K.nb - 0.05 && t < K.nb + 0.9;
+      nbScrM.color.set(buzz ? '#9fd0ff' : '#0b0f18'); nbPh.position.y = UY + 0.45 + (buzz ? Math.abs(Math.sin(t * 60)) * 0.02 : 0); nbPh.rotation.z = buzz ? Math.sin(t * 70) * 0.08 : 0;
+      const seated = t < K.nb + 0.35;
+      const crouch = seated ? -0.12 * Math.exp(-Math.pow((t - (K.nb + 0.25)) / 0.08, 2)) : 0;           // anticipation squash before the jump
+      k.drive(NB, t, vNB, { face: seated ? Math.PI / 2 : Math.PI, cad: 13, squash: crouch, lean: t > K.hahn - 0.1 && t < K.inst - 0.2 ? 0.35 : 0, armR: t > K.hahn - 0.15 && t < K.inst - 0.25 ? -1.4 + Math.sin(t * 9) * 0.25 : undefined, armL: t > K.hahn - 0.15 && t < K.inst - 0.25 ? -1.3 - Math.sin(t * 9) * 0.25 : undefined, look: seated && t < K.nb ? 0.2 * Math.sin(t * 0.8) : 0 });
+      const phoneUp = MC.spring(t, K.write - 0.65, 2.0, 0.38);
+      k.drive(TN, t, () => new T3.Vector3(-0.35, 0, 0.45), { face: 0.35 + 0.5 * E.io(seg(t, K.drip - 0.3, 0.6)) * (1 - phoneUp), armR: -0.25 - 1.15 * phoneUp, armL: -0.15 * phoneUp, nod: 0.35 * phoneUp - 0.25 * E.io(seg(t, K.drip - 0.2, 0.5)) * (1 - phoneUp), squash: 0.03 * MC.wob(t, K.drip + 0.15, 3, 5) });
+      const plKneel = E.io(seg(t, K.inst + 0.95, 0.35));
+      k.drive(PL, t, vPL, { face: -Math.PI * 0.85, lift: -0.22 * plKneel, lean: 0.55 * plKneel, armR: t > K.inst + 1.1 ? -1.5 + Math.sin(t * 14) * 0.35 : undefined, armL: -0.3 });
+      PL.visible = t > K.inst - 0.1;
+      newPipe.material.emissiveIntensity = 1.6 * E.io(seg(t, K.inst + 1.25, 0.3)) * (1 - 0.6 * E.io(seg(t, K.stop, 0.8)));
+      // lights: TVs flicker, warm interior
+      tvC.setHSL(0.6, 0.6, 0.55 + 0.12 * Math.sin(t * 11) * Math.sin(t * 4.3)); tvM.color.copy(tvC); tv2.color.copy(tvC); tvL2.intensity = 1.0 + 0.4 * Math.sin(t * 11);
+      // camera + depth of field
+      const c = camT(t); k.shoot(c, t, 1);
+      FOC.set(c.tx, c.ty, c.tz); k.dof = { focus: FOC, ap: t < K.oben ? 0.09 : 0.05 };
+    });
+    // ---- overlays ----
+    const chip = ov('tdchip', S.chip); tl.set(chip, { xPercent: -50 }, 0); k.popIn(chip, 0.12, { y: -50 }); k.popOut(chip, K.turn, { y: -60 });
+    const m1 = ov('tdchat in', `<b>${S.who}</b>${S.m1}`), m2 = ov('tdchat out', `<b>Tenance ${de ? 'KI' : 'AI'}</b>${S.m2}`);
+    k.popIn(m1, K.write - 0.3); k.popIn(m2, K.ans + 0.08); k.popOut(m1, K.nb - 0.12); k.popOut(m2, K.nb - 0.06);
+    sfx('send', K.write - 0.25, -13); sfx('pop', K.ans + 0.1, -12);
+    const bx = (y0) => (t) => { const [x, y] = k.proj(B.localToWorld(new T3.Vector3(TN.position.x, 1.35, TN.position.z))); return [clamp(x + 90, 330, 750), y + y0]; };
+    perFrame((t) => { const [x, y] = bx(-560)(t); m1.style.left = x + 'px'; m1.style.top = y + 'px'; m2.style.left = x + 'px'; m2.style.top = (y + 170) + 'px'; });
+    k.burst(K.turn); sfx('impact', K.turn, -13);
+    const pulse = ov('tdpulse', ''); tl.set(pulse, { autoAlpha: 0 }, 0); tl.fromTo(pulse, { autoAlpha: 0.9, scale: 0.2 }, { autoAlpha: 0, scale: 3, duration: 0.8, ease: 'power2.out', immediateRender: false }, K.turn);
+    k.brand(K.turn, 1330);
+    const cd = k.card(S.ttl, [S.l1, S.l2, S.l3], K.nb - 0.15);
+    cd.line(0, K.nb + 0.05); cd.line(1, K.hahn + 0.3); cd.line(2, K.inst + 0.2);
+    k.popOut(cd.c, K.cta - 0.2, { y: -80 });
+    // buzz rings on the neighbour's phone, valve tag, time tag, final tag
+    const rings = [0, 1, 2].map(() => ov('tdring', '')); rings.forEach((g, i) => { tl.set(g, { autoAlpha: 0 }, 0); tl.fromTo(g, { autoAlpha: 0.9, scale: 0.2 }, { autoAlpha: 0, scale: 1.6, duration: 0.6, ease: 'power2.out', immediateRender: false }, K.nb + i * 0.18); });
+    sfx('buzz', K.nb, -12); sfx('thud', K.nb + 0.45, -16); sfx('whoosh', K.oben, -15); sfx('drip', firstHit, -10); sfx('drip', firstHit + PER, -14); sfx('drip', firstHit + 2 * PER, -16);
+    const vt = ov('tdtag warn', '🔴 ' + S.valve); k.popIn(vt, K.hahn - 0.05, { y: 30 }); k.popOut(vt, K.inst, { y: -40 });
+    const tt = ov('tdtag', S.time); k.popIn(tt, K.inst + 0.1, { y: 30 }); k.popOut(tt, K.stop - 0.05, { y: -40 });
+    const okT = ov('tdtag ok', S.ok); k.popIn(okT, K.stop + 0.15, { y: 40 }); sfx('chime', K.stop + 0.15, -12); sfx('kaching', K.hahn + 0.85, -14);
+    perFrame(() => {
+      const [px, py] = k.proj(B.localToWorld(new T3.Vector3(1.25, UY + 0.5, 0.62))); rings.forEach((g) => { g.style.left = px + 'px'; g.style.top = py + 'px'; });
+      const [vx, vy] = k.proj(B.localToWorld(new T3.Vector3(-0.75, UY + 0.95, -1.45))); vt.style.left = clamp(vx, 220, 860) + 'px'; vt.style.top = vy + 'px';
+      const [lx, ly] = k.proj(B.localToWorld(new T3.Vector3(PL.position.x, UY + 1.65, PL.position.z))); tt.style.left = clamp(lx, 220, 860) + 'px'; tt.style.top = ly + 'px';
+      const [ox, oy] = k.proj(B.localToWorld(new T3.Vector3(0.3, 4.75, 0))); okT.style.left = clamp(ox, 260, 820) + 'px'; okT.style.top = oy + 'px';
+    });
+    k.finish(K.cta + 0.3, K.cta + 0.6, [S.end, null]);
+    return { T: END + 0.9, K };
+  }
+
   const GR = {
     X29: [[2, 4, 1, 4, 3, 4, 2, 1, 1, 2, 1, 4, 4], [2, 4, 2, 4, 4, 2, 2, 1, 4, 1, 4, 4, 1]],
     X30: [[4, 2, 4, 4, 4, 2, 4, 3, 1, 1, 1, 4], [4, 2, 4, 4, 1, 2, 4, 4, 2, 1, 1, 1, 4]],
@@ -6348,6 +6687,7 @@
     X49: [[2, 2, 3, 2, 2, 2, 4, 1, 4, 2, 4], [2, 2, 3, 2, 2, 2, 4, 2, 4, 4]],
     X50: [[3, 4, 2, 3, 3, 3, 4, 3, 2, 1, 4], [3, 4, 1, 3, 4, 4, 4, 2, 2, 1, 4]],
     X51: [[1, 3, 4, 3, 3, 1, 4, 4, 4], [1, 2, 3, 3, 3, 4, 4, 2, 3, 3]],
+    X52: [[4, 1, 4, 1, 3, 3, 2, 2, 4, 1, 2, 4], [4, 2, 4, 1, 3, 3, 2, 3, 4, 1, 2, 3]], X53: [[3, 1, 4, 1, 3, 3, 3, 4, 2, 4, 4], [2, 1, 4, 1, 3, 3, 4, 2, 4, 2, 4, 2, 3]], X54: [[4, 1, 3, 3, 3, 2, 2, 3, 1, 3, 4], [4, 1, 4, 2, 3, 3, 2, 3, 4, 4, 1, 3]],
     X28: [[1, 2, 4, 1, 4, 4, 1, 3, 4, 4, 2, 4], [2, 2, 4, 2, 2, 4, 4, 2, 4, 3, 2, 4, 1]],
     X27: [[3, 4, 3, 4, 1, 3, 4, 2, 2, 4], [3, 4, 1, 3, 1, 2, 4, 1, 4, 1, 4, 2, 2, 4]],
     X21: [[2, 4, 2, 1, 4, 1, 3, 2, 1, 4, 4, 2, 1, 1, 1], [3, 4, 1, 4, 1, 3, 2, 1, 4, 2, 2, 3, 2, 3, 4]],
@@ -6380,7 +6720,7 @@
     W2: [[2, 3, 4, 3, 3, 1, 2, 3, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 3, 2, 3], [3, 4, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 2, 3, 3, 2, 2, 2, 2]],
     W3: [[2, 4, 4, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 3, 2], [3, 4, 4, 1, 3, 3, 1, 3, 1, 4, 1, 4, 1, 3, 3, 2, 3, 2]],
   };
-  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, X16, X17, X18, X19, X20, X21, X22, X23, X24, X25, X26, X27, X28, X29, X30, X31, X32, X33, X34, X35, X36, X37, X38, X39, X40, X41, X42, X43, X44, X45, X46, X47, X48, X49, X50, X51 }[C]();
+  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, X16, X17, X18, X19, X20, X21, X22, X23, X24, X25, X26, X27, X28, X29, X30, X31, X32, X33, X34, X35, X36, X37, X38, X39, X40, X41, X42, X43, X44, X45, X46, X47, X48, X49, X50, X51, X52 }[C]();
   captions(GR[C][lang === 'de' ? 0 : 1]);
   stage.appendChild(document.getElementById('cap'));
   stage.appendChild(document.querySelector('.grain'));

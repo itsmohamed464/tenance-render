@@ -1949,3 +1949,6 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
 .tdcard{top:122px}
 .tdsky.dawn{opacity:0;visibility:hidden}
 .tdbub.zz{font-size:58px;padding:8px 18px;background:rgba(250,246,238,.92)}
+/* TDX videos */
+.X52 #cap,.X53 #cap,.X54 #cap{top:1640px}
+.tdring{position:absolute;left:0;top:0;width:160px;height:160px;margin:-80px 0 0 -80px;border-radius:50%;border:6px solid #9fd0ff;box-shadow:0 0 30px rgba(159,208,255,.7);visibility:hidden;pointer-events:none}
