@@ -74,6 +74,7 @@ const MUSIC = {
   X52: { f: 'm3D3.mp3', segs: [{ f: 'm2A3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X53: { f: 'm3E3.mp3', segs: [{ f: 'm2B3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X54: { f: 'm3F3.mp3', segs: [{ f: 'm2C3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
+  X55: { f: 'm4H2.mp3', segs: [{ f: 'm4H1.mp3', src: 0, at: 0, db: 4 }, { src: 0.95, at: 'turn', lead: -0.05 }], db: -15, boost: 0.9 },
   X21: { f: 'm2A3.mp3', segs: [{ f: 'm2A1.mp3', src: 0, at: 0, db: -4 }, { src: 9.1, at: 'turn', lead: -0.05 }], db: -18, boost: 0.8 },
   X12: { f: 'm3D1.mp3', segs: [{ f: 'm3E3.mp3', src: 0.8, at: 0, db: -5 }, { src: 8.9, at: 'turn', lead: -0.05 }], db: -18, boost: 0.8 },
   X11: { f: 'm2B2.mp3', segs: [{ f: 'm2C3.mp3', src: 0, at: 0, db: -3 }, { src: 8.2, at: 'turn', lead: -0.05 }], db: -18, boost: 0.8 },
@@ -208,6 +209,8 @@ const V = {
   'X53-en': { name: 'ailockout27-en', concept: 'X53', lang: 'en', tempo: 1.07, off: 0.15 },
   'X54-de': { name: 'kischimmel27-de', concept: 'X54', lang: 'de', tempo: 1.07, off: 0.15 },
   'X54-en': { name: 'aimold27-en', concept: 'X54', lang: 'en', tempo: 1.07, off: 0.15 },
+  'X55-de': { name: 'kiwarmwasser28-de', concept: 'X55', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X55-en': { name: 'aihotwater28-en', concept: 'X55', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X21-de': { name: 'nachrichten19-de', concept: 'X21', lang: 'de', tempo: 1.0, off: 0.15 },
   'X21-en': { name: 'messages19-en', concept: 'X21', lang: 'en', tempo: 1.0, off: 0.15 },
   'X22-de': { name: 'abnahme20-de', concept: 'X22', lang: 'de', tempo: 1.0, off: 0.15 },
@@ -280,7 +283,7 @@ function mixAudio(v, cues, T, outWav, K) {
     const f = path.join(AUD, `sfx_${c.name}.mp3`);
     args.push('-i', f);
     const g = -1 - SFXPEAK[c.name] + c.db + (SFXTRIM[c.name] || 0);
-    const d = SFXDUR[c.name];
+    const d = c.dur || SFXDUR[c.name];
     fc.push(`[${nIn + i}:a]aformat=sample_rates=48000:channel_layouts=stereo${c.from ? `,atrim=start=${c.from},asetpts=PTS-STARTPTS` : ''}${d ? `,atrim=0:${d},afade=t=out:st=${(d - 0.3).toFixed(2)}:d=0.3` : ''},volume=${g.toFixed(1)}dB,adelay=${Math.max(0, Math.round(c.t * 1000))}:all=1[s${i}]`);
     fxl.push(`[s${i}]`);
   });
