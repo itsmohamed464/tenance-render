@@ -1,0 +1,13 @@
+BENCH X52-en
+A current PR=1 MBN=1: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) | seek+render 5 ms, capture 46 ms
+A current PR=1 MBN=8: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) | seek+render 11 ms, capture 75 ms
+A current PR=2 MBN=8: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) | seek+render 11 ms, capture 251 ms
+B enable-gpu PR=1 MBN=1: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) | seek+render 5 ms, capture 45 ms
+B enable-gpu PR=1 MBN=8: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) | seek+render 10 ms, capture 64 ms
+B enable-gpu PR=2 MBN=8: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) | seek+render 11 ms, capture 252 ms
+C headful PR=1 MBN=1: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) | seek+render 5 ms, capture 91 ms
+C headful PR=1 MBN=8: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) | seek+render 10 ms, capture 103 ms
+C headful PR=2 MBN=8: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) | seek+render 12 ms, capture 291 ms
+D old-headless PR=1 MBN=1: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) | seek+render 4 ms, capture 47 ms
+D old-headless PR=1 MBN=8: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) | seek+render 9 ms, capture 58 ms
+D old-headless PR=2 MBN=8: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) | seek+render 11 ms, capture 248 ms
