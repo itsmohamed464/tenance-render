@@ -305,6 +305,42 @@ function mixAudio(v, cues, T, outWav, K) {
 const SFXPEAK = {};
 for (const f of fs.readdirSync(AUD).filter((x) => x.startsWith('sfx_'))) SFXPEAK[f.slice(4, -4)] = maxVol(path.join(AUD, f));
 
+const GLINFO = () => { const g = document.createElement('canvas').getContext('webgl2'); if (!g) return 'no WebGL2'; const e = g.getExtension('WEBGL_debug_renderer_info'); return e ? g.getParameter(e.UNMASKED_RENDERER_WEBGL) : g.getParameter(g.RENDERER); };
+// BENCH:<id> — times the render path with several Chromium launch configs (prints a table, exits 1 so the Mac worker returns the log)
+if (ids[0] && ids[0].startsWith('BENCH')) {
+  const bid = ids[0].split(':')[1] || 'X52-en', v = V[bid]; v.words = words(v);
+  const base = ['--allow-file-access-from-files', '--force-color-profile=srgb', '--font-render-hinting=none'];
+  const gpu = ['--use-angle=metal', '--ignore-gpu-blocklist', '--enable-gpu-rasterization'];
+  const cfgs = process.platform === 'darwin' ? [
+    ['A current', { channel: 'chromium', args: [...gpu, ...base] }],
+    ['B enable-gpu', { channel: 'chromium', args: ['--enable-gpu', '--use-gl=angle', ...gpu, '--enable-zero-copy', ...base] }],
+    ['C headful', { headless: false, args: ['--enable-gpu', '--use-gl=angle', ...gpu, ...base] }],
+    ['D old-headless', { args: [...gpu, ...base] }],
+  ] : [['L swiftshader', { executablePath: '/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell', args: ['--no-sandbox', '--disable-gpu', '--enable-unsafe-swiftshader', ...base] }]];
+  const out = [];
+  for (const [name, lo] of cfgs) {
+    let b;
+    try { b = await chromium.launch(lo); } catch (e) { out.push(`${name}: launch failed ${String(e).slice(0, 80)}`); continue; }
+    for (const [pr, mb] of (process.env.BENCHQUICK ? [[1, 1], [2, 1]] : [[1, 1], [1, 8], [2, 8]])) {
+      try {
+        const page = await b.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: pr });
+        const CFG = { id: bid, concept: v.concept, lang: v.lang, words: v.words };
+        const hp = path.join(D, `bench_${bid}.html`);
+        fs.writeFileSync(hp, `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="st.css"></head><body><div id="stage"></div><script>window.CFG=${JSON.stringify(CFG)};window.MBN=${mb};window.PR=${pr};</script><script type="module">import * as THREE from './three.module.min.js'; window.THREE = THREE; const ld = (s) => new Promise((r, j) => { const e = document.createElement('script'); e.src = s; e.onload = r; e.onerror = () => j(new Error('load ' + s)); document.body.appendChild(e); }); try { await ld('../vid/gsap.min.js'); await ld('rt.js'); await ld('sw.js'); window.__ok = 1; } catch (e) { window.__err = String(e.stack || e); window.__ok = 1; }</script></body></html>`);
+        await page.goto('file://' + hp); await page.waitForFunction(() => window.__ok, null, { timeout: 60000 }); await page.evaluate(() => window.ready && window.ready());
+        const gl = await page.evaluate(GLINFO);
+        const cdp = await page.context().newCDPSession(page);
+        let ts = 0, tc = 0; const n = process.env.BENCHQUICK ? 1 : 10;
+        for (let i = 0; i < n + 2; i++) { const a = Date.now(); await page.evaluate((t) => window.seek(t), 3 + i / 30); const b2 = Date.now(); await cdp.send('Page.captureScreenshot', { format: 'jpeg', quality: 93, optimizeForSpeed: true }); if (i >= 2) { ts += b2 - a; tc += Date.now() - b2; } }
+        out.push(`${name} PR=${pr} MBN=${mb}: ${gl} | seek+render ${(ts / n).toFixed(0)} ms, capture ${(tc / n).toFixed(0)} ms`);
+        await page.close();
+      } catch (e) { out.push(`${name} PR=${pr} MBN=${mb}: error ${String(e).slice(0, 100)}`); }
+    }
+    await b.close();
+  }
+  console.log('BENCH ' + bid + '\n' + out.join('\n'));
+  process.exit(1);
+}
 // macOS (render kit): real GPU via Metal in new-headless Chromium; Linux cloud container: no GPU, SwiftShader is faster than the GPU path
 const MAC = process.platform === 'darwin';
 const BASEARGS = ['--allow-file-access-from-files', '--force-color-profile=srgb', '--font-render-hinting=none'];
@@ -322,10 +358,11 @@ for (const id of ids) {
   v.words = words(v);
   const t0 = Date.now();
   const CFG = { id, concept: v.concept, lang: v.lang, words: v.words };
-  const html = `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="st.css"></head><body><div id="stage"></div><script>window.CFG=${JSON.stringify(CFG)};window.MBN=${+(process.env.MBN||0)};</script>${/^[WX]/.test(v.concept) ? `<script type="module">import * as THREE from './three.module.min.js'; window.THREE = THREE; const ld = (s) => new Promise((r, j) => { const e = document.createElement('script'); e.src = s; e.onload = r; e.onerror = () => j(new Error('load ' + s)); document.body.appendChild(e); }); try { await ld('../vid/gsap.min.js'); await ld('rt.js'); await ld('sw.js'); window.__ok = 1; } catch (e) { window.__err = String(e.stack || e); window.__ok = 1; }</script>` : '<script src="../vid/gsap.min.js"></script><script src="rt.js"></script><script src="sc.js"></script>'}</body></html>`;
+  const MB = +(process.env.MBN || v.mb || 0), PR = +(process.env.PR || v.pr || 1);
+  const html = `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="st.css"></head><body><div id="stage"></div><script>window.CFG=${JSON.stringify(CFG)};window.MBN=${MB};window.PR=${PR};</script>${/^[WX]/.test(v.concept) ? `<script type="module">import * as THREE from './three.module.min.js'; window.THREE = THREE; const ld = (s) => new Promise((r, j) => { const e = document.createElement('script'); e.src = s; e.onload = r; e.onerror = () => j(new Error('load ' + s)); document.body.appendChild(e); }); try { await ld('../vid/gsap.min.js'); await ld('rt.js'); await ld('sw.js'); window.__ok = 1; } catch (e) { window.__err = String(e.stack || e); window.__ok = 1; }</script>` : '<script src="../vid/gsap.min.js"></script><script src="rt.js"></script><script src="sc.js"></script>'}</body></html>`;
   const hp = path.join(D, `${id}.html`);
   fs.writeFileSync(hp, html);
-  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 } });
+  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: PR });
   const errs = [];
   page.on('pageerror', (e) => errs.push(String(e)));
   page.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); });
@@ -334,6 +371,7 @@ for (const id of ids) {
   await page.evaluate(() => window.ready && window.ready());
   if (errs.length) { console.error(id, 'page errors:', errs.join('\n')); process.exitCode = 1; await page.close(); continue; }
   const T = await page.evaluate(() => window.T);
+  console.log(id, 'WebGL:', await page.evaluate(GLINFO), `MBN=${MB || 'default'} PR=${PR} FPS=${FPS}`);
   const cues = await page.evaluate(() => window.CUES);
   const K = await page.evaluate(() => window.K);
   if (opt.preview) {
@@ -357,19 +395,24 @@ for (const id of ids) {
   const N = Math.round(T * FPS);
   const cdp = await page.context().newCDPSession(page);
   if (!(opt['audio-only'] && fs.existsSync(silent))) {
-  const ff = spawn(FF, ['-y', '-hide_banner', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-', '-c:v', 'libx264', '-preset', 'slow', '-crf', String(opt.crf || 20), '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-r', String(FPS), '-movflags', '+faststart', silent], { stdio: ['pipe', 'ignore', 'inherit'] });
+  const ff = spawn(FF, ['-y', '-hide_banner', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-', ...(PR > 1 ? ['-vf', 'scale=1080:1920:flags=lanczos'] : []), '-c:v', 'libx264', '-preset', 'slow', '-crf', String(opt.crf || v.crf || 20), '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-r', String(FPS), '-movflags', '+faststart', silent], { stdio: ['pipe', 'ignore', 'inherit'] });
   const done = once(ff, 'close');
   const sheetT = [0.3, 1.5, 3, 4.5, 6, 7.5, 9, 10.5, T - 0.9, T - 0.1].filter((t) => t < T);
   const sheetF = sheetT.map((t) => Math.round(t * FPS));
+  let tSeek = 0, tCap = 0;
   for (let f = 0; f < N; f++) {
+    const a0 = Date.now();
     await page.evaluate((t) => window.seek(t), f / FPS);
+    const a1 = Date.now();
     const buf = Buffer.from((await cdp.send('Page.captureScreenshot', { format: 'jpeg', quality: 93, optimizeForSpeed: true })).data, 'base64');
+    tSeek += a1 - a0; tCap += Date.now() - a1;
     if (sheetF.includes(f)) { const p = path.join(OUT, `${v.name}.f${f}.jpg`); fs.writeFileSync(p, buf); shots.push(p); }
     if (!ff.stdin.write(buf)) await once(ff.stdin, 'drain');
     if (f % 120 === 0) process.stdout.write(`${id} ${f}/${N}\r`);
   }
   ff.stdin.end();
   await done;
+  console.log(id, `avg per frame: seek+render ${(tSeek / N).toFixed(0)} ms, capture ${(tCap / N).toFixed(0)} ms`);
   }
   await page.close();
   const wav = path.join(OUT, `${v.name}.wav`);
