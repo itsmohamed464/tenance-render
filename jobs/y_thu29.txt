@@ -2,5 +2,3 @@ X58-de
 X58-en
 X59-de
 X59-en
-X60-de
-X60-en
