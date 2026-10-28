@@ -1,0 +1,3 @@
+X57-en WebGL: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) MBN=32 PR=2 FPS=60
+X57-en 0/829X57-en 120/829X57-en 240/829X57-en 360/829X57-en 480/829X57-en 600/829X57-en 720/829X57-en avg per frame: seek+render 90 ms, capture 5618 ms
+X57-en -> aisink28-en.mp4 T=13.82 frames=829 render=4744s inLUFS=-19.80 size=43457861
