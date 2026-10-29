@@ -1,8 +1,3 @@
 X64-de
 X64-en
 X65-de
-X65-en
-X66-de
-X66-en
-X67-de
-X67-en
