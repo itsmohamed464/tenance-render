@@ -1,2 +1,11 @@
 X60-de WebGL: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) MBN=32 PR=2 FPS=60
-X60-de 0/847X60-de 120/847X60-de 240/847
+X60-de 0/847X60-de 120/847X60-de 240/847node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+cdpSession.send: Target page, context or browser has been closed
+    at /Users/mohamed/tenance-render/v2/r2.mjs:425:40 {
+  log: []
+}
+
+Node.js v24.15.0
