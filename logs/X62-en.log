@@ -1,0 +1,7 @@
+X62-en WebGL: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) MBN=32 PR=2 FPS=60
+X62-en 0/1014X62-en 120/1014X62-en 240/1014X62-en 360/1014X62-en 480/1014X62-en 600/1014X62-en 720/1014X62-en 840/1014X62-en 960/1014X62-en avg per frame: seek+render 69 ms, capture 1228 ms
+
+Enter command: <target>|all <time>|-1 <command>[ <argument>]
+
+Parse error, at least 3 arguments were expected, only 1 given in string 'affeinate -i bash worker.sh'
+X62-en -> ainoise30-en.mp4 T=16.90 frames=1014 render=1333s inLUFS=-19.53 size=54861645
