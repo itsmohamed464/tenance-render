@@ -86,6 +86,9 @@ const MUSIC = {
   X65: { f: 'm3D3.mp3', segs: [{ f: 'm2A3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X66: { f: 'm3F3.mp3', segs: [{ f: 'm2C3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X67: { f: 'm4H2.mp3', segs: [{ f: 'm4H1.mp3', src: 0, at: 0, db: 4 }, { src: 0.95, at: 'turn', lead: -0.05 }], db: -15, boost: 0.9 },
+  X68: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
+  X69: { f: 'm3D2.mp3', segs: [{ f: 'm2B3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
+  X70: { f: 'm3F3.mp3', segs: [{ f: 'm2C2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X55: { f: 'm4H2.mp3', segs: [{ f: 'm4H1.mp3', src: 0, at: 0, db: 4 }, { src: 0.95, at: 'turn', lead: -0.05 }], db: -15, boost: 0.9 },
   X21: { f: 'm2A3.mp3', segs: [{ f: 'm2A1.mp3', src: 0, at: 0, db: -4 }, { src: 9.1, at: 'turn', lead: -0.05 }], db: -18, boost: 0.8 },
   X12: { f: 'm3D1.mp3', segs: [{ f: 'm3E3.mp3', src: 0.8, at: 0, db: -5 }, { src: 8.9, at: 'turn', lead: -0.05 }], db: -18, boost: 0.8 },
@@ -247,6 +250,12 @@ const V = {
   'X66-en': { name: 'aiwasher31-en', concept: 'X66', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X67-de': { name: 'kithermostat01-de', concept: 'X67', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X67-en': { name: 'aithermostat01-en', concept: 'X67', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X68-de': { name: 'kidusche02-de', concept: 'X68', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X68-en': { name: 'aishower02-en', concept: 'X68', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X69-de': { name: 'kifenster02-de', concept: 'X69', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X69-en': { name: 'aiwindow02-en', concept: 'X69', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X70-de': { name: 'kikuehlschrank02-de', concept: 'X70', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X70-en': { name: 'aifridge02-en', concept: 'X70', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X21-de': { name: 'nachrichten19-de', concept: 'X21', lang: 'de', tempo: 1.0, off: 0.15 },
   'X21-en': { name: 'messages19-en', concept: 'X21', lang: 'en', tempo: 1.0, off: 0.15 },
   'X22-de': { name: 'abnahme20-de', concept: 'X22', lang: 'de', tempo: 1.0, off: 0.15 },
@@ -388,7 +397,7 @@ if (MAC) {
   const args = ['--use-angle=metal', '--ignore-gpu-blocklist', '--enable-gpu-rasterization', ...BASEARGS];
   try { browser = await chromium.launch({ channel: 'chromium', args }); } catch (e) { console.log('new-headless launch failed, falling back:', String(e).slice(0, 120)); browser = await chromium.launch({ args }); }
 } else {
-  const exe = ['/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell', '/opt/pw-browsers/chromium-1194/chrome-linux/chrome'].find(fs.existsSync);
+  const exe = ['/opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell', '/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell', '/opt/pw-browsers/chromium'].find(fs.existsSync);
   browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox', '--disable-gpu', '--enable-unsafe-swiftshader', ...BASEARGS] });
 }
 for (const id of ids) {

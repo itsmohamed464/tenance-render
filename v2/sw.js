@@ -10245,6 +10245,708 @@
     k.finish(K.cta + 0.3, K.cta + 0.6, S.end);
     return { T: END + 0.9, K };
   }
+  function X68() {
+    const de = lang === 'de';
+    const S = de ? { chip: "🚿 7:05 · Whg 3B", who: "Mieterin · Whg 3B", m1: "Die Dusche läuft nicht ab 😩 Das Wasser steht bis zum Rand", m2: "Haare im Abfluss. Abdeckung ab, mit dem Reinigungsstreifen rausziehen, heiß nachspülen ✓", ttl: "Dusche verstopft · Whg 3B", l1: "🔍 Ursache: Haare im Abfluss", l2: "🪝 Mit Streifen rausziehen", l3: "💧 Wasser läuft wieder ab", err: "Haare im Abfluss", s1: "① Abdeckung ab", s2: "② Haare rausziehen", ok: "✓ Kein Klempner nötig", end: ["*Ohne* Klempner gelöst.", null] }
+      : { chip: "🚿 7:05 am · Apt 3B", who: "Tenant · Apt 3B", m1: "Shower won't drain 😩 The water is up to the edge", m2: "Hair in the drain. Lift the cover, pull it out with a drain strip, rinse hot ✓", ttl: "Clogged shower · Apt 3B", l1: "🔍 Cause: hair in the drain", l2: "🪝 Pull it out with a strip", l3: "💧 Draining again", err: "Hair in the drain", s1: "① Lift the cover", s2: "② Pull the hair out", ok: "✓ No plumber needed", end: ["Fixed *without* a plumber.", null] };
+    const K = {};
+    K.rise = W(["steigt", "rising"]).start; K.write = W(["schreibt", "writes"]).start;
+    const it = W(['Tenance']); K.turn = it.start;
+    K.ans = W(["antwortet", "answers"], it.i).start; K.hair = W(["Haare", "hair"], it.i).start; K.s1 = W(["Abdeckung", "cover"], it.i).start; K.s2 = W(["rausziehen", "pull"], it.i).start; K.rinse = W(["heiß", "hot"], it.i).start; K.drain = W(["läuft", "drains"], it.i).start; K.no = W(["Kein", "No"], it.i).start; K.cta = W(["Jetzt", "Join"], it.i).start;
+    const k = TDX({ sky: 'night', envTop: '#fff3e2', envBot: '#2d2a26', envInt: 0.75, fov: 30, pro: true });
+    const { scene, MC, ov } = k;
+    const SH = (window.PR || 1) >= 2 ? 4096 : 2048;
+    scene.add(new T3.HemisphereLight('#fff3e6', '#3a3430', 0.32));
+    const shadowed = (l, b = 6) => { l.castShadow = true; l.shadow.mapSize.set(SH, SH); Object.assign(l.shadow.camera, { left: -b, right: b, top: b, bottom: -b, near: 0.5, far: 40 }); l.shadow.radius = 3; l.shadow.bias = -0.0004; l.shadow.normalBias = 0.02; };
+    const sun = new T3.DirectionalLight('#ffd6a0', 2.0); sun.position.set(6.5, 5.5, -7.5); sun.target.position.set(1.4, 0, 0); scene.add(sun.target); shadowed(sun); scene.add(sun);
+    const keyL = new T3.DirectionalLight('#fff4ea', 0.7); keyL.position.set(-3.5, 6.5, 6.5); shadowed(keyL); scene.add(keyL);
+    const fill = new T3.DirectionalLight('#d4e2ff', 0.3); fill.position.set(3, 2, 9); scene.add(fill);
+    const D = new T3.Group(); scene.add(D);
+    // ---- canvas textures ----
+    const cvs = (w, h, f) => { const c = document.createElement('canvas'); c.width = w; c.height = h; f(c.getContext('2d'), w, h); const t = new T3.CanvasTexture(c); t.colorSpace = T3.SRGBColorSpace; t.anisotropy = 8; return t; };
+    const tiles = (nx, ny, base, grout, jit) => cvs(512, 512, (x, w, h) => { x.fillStyle = grout; x.fillRect(0, 0, w, h); const tw = w / nx, th = h / ny; for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) { const v = (MC.rnd(i * 31 + j, 3) - 0.5) * jit; const c = new T3.Color(base); c.offsetHSL(0, 0, v); x.fillStyle = '#' + c.getHexString(); x.fillRect(i * tw + 2, j * th + 2, tw - 4, th - 4); x.fillStyle = 'rgba(255,255,255,0.18)'; x.fillRect(i * tw + 3, j * th + 3, tw - 6, 3); } });
+    const wood = cvs(512, 512, (x, w, h) => { for (let i = 0; i < 8; i++) { const c = new T3.Color('#b98a5e'); c.offsetHSL(0, 0, (MC.rnd(i, 7) - 0.5) * 0.08); x.fillStyle = '#' + c.getHexString(); x.fillRect(0, i * 64, w, 64); x.strokeStyle = 'rgba(60,35,20,0.35)'; x.lineWidth = 2; x.strokeRect(-2, i * 64, w + 4, 64); for (let g = 0; g < 9; g++) { x.strokeStyle = 'rgba(90,55,30,0.18)'; x.beginPath(); const y0 = i * 64 + 6 + MC.rnd(i * 9 + g, 2) * 52; x.moveTo(0, y0); x.bezierCurveTo(w * 0.3, y0 + 4, w * 0.6, y0 - 4, w, y0 + 2); x.stroke(); } } });
+    const wallTile = tiles(10, 12, '#9fbdb2', '#7e968d', 0.05), floorTile = tiles(6, 6, '#4f5f66', '#36434a', 0.06);
+    [wallTile, floorTile, wood].forEach((t) => { t.wrapS = t.wrapT = T3.RepeatWrapping; });
+    const cloud = cvs(128, 128, (x) => { for (let i = 0; i < 7; i++) { const cx = 40 + MC.rnd(i, 1) * 48, cy = 40 + MC.rnd(i, 2) * 48, rr = 22 + MC.rnd(i, 3) * 26; const g = x.createRadialGradient(cx, cy, 0, cx, cy, rr); g.addColorStop(0, 'rgba(255,255,255,0.55)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 128, 128); } });
+    const frostT = cvs(512, 512, (x, w, h) => { x.fillStyle = 'rgba(235,245,255,0.16)'; x.fillRect(0, 0, w, h); x.lineCap = 'round'; for (let i = 0; i < 340; i++) { let px = MC.rnd(i, 1) * w, py = MC.rnd(i, 2) * h, an = MC.rnd(i, 3) * 6.28; x.strokeStyle = `rgba(255,255,255,${0.25 + MC.rnd(i, 4) * 0.5})`; x.lineWidth = 0.8 + MC.rnd(i, 5) * 1.6; x.beginPath(); x.moveTo(px, py); for (let s = 0; s < 7; s++) { an += (MC.rnd(i * 7 + s, 6) - 0.5) * 1.1; const L = 6 + MC.rnd(i * 7 + s, 7) * 18; px += Math.cos(an) * L; py += Math.sin(an) * L; x.lineTo(px, py); if (s % 2) { x.moveTo(px, py); x.lineTo(px + Math.cos(an + 1) * L * 0.5, py + Math.sin(an + 1) * L * 0.5); x.moveTo(px, py); } } x.stroke(); } });
+    const fogT = cvs(256, 256, (x, w, h) => { x.fillStyle = 'rgba(232,240,248,0.7)'; x.fillRect(0, 0, w, h); for (let i = 0; i < 600; i++) { x.fillStyle = `rgba(255,255,255,${0.15 + MC.rnd(i, 2) * 0.3})`; x.beginPath(); x.arc(MC.rnd(i, 3) * w, MC.rnd(i, 4) * h, 1 + MC.rnd(i, 1) * 3, 0, 7); x.fill(); } });
+    const grad = (stops, w = 8, h = 256) => cvs(w, h, (x) => { const g = x.createLinearGradient(0, 0, 0, h); stops.forEach(([o, c]) => g.addColorStop(o, c)); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+    // ---- studio backdrop + base ----
+    const bg = new T3.Mesh(new T3.SphereGeometry(40, 32, 16), new T3.MeshBasicMaterial({ map: grad([[0, '#0d1018'], [0.42, '#1d1c26'], [0.52, '#2b2730'], [1, '#121219']]), side: T3.BackSide, depthWrite: false })); scene.add(bg);
+    mesh(rbox(7.2, 0.32, 3.7, 0.06), M.std('#26262e', { roughness: 0.85 }), D, [0.12, -0.16, -0.15]);
+    // floors
+    const fl = (tex, rep, x0, x1) => { const t = tex.clone(); t.needsUpdate = true; t.repeat.set(...rep); t.wrapS = t.wrapT = T3.RepeatWrapping; return mesh(new T3.PlaneGeometry(x1 - x0, 3.3), M.std('#ffffff', { map: t, roughness: 0.55 }), D, [(x0 + x1) / 2, 0.002, -0.05], [-Math.PI / 2, 0, 0]); };
+    fl(floorTile, [3, 3], -3.25, 0); const wf = fl(wood, [2.5, 3], 0, 3.45); wf.material.roughness = 0.62;
+    // walls (cutaway: back + left + partition + right), tiles in the bathroom
+    const wallM = M.std('#efe3d0', { roughness: 0.92 }), trimM = M.std('#f7f3ec', { roughness: 0.6 });
+    const box = (w, h, d, mat, pos) => mesh(new T3.BoxGeometry(w, h, d), mat, D, pos);
+    box(3.3, 2.65, 0.14, wallM, [-1.6, 1.325, -1.67]);                                                            // bathroom back
+    box(1.7, 2.65, 0.14, wallM, [0.85, 1.325, -1.67]); box(0.85, 2.65, 0.14, wallM, [3.03, 1.325, -1.67]);       // kitchen back (window 1.7..2.6)
+    box(0.9, 1.15, 0.14, wallM, [2.15, 0.575, -1.67]); box(0.9, 0.5, 0.14, wallM, [2.15, 2.4, -1.67]);
+    box(0.14, 2.65, 3.3, wallM, [-3.32, 1.325, -0.05]);                                                            // left
+    box(0.1, 2.65, 0.55, wallM, [0, 1.325, -1.325]);                                                                  // partition
+    box(0.12, 2.65, 2.0, wallM, [3.51, 1.325, -0.65]);                                                             // right
+    [[-1.6, -1.67, 3.4, 0.2], [1.8, -1.67, 3.6, 0.2]].forEach(([x, z, w, d]) => box(w, 0.07, d, trimM, [x, 2.68, z]));
+    box(0.2, 0.07, 3.35, trimM, [-3.32, 2.68, -0.05]); box(0.14, 0.07, 0.59, trimM, [0, 2.68, -1.325]); box(0.16, 0.07, 2.04, trimM, [3.51, 2.68, -0.65]);
+    const tw = (w, h, pos, rot, rep) => { const t = wallTile.clone(); t.needsUpdate = true; t.repeat.set(...rep); return mesh(new T3.PlaneGeometry(w, h), M.std('#ffffff', { map: t, roughness: 0.25, metalness: 0.0 }), D, pos, rot); };
+    tw(3.25, 2.6, [-1.62, 1.3, -1.598], [0, 0, 0], [3.2, 2.6]); tw(3.3, 2.6, [-3.248, 1.3, -0.05], [0, Math.PI / 2, 0], [3.2, 2.6]);
+    box(3.4, 0.09, 0.02, M.std('#e8dccb'), [1.75, 0.045, -1.595]);                                                 // skirting (kitchen)
+    // ---- shower: tray, glass (with frost), chrome head + riser, mixer ----
+    const chrome = M.std('#e8ecf0', { metalness: 1, roughness: 0.12 });
+    mesh(rbox(1.2, 0.09, 1.08, 0.03), M.std('#f8f8f6', { roughness: 0.3 }), D, [-2.66, 0.045, -1.06]);
+    mesh(new T3.CircleGeometry(0.05, 20), chrome, D, [-2.66, 0.092, -1.0], [-Math.PI / 2, 0, 0]);
+    const glassM = new T3.MeshPhysicalMaterial({ color: '#e6f4ff', roughness: 0.04, metalness: 0, transparent: true, opacity: 0.16, depthWrite: false, side: T3.DoubleSide, envMapIntensity: 1.6, clearcoat: 1 });
+    const frostM = () => new T3.ShaderMaterial({ uniforms: { tF: { value: frostT }, uG: { value: 0 }, uM: { value: 0 } }, transparent: true, depthWrite: false, side: T3.DoubleSide,
+      vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: 'uniform sampler2D tF; uniform float uG, uM; varying vec2 vUv; void main(){ vec4 f = texture2D(tF, vUv); float e = min(min(vUv.x, 1.0 - vUv.x), min(vUv.y, 1.0 - vUv.y)) * 2.0; float a = f.a * smoothstep(uG, uG - 0.22, e) * (1.0 - uM); gl_FragColor = vec4(vec3(0.92, 0.97, 1.0) * 1.5, a * 0.95); }' });
+    const panes = [[1.17, 2.0, [-2.03, 1.09, -0.98], [0, Math.PI / 2, 0]]].map(([w, h, pos, rot]) => {
+      mesh(new T3.PlaneGeometry(w, h), glassM, D, pos, rot).castShadow = false;
+      const fm = frostM(); const f = mesh(new T3.PlaneGeometry(w, h), fm, D, pos, rot); f.castShadow = false; f.renderOrder = 2;
+      const g = new T3.Group(); g.position.set(...pos); g.rotation.set(...rot); D.add(g); [[0, h / 2], [0, -h / 2]].forEach(([dx, dy]) => mesh(new T3.BoxGeometry(w, 0.025, 0.025), chrome, g, [dx, dy, 0])); [[-w / 2], [w / 2]].forEach(([dx]) => mesh(new T3.BoxGeometry(0.025, h, 0.025), chrome, g, [dx, 0, 0]));
+      return fm;
+    });
+    mesh(new T3.CylinderGeometry(0.018, 0.018, 1.0, 12), chrome, D, [-2.6, 1.6, -1.575]);                           // riser
+    mesh(new T3.CylinderGeometry(0.016, 0.016, 0.34, 12), chrome, D, [-2.6, 2.08, -1.42], [Math.PI / 2, 0, 0]);       // arm
+    const head = new T3.Group(); head.position.set(-2.6, 2.06, -1.24); head.rotation.x = 0.45; D.add(head);
+    mesh(new T3.CylinderGeometry(0.12, 0.09, 0.035, 28), chrome, head, [0, 0, 0]);
+    mesh(new T3.CircleGeometry(0.105, 28), M.std('#9aa3ad', { metalness: 0.8, roughness: 0.4 }), head, [0, -0.0185, 0], [Math.PI / 2, 0, 0]);
+    mesh(rbox(0.16, 0.08, 0.06, 0.02), chrome, D, [-2.6, 1.1, -1.57]); mesh(new T3.CylinderGeometry(0.012, 0.012, 0.13, 8), chrome, D, [-2.55, 1.14, -1.53], [0, 0, 1.2]);
+    // bath mat, vanity + basin + mirror (fog), wall light, towel hook + towel, plant
+    mesh(rbox(0.62, 0.02, 0.42, 0.01), M.std('#7fb3a6', { roughness: 0.95 }), D, [-2.25, 0.012, -0.12]);
+    mesh(rbox(0.82, 0.74, 0.46, 0.03), M.std('#c9a27a', { roughness: 0.6 }), D, [-1.05, 0.37, -1.35]);
+    mesh(rbox(0.74, 0.07, 0.44, 0.03), M.std('#fbfbf9', { roughness: 0.25 }), D, [-1.05, 0.775, -1.35]);
+    mesh(new T3.CylinderGeometry(0.012, 0.012, 0.16, 10), chrome, D, [-1.05, 0.86, -1.5]); mesh(new T3.CylinderGeometry(0.01, 0.01, 0.1, 8), chrome, D, [-1.05, 0.93, -1.46], [Math.PI / 2, 0, 0]);
+    mesh(new T3.PlaneGeometry(0.7, 0.84), M.std('#c9d2db', { metalness: 1, roughness: 0.06 }), D, [-1.05, 1.58, -1.59]);
+    const mirFog = mesh(new T3.PlaneGeometry(0.7, 0.84), new T3.MeshBasicMaterial({ map: fogT, transparent: true, depthWrite: false, opacity: 0.8 }), D, [-1.05, 1.58, -1.585]); mirFog.castShadow = false;
+    mesh(rbox(0.5, 0.05, 0.05, 0.02), new T3.MeshBasicMaterial({ color: new T3.Color(2.2, 1.9, 1.5) }), D, [-1.05, 2.07, -1.56]);
+    const wl = new T3.PointLight('#ffd7a8', 1.6, 5); wl.position.set(-1.05, 2.0, -1.2); D.add(wl);
+    const showerL = new T3.PointLight('#ffe2c0', 1.2, 3.5); showerL.position.set(-2.5, 2.1, -0.8); D.add(showerL);
+    mesh(new T3.CylinderGeometry(0.015, 0.015, 0.08, 8), chrome, D, [-1.75, 1.62, -1.56], [Math.PI / 2, 0, 0]);
+    const towelM = M.std('#f0b84a', { roughness: 0.95 });
+    const towelH = mesh(rbox(0.38, 0.62, 0.06, 0.03), towelM, D, [-1.75, 1.33, -1.53]);
+    const towelF = mesh(rbox(0.38, 0.62, 0.06, 0.03), towelM, D, [0, 0, 0]); towelF.visible = false;
+    const plant = (x, y, z, s) => { const g = new T3.Group(); g.position.set(x, y, z); g.scale.setScalar(s); D.add(g); mesh(new T3.CylinderGeometry(0.16, 0.12, 0.3, 16), M.std('#c86b3c'), g, [0, 0.15, 0]); [[0, 0.55, 0, 0.26], [0.13, 0.45, 0.06, 0.2], [-0.12, 0.47, -0.05, 0.19]].forEach(([a, b, c, rr]) => mesh(new T3.SphereGeometry(rr, 14, 10), M.std('#3d7a4f', { roughness: 0.8 }), g, [a, b, c])); return g; };
+    plant(-0.38, 0, -1.3, 1.0);
+    // ---- kitchen: window (winter morning outside), counter, kettle, fridge, clock ----
+    const frameM = M.std('#f6f3ee', { roughness: 0.5 });
+    [[2.15, 1.15, 0.92, 0.07], [2.15, 2.15, 0.92, 0.07], [1.7, 1.65, 0.07, 1.06], [2.6, 1.65, 0.07, 1.06], [2.15, 1.65, 0.04, 1.0]].forEach(([x, y, w, h]) => box(w, h, 0.16, frameM, [x, y, -1.67]));
+    box(1.0, 0.05, 0.26, frameM, [2.15, 1.13, -1.56]);
+    const sky = mesh(new T3.PlaneGeometry(9, 5), new T3.MeshBasicMaterial({ map: grad([[0, '#8fb6e0'], [0.55, '#d9d6dc'], [1, '#f6c79a']]) }), D, [2.4, 1.7, -6.2]); sky.castShadow = false;
+    for (let i = 0; i < 7; i++) { const w = 0.8 + MC.rnd(i, 1) * 0.9, h = 0.5 + MC.rnd(i, 2) * 1.0, x = -0.4 + i * 0.85 + MC.rnd(i, 3) * 0.3, z = -3.6 - MC.rnd(i, 4) * 1.6; box(w, h, 0.9, M.std('#8a7f86', { roughness: 0.9 }), [x, 0.4 + h / 2, z]); box(w + 0.06, 0.07, 0.96, M.std('#f4f7fb', { roughness: 0.9 }), [x, 0.4 + h + 0.03, z]); }
+    const sunG = new T3.Sprite(new T3.SpriteMaterial({ map: k.glow, blending: T3.AdditiveBlending, transparent: true, depthWrite: false, color: new T3.Color(1.6, 1.2, 0.8) })); sunG.position.set(4.2, 2.3, -6.0); sunG.scale.setScalar(3.2); D.add(sunG);
+    const shaftT = grad([[0, 'rgba(255,230,190,0.0)'], [0.15, 'rgba(255,230,190,0.55)'], [1, 'rgba(255,230,190,0.0)']], 8, 128);
+    const sdir = new T3.Vector3().subVectors(sun.target.position, sun.position).normalize();
+    [[-0.25, 0.85], [0.18, 0.7], [0.0, 1.0]].forEach(([dx, wv], i) => {
+      const p0 = new T3.Vector3(2.15 + dx, 1.65 + (i - 1) * 0.15, -1.66), L = 1.9 / -sdir.y, mid = p0.clone().addScaledVector(sdir, L / 2);
+      const m = new T3.Mesh(new T3.PlaneGeometry(wv * 0.55, L), new T3.MeshBasicMaterial({ map: shaftT, transparent: true, depthWrite: false, blending: T3.AdditiveBlending, opacity: 0.12, side: T3.DoubleSide }));
+      m.position.copy(mid); m.up.copy(sdir).negate(); m.lookAt(mid.clone().add(new T3.Vector3(0, 0, 1))); D.add(m);
+    });
+    const kettle = new T3.Group(); kettle.position.set(2.63, 0.91, -1.42); D.add(kettle); mesh(new T3.CylinderGeometry(0.085, 0.1, 0.2, 20), M.std('#d23b30', { roughness: 0.35, metalness: 0.2 }), kettle, [0, 0.1, 0]); mesh(new T3.TorusGeometry(0.05, 0.012, 8, 16, Math.PI), M.std('#2b2b2b'), kettle, [0, 0.22, 0]);
+    mesh(new T3.CylinderGeometry(0.04, 0.035, 0.09, 16), M.std('#f4f1ea'), D, [1.95, 0.955, -1.25]);
+    plant(2.05, 1.155, -1.56, 0.45);
+    mesh(rbox(0.64, 1.86, 0.64, 0.05), M.std('#e9edf2', { roughness: 0.3, metalness: 0.15 }), D, [3.1, 0.93, -1.25]); mesh(new T3.BoxGeometry(0.03, 0.5, 0.04), chrome, D, [2.83, 1.25, -0.92]); mesh(new T3.BoxGeometry(0.64, 0.01, 0.01), M.std('#c5ccd4'), D, [3.1, 1.32, -0.93]);
+    const clock = new T3.Group(); clock.position.set(2.95, 2.18, -1.585); D.add(clock);
+    mesh(new T3.CylinderGeometry(0.15, 0.15, 0.03, 32), M.std('#1d4734'), clock, [0, 0, 0], [Math.PI / 2, 0, 0]); mesh(new T3.CircleGeometry(0.13, 32), M.std('#faf6ee'), clock, [0, 0, 0.016]);
+    const hand = (L, wv, c) => { const g = new T3.Group(); g.position.z = 0.02; clock.add(g); mesh(new T3.BoxGeometry(wv, L, 0.005), M.std(c), g, [0, L / 2 - 0.015, 0]); return g; };
+    const hH = hand(0.07, 0.012, '#14261b'), hM = hand(0.105, 0.008, '#14261b'), hS = hand(0.11, 0.004, '#e09b6b');
+    hH.rotation.z = -(7 + 10 / 60) / 12 * Math.PI * 2; hM.rotation.z = -10 / 60 * Math.PI * 2;
+    // ---- X68: shower tray water, drain cover, hair clog, drain strip, hot rinse ----
+    mirFog.visible = false;
+    const DR = new T3.Vector3(-2.66, 0.092, -1.0);
+    const strM = new T3.MeshStandardMaterial({ color: '#dfeefa', transparent: true, opacity: 0.45, roughness: 0.05, emissive: new T3.Color('#ffffff'), emissiveIntensity: 0.25 });
+    const stream = mesh(new T3.CylinderGeometry(0.075, 0.03, 1, 16, 1, true), strM, D, [-2.6, 1.0, -1.12]); stream.castShadow = false;
+    const drops = [...Array(26)].map(() => { const m = mesh(new T3.SphereGeometry(0.009, 6, 4), strM, D, [0, -5, 0]); m.castShadow = false; return m; });
+    const watM = new T3.MeshStandardMaterial({ color: '#b6c6cf', roughness: 0.06, metalness: 0.25, transparent: true, opacity: 0.8 });
+    const wat = mesh(new T3.PlaneGeometry(1.12, 1.0), watM, D, [-2.66, 0.096, -1.06], [-Math.PI / 2, 0, 0]); wat.castShadow = false;
+    const foam = [...Array(16)].map((_, i) => mesh(new T3.CircleGeometry(0.01 + MC.rnd(i, 1) * 0.022, 10), M.std('#ffffff', { roughness: 0.6 }), D, [-3.15 + MC.rnd(i, 2) * 0.95, 0.1, -1.5 + MC.rnd(i, 3) * 0.9], [-Math.PI / 2, 0, 0]));
+    const edgeW = mesh(new T3.PlaneGeometry(1.12, 0.07), watM, D, [-2.66, 0.055, -0.513]); edgeW.castShadow = false;
+    const puddle = mesh(new T3.CircleGeometry(0.42, 32), watM, D, [-2.5, 0.004, -0.28], [-Math.PI / 2, 0, 0]); puddle.castShadow = false;
+    const swirlT = cvs(256, 256, (x, w) => { x.translate(w / 2, w / 2); for (let a = 0; a < 3; a++) { x.rotate(Math.PI * 2 / 3); x.beginPath(); for (let i = 0; i < 60; i++) { const r = 4 + i * 2, an = i * 0.16; x.lineTo(Math.cos(an) * r, Math.sin(an) * r); } x.strokeStyle = 'rgba(255,255,255,0.8)'; x.lineWidth = 6; x.stroke(); } });
+    const swM = new T3.MeshBasicMaterial({ map: swirlT, transparent: true, opacity: 0, blending: T3.AdditiveBlending, depthWrite: false });
+    const swirl = mesh(new T3.PlaneGeometry(0.36, 0.36), swM, D, [DR.x, 0.1, DR.z], [-Math.PI / 2, 0, 0]); swirl.castShadow = false;
+    // drain cover (lifts off), dark hole, hair clump, green drain strip
+    const cover = new T3.Group(); D.add(cover);
+    mesh(new T3.CylinderGeometry(0.066, 0.066, 0.012, 28), chrome, cover, [0, 0.006, 0]);
+    for (let i = 0; i < 5; i++) mesh(new T3.BoxGeometry(0.09, 0.014, 0.008), M.std('#2a2e33'), cover, [0, 0.009, -0.04 + i * 0.02]);
+    mesh(new T3.CircleGeometry(0.052, 24), M.std('#101214'), D, [DR.x, DR.y + 0.002, DR.z], [-Math.PI / 2, 0, 0]);
+    const hairM = M.std('#3b2a1e', { roughness: 0.95 });
+    const hair = new T3.Group(); D.add(hair);
+    [[0, 0, 0, 0.03], [0.02, -0.01, 0.01, 0.025], [-0.02, 0.005, -0.01, 0.024], [0.01, 0.02, -0.015, 0.02], [-0.01, -0.025, 0.012, 0.022]].forEach(([x, y, z, r]) => mesh(new T3.SphereGeometry(r, 10, 8), hairM, hair, [x, y, z]));
+    for (let i = 0; i < 14; i++) mesh(new T3.CylinderGeometry(0.0022, 0.0022, 0.08 + MC.rnd(i, 4) * 0.09, 4), hairM, hair, [(MC.rnd(i, 1) - 0.5) * 0.05, -0.04 - MC.rnd(i, 2) * 0.04, (MC.rnd(i, 3) - 0.5) * 0.05], [MC.rnd(i, 5) - 0.5, 0, MC.rnd(i, 6) - 0.5]);
+    const strip = new T3.Group(); D.add(strip); const stripM = M.std('#3ec46b', { roughness: 0.4 });
+    mesh(new T3.BoxGeometry(0.026, 0.56, 0.004), stripM, strip, [0, 0.28, 0]);
+    for (let i = 0; i < 9; i++) mesh(new T3.BoxGeometry(0.042, 0.006, 0.004), stripM, strip, [0, 0.02 + i * 0.03, 0], [0, 0, i % 2 ? 0.5 : -0.5]);
+    mesh(new T3.TorusGeometry(0.03, 0.006, 6, 16), stripM, strip, [0, 0.59, 0]);
+    const ringM2 = new T3.MeshBasicMaterial({ color: new T3.Color(2.6, 0.9, 0.4), transparent: true, opacity: 0, depthWrite: false, blending: T3.AdditiveBlending });
+    const hiRing = mesh(new T3.TorusGeometry(0.11, 0.005, 6, 40), ringM2, D, [DR.x, DR.y + 0.012, DR.z], [Math.PI / 2, 0, 0]); hiRing.castShadow = false;
+    const steam = [...Array(10)].map(() => { const s = new T3.Sprite(new T3.SpriteMaterial({ map: k.glow, transparent: true, depthWrite: false, opacity: 0, color: new T3.Color(1.1, 1.1, 1.15) })); D.add(s); return s; });
+    // ---- tenant (bathrobe) + phone ----
+    const TN = k.fig(D, '#e8b98f', -2.95, 0, -0.3, 0.95, '#2b1d16');
+    const robeM = M.std('#f3f1ea', { roughness: 0.92 }); mesh(new T3.CylinderGeometry(0.22, 0.25, 0.6, 24, 1, true), robeM, TN.userData.B, [0, 0.46, 0]); mesh(new T3.TorusGeometry(0.205, 0.035, 8, 24), robeM, TN.userData.B, [0, 0.76, 0], [Math.PI / 2, 0, 0]);
+    mesh(new T3.TorusGeometry(0.235, 0.018, 6, 24), M.std('#7fb3a6'), TN.userData.B, [0, 0.4, 0], [Math.PI / 2, 0, 0]);
+    const phone = new T3.Group(); TN.userData.hand.add(phone); mesh(rbox(0.13, 0.24, 0.025, 0.02), M.std('#111'), phone, [0, 0.06, 0.03], [Math.PI / 2, 0, 0]); const scrM = new T3.MeshBasicMaterial({ color: '#9fd0ff' }); mesh(new T3.PlaneGeometry(0.11, 0.2), scrM, phone, [0, 0.074, 0.03], [-Math.PI / 2, 0, 0]);
+    const POS = new T3.Vector3(-2.95, 0, -0.3); const vTN = () => POS.clone();
+    // ---- state ----
+    const lev = (t) => t < K.drain - 0.05 ? 0.2 + 0.8 * E.io(seg(t, 0, K.rise + 0.4)) : 1 - E.ic(seg(t, K.drain - 0.05, 1.1));
+    const showerOn = (t) => t < K.rise + 0.5 || (t > K.rinse - 0.05 && t < K.drain + 0.7);
+    const lift = (t) => antMove(t, K.s1 - 0.05, 0.35, 0, 1, 1.2) * (1 - antMove(t, K.drain + 0.5, 0.3, 0, 1, 1.2));
+    const sIn = (t) => antMove(t, K.s2 - 0.6, 0.3, 0, 1, 1.1), sPull = (t) => antMove(t, K.s2 + 0.05, 0.4, 0, 1, 1.2);
+    // ---- camera ----
+    const P = (a, r, h, tx, ty, tz, fov = 30, roll = 0) => () => ({ a, r, h, tx, ty, tz, fov, roll });
+    const PT = (a, r, h, dy, fov = 30, roll = 0) => (t) => { const p = vTN(t); return { a, r, h: h + p.y, tx: p.x, ty: p.y + dy, tz: p.z, fov, roll }; };
+    const A6 = MC.ant(0.6), A9 = MC.ant(0.9);
+    const camT = track([
+      [0, P(0.35, 2.0, 1.55, -2.62, 0.3, -1.0, 28)],
+      [K.rise - 0.1, P(0.3, 1.45, 0.9, -2.65, 0.12, -0.9, 24), E.io],
+      [K.rise + 0.45, PT(0.55, 2.4, 1.3, 1.0, 22, 0.03), A9],
+      [K.write - 0.3, PT(0.55, 2.5, 1.28, 1.0, 22), E.lin],
+      [K.write + 0.2, PT(0.5, 1.8, 1.42, 1.0, 26), A6],
+      [K.turn + 0.3, P(0.06, 9.6, 2.7, 0.1, 1.15, -0.55), A6],
+      [K.hair - 0.3, P(0.0, 9.2, 2.6, 0.1, 1.15, -0.55), E.lin],
+      [K.hair + 0.15, P(0.25, 1.25, 0.95, -2.66, 0.1, -1.0, 28), A9],
+      [K.s1 + 0.1, P(0.2, 1.1, 0.85, -2.66, 0.12, -1.0, 28), E.io],
+      [K.s2 + 0.1, P(0.3, 1.15, 0.85, -2.66, 0.3, -1.0, 26), A6],
+      [K.rinse + 0.4, P(0.35, 1.7, 1.35, -2.65, 0.4, -1.0, 28), E.io],
+      [K.drain - 0.05, P(0.3, 1.35, 1.05, -2.66, 0.1, -1.0, 26), A6],
+      [K.no + 0.35, P(0.5, 2.8, 1.6, -2.8, 0.95, -0.45), E.io],
+      [K.cta + 2.5, P(0.06, 10.8, 3.0, 0.1, 1.2, -0.55), E.io],
+    ]);
+    const FOC = new T3.Vector3(), tmp = new T3.Vector3();
+    k.frame((t) => {
+      const g = k.grade; g.temp = 0.18 - 0.22 * E.io(seg(t, K.rise, 0.3)) * (1 - E.io(seg(t, K.drain, 0.5))); g.th = 1.6; g.bloom = 0.35; g.sat = 1.04;
+      hS.rotation.z = -((Math.floor(t) + MC.out(2.2)(seg(t % 1, 0, 0.18))) / 60) * Math.PI * 2 - 0.3;
+      // water level in the tray, overflow at the edge, puddle on the floor
+      const L = lev(t), wy = 0.094 + 0.006 * L;
+      wat.position.y = wy; watM.opacity = 0.25 + 0.6 * L; wat.visible = L > 0.02; wat.scale.set(0.35 + 0.65 * Math.min(1, L * 1.6), 0.35 + 0.65 * Math.min(1, L * 1.6), 1);
+      foam.forEach((m, i) => { m.visible = L > 0.3; m.position.y = wy + 0.001; const a0 = MC.rnd(i, 4) * 6.28 + (t > K.drain ? (t - K.drain) * (3 + 6 * (t - K.drain)) : t * 0.1), r0 = (0.08 + MC.rnd(i, 5) * 0.4) * (t > K.drain ? Math.max(0, 1 - (t - K.drain) * 0.8) : 1); m.position.x = DR.x + Math.cos(a0) * r0; m.position.z = DR.z - 0.05 + Math.sin(a0) * r0 * 0.9; });
+      const over = E.io(seg(t, K.rise - 0.2, 0.5)) * (1 - E.io(seg(t, K.drain + 0.2, 0.6)));
+      edgeW.visible = over > 0.02; edgeW.scale.y = over; puddle.visible = over > 0.02; puddle.scale.setScalar(0.3 + 0.7 * E.io(seg(t, K.rise - 0.1, 1.2)));
+      // shower stream + splash drops
+      const on = showerOn(t); stream.visible = on; stream.scale.y = 2.0 - wy; stream.position.y = (2.04 + wy) / 2;
+      drops.forEach((m, i) => { const life = 0.45, a = ((t / life + MC.rnd(i, 1)) % 1); if (!on) { m.position.y = -5; return; } const an = MC.rnd(i, 2) * 6.28, r0 = 0.05 + a * 0.25; m.position.set(-2.6 + Math.cos(an) * r0, wy + 0.02 + Math.sin(a * Math.PI) * 0.18, -1.1 + Math.sin(an) * r0); });
+      steam.forEach((s, i) => { const a = ((t * 0.5 + MC.rnd(i, 1)) % 1), hot = t > K.rinse - 0.05 && t < K.drain + 1.2 ? 1 : 0; s.material.opacity = hot * 0.22 * Math.sin(a * Math.PI); s.position.set(-2.66 + (MC.rnd(i, 2) - 0.5) * 0.7, 0.2 + a * 1.4, -1.05 + (MC.rnd(i, 3) - 0.5) * 0.6); s.scale.setScalar(0.35 + a * 0.6); });
+      swM.opacity = t > K.drain - 0.05 ? 0.7 * Math.min(1, (t - K.drain + 0.05) * 4) * (L > 0.03 ? 1 : 0) : 0; swirl.rotation.z = -(t > K.drain ? (t - K.drain) * 9 : 0); swirl.position.y = wy + 0.002;
+      // cover lifts and lands beside the drain; strip goes in and pulls the hair out
+      const lf = lift(t); cover.position.set(DR.x + 0.2 * lf, DR.y + 0.16 * Math.sin(lf * Math.PI), DR.z + 0.16 * lf); cover.rotation.z = 0.6 * Math.sin(lf * Math.PI);
+      ringM2.opacity = E.io(seg(t, K.hair - 0.05, 0.3)) * (0.6 + 0.4 * Math.sin(t * 10)) * (1 - E.io(seg(t, K.s2 - 0.2, 0.2)));
+      const si = sIn(t), sp = sPull(t), sVis = t > K.s2 - 0.65 && t < K.rinse + 0.15;
+      strip.visible = sVis; strip.position.set(DR.x, DR.y + 0.55 - 0.62 * si + 0.62 * sp, DR.z); strip.rotation.z = 0.05 * Math.sin(t * 7) * sp;
+      if (t < K.s2 + 0.05) { hair.position.set(DR.x, DR.y - 0.005, DR.z); hair.visible = lf > 0.3; hair.rotation.set(0, t * 0.2, 0); }
+      else { hair.visible = t < K.rinse + 0.15; hair.position.set(DR.x + 0.01 * Math.sin(t * 9), strip.position.y - 0.02, DR.z); hair.rotation.z = 0.25 * Math.sin(t * 8); }
+      // tenant: watching the water → shock → phone → kneel at the tray → work → joy
+      const shock = E.io(seg(t, K.rise, 0.08)) * (1 - E.io(seg(t, K.rise + 0.8, 0.3)));
+      const phoneUp = MC.spring(t, K.write - 0.7, 2.2, 0.4) * (1 - E.io(seg(t, K.hair - 0.5, 0.25)));
+      const kneel = 0;
+      const work = kneel * (t > K.s1 - 0.1 && t < K.rinse + 0.5 ? 1 : 0);
+      const joy = MC.spring(t, K.drain + 0.5, 2.4, 0.35);
+      const sq = -0.13 * Math.exp(-Math.pow((t - (K.rise + 0.12)) / 0.07, 2));
+      const face = lerp(lerp(2.75, 0.45, antMove(t, K.rise + 0.02, 0.25, 0, 1, 1.2)), 2.75, E.io(seg(t, K.hair - 0.6, 0.3))) + (t > K.drain + 0.3 ? lerp(0, 0.45 - 2.75, E.io(seg(t, K.drain + 0.3, 0.35))) : 0);
+      k.drive(TN, t, vTN, {
+        face, squash: sq, tilt: t < K.rise ? 0.03 * Math.sin(t * 2) : 0, nod: t < K.rise ? 0.35 : 0.25 * phoneUp - 0.1 * shock + 0.3 * kneel,
+        lift: -0.22 * kneel, lean: 0.45 * kneel - 0.12 * joy,
+        armL: shock > 0.5 ? -2.7 : (joy > 0.02 ? -0.4 - 2.4 * joy : -0.2 - 1.0 * work + 0.15 * work * Math.sin(t * 11)),
+        armR: shock > 0.5 ? -2.7 : (joy > 0.02 ? -0.4 - 2.4 * joy : -0.25 - 1.2 * phoneUp - 1.1 * work - 0.2 * work * Math.sin(t * 11)),
+      });
+      k.face(TN, t, { wide: shock, o: shock * 0.9, smile: joy > 0.1 ? 1 : 0.15 });
+      phone.visible = phoneUp > 0.05; scrM.color.set(phoneUp > 0.5 ? '#9fd0ff' : '#33415c');
+      const c = camT(t); k.shoot(c, t, 0.8);
+      FOC.set(c.tx, c.ty, c.tz); k.dof = { focus: FOC, ap: c.r < 1.6 ? 0.012 : 0.03 };
+    });
+    // ---- overlays ----
+    const chip = ov('tdchip', S.chip); tl.set(chip, { xPercent: -50 }, 0); k.popIn(chip, 0.12, { y: -50 }); k.popOut(chip, K.turn, { y: -60 });
+    const m1 = ov('tdchat in', `<b>${S.who}</b>${S.m1}`), m2 = ov('tdchat out', `<b>Tenance ${de ? 'KI' : 'AI'}</b>${S.m2}`);
+    tl.set([m1, m2], { left: 540 }, 0); tl.set(m1, { top: 260 }, 0); tl.set(m2, { top: 450 }, 0);
+    k.popIn(m1, K.write - 0.12); k.popIn(m2, K.ans + 0.08); k.popOut(m1, K.hair - 0.45); k.popOut(m2, K.hair - 0.39);
+    k.burst(K.turn); sfx('impact', K.turn, -13);
+    const pulseR = ov('tdpulse', ''); tl.set(pulseR, { autoAlpha: 0 }, 0); tl.fromTo(pulseR, { autoAlpha: 0.9, scale: 0.2 }, { autoAlpha: 0, scale: 3, duration: 0.8, ease: 'power2.out', immediateRender: false }, K.turn);
+    k.brand(K.turn, 1330);
+    const cd = k.card(S.ttl, [S.l1, S.l2, S.l3], K.hair - 0.3);
+    cd.line(0, K.hair + 0.2); cd.line(1, K.s2 + 0.1); cd.line(2, K.drain + 0.25);
+    k.popOut(cd.c, K.no - 0.12, { y: -80 });
+    const eT = ov('tdtag warn', '⚠️ ' + S.err); k.popIn(eT, K.hair + 0.25, { y: 30 }); k.popOut(eT, K.s1 - 0.1, { y: -40 });
+    const s1 = ov('tdtag step', S.s1); k.popIn(s1, K.s1 - 0.05, { y: 30 }); k.popOut(s1, K.s2 - 0.15, { y: -40 });
+    const s2 = ov('tdtag step', S.s2); k.popIn(s2, K.s2 - 0.1, { y: 30 }); k.popOut(s2, K.drain - 0.12, { y: -40 });
+    const okT = ov('tdtag ok', S.ok); k.popIn(okT, K.no + 0.05, { y: 40 });
+    perFrame((t) => {
+      const at = (el, v, lo = 240, hi = 840, dy = 0) => { const [x, y] = k.proj(D.localToWorld(tmp.copy(v))); el.style.left = clamp(x, lo, hi) + 'px'; el.style.top = clamp(y + dy, 330, 1450) + 'px'; };
+      at(eT, new T3.Vector3(DR.x, 0.2, DR.z), 240, 840, -140); at(s1, new T3.Vector3(DR.x + 0.2, 0.3, DR.z + 0.15), 240, 840, -120); at(s2, new T3.Vector3(DR.x, 0.75, DR.z), 240, 840, -60); at(okT, new T3.Vector3(-2.95, 2.25, -0.3));
+    });
+    sfx('shower', 0, -14, { dur: K.rise + 0.5 }); sfx('gurgle', K.rise - 0.2, -7); sfx('send', K.write - 0.1, -13); sfx('pop', K.ans + 0.1, -12);
+    sfx('refresh', K.hair, -14); sfx('click', K.s1, -9); sfx('gurgle', K.s1 + 0.2, -15); sfx('plop', K.s2 + 0.25, -5);
+    sfx('shower', K.rinse - 0.05, -15, { dur: K.drain - K.rinse + 0.7 }); sfx('drain', K.drain - 0.08, -4); sfx('kaching', K.no + 0.1, -14);
+    k.finish(K.cta + 0.3, K.cta + 0.6, S.end);
+    return { T: END + 0.9, K };
+  }
+  function X69() {
+    const de = lang === 'de';
+    const S = de ? { chip: "🌫️ 7:20 · Whg 4A", who: "Mieter · Whg 4A", m1: "Jeden Morgen ist das Fenster nass 💧 Es tropft aufs Fensterbrett", m2: "Zu feuchte Luft. 3× täglich 5 Min. weit öffnen, Heizung anlassen ✓", ttl: "Kondenswasser · Whg 4A", l1: "💧 Luftfeuchte 78 %", l2: "🪟 3× täglich Stoßlüften", l3: "🔥 Heizung anlassen", err: "Luftfeuchte 78 %", s1: "① 5 Min. weit öffnen", s2: "② Heizung an lassen", ok: "✓ Scheibe bleibt klar", end: ["Schimmel *verhindert*.", null] }
+      : { chip: "🌫️ 7:20 am · Apt 4A", who: "Tenant · Apt 4A", m1: "The window is wet every morning 💧 It drips onto the sill", m2: "The air is too humid. Open wide 3× a day for 5 min, keep the heating on ✓", ttl: "Condensation · Apt 4A", l1: "💧 Humidity 78 %", l2: "🪟 Air out 3× a day", l3: "🔥 Keep the heating on", err: "Humidity 78 %", s1: "① Open wide for 5 min", s2: "② Keep the heating on", ok: "✓ Glass stays clear", end: ["Mold *prevented*.", null] };
+    const K = {};
+    K.drip = W(["tropft", "drips"]).start; K.write = W(["schreibt", "writes"]).start;
+    const it = W(['Tenance']); K.turn = it.start;
+    K.ans = W(["antwortet", "answers"], it.i).start; K.humid = W(["feuchte", "humid"], it.i).start; K.open = W(["öffnen", "open"], it.i).start; K.heat = W(["Heizung", "heating"], it.i).start; K.clear = W(["klar", "clear"], it.i).start; K.no = W(["spart", "saves"], it.i).start; K.cta = W(["Jetzt", "Join"], it.i).start;
+    const k = TDX({ sky: 'night', envTop: '#fff3e2', envBot: '#2d2a26', envInt: 0.75, fov: 30, pro: true });
+    const { scene, MC, ov } = k;
+    const SH = (window.PR || 1) >= 2 ? 4096 : 2048;
+    scene.add(new T3.HemisphereLight('#fff3e6', '#3a3430', 0.32));
+    const shadowed = (l, b = 6) => { l.castShadow = true; l.shadow.mapSize.set(SH, SH); Object.assign(l.shadow.camera, { left: -b, right: b, top: b, bottom: -b, near: 0.5, far: 40 }); l.shadow.radius = 3; l.shadow.bias = -0.0004; l.shadow.normalBias = 0.02; };
+    const sun = new T3.DirectionalLight('#ffd6a0', 2.0); sun.position.set(6.5, 5.5, -7.5); sun.target.position.set(1.4, 0, 0); scene.add(sun.target); shadowed(sun); scene.add(sun);
+    const keyL = new T3.DirectionalLight('#fff4ea', 0.7); keyL.position.set(-3.5, 6.5, 6.5); shadowed(keyL); scene.add(keyL);
+    const fill = new T3.DirectionalLight('#d4e2ff', 0.3); fill.position.set(3, 2, 9); scene.add(fill);
+    const D = new T3.Group(); scene.add(D);
+    // ---- canvas textures ----
+    const cvs = (w, h, f) => { const c = document.createElement('canvas'); c.width = w; c.height = h; f(c.getContext('2d'), w, h); const t = new T3.CanvasTexture(c); t.colorSpace = T3.SRGBColorSpace; t.anisotropy = 8; return t; };
+    const tiles = (nx, ny, base, grout, jit) => cvs(512, 512, (x, w, h) => { x.fillStyle = grout; x.fillRect(0, 0, w, h); const tw = w / nx, th = h / ny; for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) { const v = (MC.rnd(i * 31 + j, 3) - 0.5) * jit; const c = new T3.Color(base); c.offsetHSL(0, 0, v); x.fillStyle = '#' + c.getHexString(); x.fillRect(i * tw + 2, j * th + 2, tw - 4, th - 4); x.fillStyle = 'rgba(255,255,255,0.18)'; x.fillRect(i * tw + 3, j * th + 3, tw - 6, 3); } });
+    const wood = cvs(512, 512, (x, w, h) => { for (let i = 0; i < 8; i++) { const c = new T3.Color('#b98a5e'); c.offsetHSL(0, 0, (MC.rnd(i, 7) - 0.5) * 0.08); x.fillStyle = '#' + c.getHexString(); x.fillRect(0, i * 64, w, 64); x.strokeStyle = 'rgba(60,35,20,0.35)'; x.lineWidth = 2; x.strokeRect(-2, i * 64, w + 4, 64); for (let g = 0; g < 9; g++) { x.strokeStyle = 'rgba(90,55,30,0.18)'; x.beginPath(); const y0 = i * 64 + 6 + MC.rnd(i * 9 + g, 2) * 52; x.moveTo(0, y0); x.bezierCurveTo(w * 0.3, y0 + 4, w * 0.6, y0 - 4, w, y0 + 2); x.stroke(); } } });
+    const wallTile = tiles(10, 12, '#9fbdb2', '#7e968d', 0.05), floorTile = tiles(6, 6, '#4f5f66', '#36434a', 0.06);
+    [wallTile, floorTile, wood].forEach((t) => { t.wrapS = t.wrapT = T3.RepeatWrapping; });
+    const cloud = cvs(128, 128, (x) => { for (let i = 0; i < 7; i++) { const cx = 40 + MC.rnd(i, 1) * 48, cy = 40 + MC.rnd(i, 2) * 48, rr = 22 + MC.rnd(i, 3) * 26; const g = x.createRadialGradient(cx, cy, 0, cx, cy, rr); g.addColorStop(0, 'rgba(255,255,255,0.55)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 128, 128); } });
+    const frostT = cvs(512, 512, (x, w, h) => { x.fillStyle = 'rgba(235,245,255,0.16)'; x.fillRect(0, 0, w, h); x.lineCap = 'round'; for (let i = 0; i < 340; i++) { let px = MC.rnd(i, 1) * w, py = MC.rnd(i, 2) * h, an = MC.rnd(i, 3) * 6.28; x.strokeStyle = `rgba(255,255,255,${0.25 + MC.rnd(i, 4) * 0.5})`; x.lineWidth = 0.8 + MC.rnd(i, 5) * 1.6; x.beginPath(); x.moveTo(px, py); for (let s = 0; s < 7; s++) { an += (MC.rnd(i * 7 + s, 6) - 0.5) * 1.1; const L = 6 + MC.rnd(i * 7 + s, 7) * 18; px += Math.cos(an) * L; py += Math.sin(an) * L; x.lineTo(px, py); if (s % 2) { x.moveTo(px, py); x.lineTo(px + Math.cos(an + 1) * L * 0.5, py + Math.sin(an + 1) * L * 0.5); x.moveTo(px, py); } } x.stroke(); } });
+    const fogT = cvs(256, 256, (x, w, h) => { x.fillStyle = 'rgba(232,240,248,0.7)'; x.fillRect(0, 0, w, h); for (let i = 0; i < 600; i++) { x.fillStyle = `rgba(255,255,255,${0.15 + MC.rnd(i, 2) * 0.3})`; x.beginPath(); x.arc(MC.rnd(i, 3) * w, MC.rnd(i, 4) * h, 1 + MC.rnd(i, 1) * 3, 0, 7); x.fill(); } });
+    const grad = (stops, w = 8, h = 256) => cvs(w, h, (x) => { const g = x.createLinearGradient(0, 0, 0, h); stops.forEach(([o, c]) => g.addColorStop(o, c)); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+    // ---- studio backdrop + base ----
+    const bg = new T3.Mesh(new T3.SphereGeometry(40, 32, 16), new T3.MeshBasicMaterial({ map: grad([[0, '#0d1018'], [0.42, '#1d1c26'], [0.52, '#2b2730'], [1, '#121219']]), side: T3.BackSide, depthWrite: false })); scene.add(bg);
+    mesh(rbox(7.2, 0.32, 3.7, 0.06), M.std('#26262e', { roughness: 0.85 }), D, [0.12, -0.16, -0.15]);
+    // floors
+    const fl = (tex, rep, x0, x1) => { const t = tex.clone(); t.needsUpdate = true; t.repeat.set(...rep); t.wrapS = t.wrapT = T3.RepeatWrapping; return mesh(new T3.PlaneGeometry(x1 - x0, 3.3), M.std('#ffffff', { map: t, roughness: 0.55 }), D, [(x0 + x1) / 2, 0.002, -0.05], [-Math.PI / 2, 0, 0]); };
+    fl(floorTile, [3, 3], -3.25, 0); const wf = fl(wood, [2.5, 3], 0, 3.45); wf.material.roughness = 0.62;
+    // walls (cutaway: back + left + partition + right), tiles in the bathroom
+    const wallM = M.std('#efe3d0', { roughness: 0.92 }), trimM = M.std('#f7f3ec', { roughness: 0.6 });
+    const box = (w, h, d, mat, pos) => mesh(new T3.BoxGeometry(w, h, d), mat, D, pos);
+    box(3.3, 2.65, 0.14, wallM, [-1.6, 1.325, -1.67]);                                                            // bathroom back
+    box(1.7, 2.65, 0.14, wallM, [0.85, 1.325, -1.67]); box(0.85, 2.65, 0.14, wallM, [3.03, 1.325, -1.67]);       // kitchen back (window 1.7..2.6)
+    box(0.9, 1.15, 0.14, wallM, [2.15, 0.575, -1.67]); box(0.9, 0.5, 0.14, wallM, [2.15, 2.4, -1.67]);
+    box(0.14, 2.65, 3.3, wallM, [-3.32, 1.325, -0.05]);                                                            // left
+    box(0.1, 2.65, 0.55, wallM, [0, 1.325, -1.325]);                                                                  // partition
+    box(0.12, 2.65, 2.0, wallM, [3.51, 1.325, -0.65]);                                                             // right
+    [[-1.6, -1.67, 3.4, 0.2], [1.8, -1.67, 3.6, 0.2]].forEach(([x, z, w, d]) => box(w, 0.07, d, trimM, [x, 2.68, z]));
+    box(0.2, 0.07, 3.35, trimM, [-3.32, 2.68, -0.05]); box(0.14, 0.07, 0.59, trimM, [0, 2.68, -1.325]); box(0.16, 0.07, 2.04, trimM, [3.51, 2.68, -0.65]);
+    const tw = (w, h, pos, rot, rep) => { const t = wallTile.clone(); t.needsUpdate = true; t.repeat.set(...rep); return mesh(new T3.PlaneGeometry(w, h), M.std('#ffffff', { map: t, roughness: 0.25, metalness: 0.0 }), D, pos, rot); };
+    tw(3.25, 2.6, [-1.62, 1.3, -1.598], [0, 0, 0], [3.2, 2.6]); tw(3.3, 2.6, [-3.248, 1.3, -0.05], [0, Math.PI / 2, 0], [3.2, 2.6]);
+    box(3.4, 0.09, 0.02, M.std('#e8dccb'), [1.75, 0.045, -1.595]);                                                 // skirting (kitchen)
+    // ---- shower: tray, glass (with frost), chrome head + riser, mixer ----
+    const chrome = M.std('#e8ecf0', { metalness: 1, roughness: 0.12 });
+    mesh(rbox(1.2, 0.09, 1.08, 0.03), M.std('#f8f8f6', { roughness: 0.3 }), D, [-2.66, 0.045, -1.06]);
+    mesh(new T3.CircleGeometry(0.05, 20), chrome, D, [-2.66, 0.092, -1.0], [-Math.PI / 2, 0, 0]);
+    const glassM = new T3.MeshPhysicalMaterial({ color: '#e6f4ff', roughness: 0.04, metalness: 0, transparent: true, opacity: 0.16, depthWrite: false, side: T3.DoubleSide, envMapIntensity: 1.6, clearcoat: 1 });
+    const frostM = () => new T3.ShaderMaterial({ uniforms: { tF: { value: frostT }, uG: { value: 0 }, uM: { value: 0 } }, transparent: true, depthWrite: false, side: T3.DoubleSide,
+      vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: 'uniform sampler2D tF; uniform float uG, uM; varying vec2 vUv; void main(){ vec4 f = texture2D(tF, vUv); float e = min(min(vUv.x, 1.0 - vUv.x), min(vUv.y, 1.0 - vUv.y)) * 2.0; float a = f.a * smoothstep(uG, uG - 0.22, e) * (1.0 - uM); gl_FragColor = vec4(vec3(0.92, 0.97, 1.0) * 1.5, a * 0.95); }' });
+    const panes = [[1.17, 2.0, [-2.03, 1.09, -0.98], [0, Math.PI / 2, 0]]].map(([w, h, pos, rot]) => {
+      mesh(new T3.PlaneGeometry(w, h), glassM, D, pos, rot).castShadow = false;
+      const fm = frostM(); const f = mesh(new T3.PlaneGeometry(w, h), fm, D, pos, rot); f.castShadow = false; f.renderOrder = 2;
+      const g = new T3.Group(); g.position.set(...pos); g.rotation.set(...rot); D.add(g); [[0, h / 2], [0, -h / 2]].forEach(([dx, dy]) => mesh(new T3.BoxGeometry(w, 0.025, 0.025), chrome, g, [dx, dy, 0])); [[-w / 2], [w / 2]].forEach(([dx]) => mesh(new T3.BoxGeometry(0.025, h, 0.025), chrome, g, [dx, 0, 0]));
+      return fm;
+    });
+    mesh(new T3.CylinderGeometry(0.018, 0.018, 1.0, 12), chrome, D, [-2.6, 1.6, -1.575]);                           // riser
+    mesh(new T3.CylinderGeometry(0.016, 0.016, 0.34, 12), chrome, D, [-2.6, 2.08, -1.42], [Math.PI / 2, 0, 0]);       // arm
+    const head = new T3.Group(); head.position.set(-2.6, 2.06, -1.24); head.rotation.x = 0.45; D.add(head);
+    mesh(new T3.CylinderGeometry(0.12, 0.09, 0.035, 28), chrome, head, [0, 0, 0]);
+    mesh(new T3.CircleGeometry(0.105, 28), M.std('#9aa3ad', { metalness: 0.8, roughness: 0.4 }), head, [0, -0.0185, 0], [Math.PI / 2, 0, 0]);
+    mesh(rbox(0.16, 0.08, 0.06, 0.02), chrome, D, [-2.6, 1.1, -1.57]); mesh(new T3.CylinderGeometry(0.012, 0.012, 0.13, 8), chrome, D, [-2.55, 1.14, -1.53], [0, 0, 1.2]);
+    // bath mat, vanity + basin + mirror (fog), wall light, towel hook + towel, plant
+    mesh(rbox(0.62, 0.02, 0.42, 0.01), M.std('#7fb3a6', { roughness: 0.95 }), D, [-2.25, 0.012, -0.12]);
+    mesh(rbox(0.82, 0.74, 0.46, 0.03), M.std('#c9a27a', { roughness: 0.6 }), D, [-1.05, 0.37, -1.35]);
+    mesh(rbox(0.74, 0.07, 0.44, 0.03), M.std('#fbfbf9', { roughness: 0.25 }), D, [-1.05, 0.775, -1.35]);
+    mesh(new T3.CylinderGeometry(0.012, 0.012, 0.16, 10), chrome, D, [-1.05, 0.86, -1.5]); mesh(new T3.CylinderGeometry(0.01, 0.01, 0.1, 8), chrome, D, [-1.05, 0.93, -1.46], [Math.PI / 2, 0, 0]);
+    mesh(new T3.PlaneGeometry(0.7, 0.84), M.std('#c9d2db', { metalness: 1, roughness: 0.06 }), D, [-1.05, 1.58, -1.59]);
+    const mirFog = mesh(new T3.PlaneGeometry(0.7, 0.84), new T3.MeshBasicMaterial({ map: fogT, transparent: true, depthWrite: false, opacity: 0.8 }), D, [-1.05, 1.58, -1.585]); mirFog.castShadow = false;
+    mesh(rbox(0.5, 0.05, 0.05, 0.02), new T3.MeshBasicMaterial({ color: new T3.Color(2.2, 1.9, 1.5) }), D, [-1.05, 2.07, -1.56]);
+    const wl = new T3.PointLight('#ffd7a8', 1.6, 5); wl.position.set(-1.05, 2.0, -1.2); D.add(wl);
+    const showerL = new T3.PointLight('#ffe2c0', 1.2, 3.5); showerL.position.set(-2.5, 2.1, -0.8); D.add(showerL);
+    mesh(new T3.CylinderGeometry(0.015, 0.015, 0.08, 8), chrome, D, [-1.75, 1.62, -1.56], [Math.PI / 2, 0, 0]);
+    const towelM = M.std('#f0b84a', { roughness: 0.95 });
+    const towelH = mesh(rbox(0.38, 0.62, 0.06, 0.03), towelM, D, [-1.75, 1.33, -1.53]);
+    const towelF = mesh(rbox(0.38, 0.62, 0.06, 0.03), towelM, D, [0, 0, 0]); towelF.visible = false;
+    const plant = (x, y, z, s) => { const g = new T3.Group(); g.position.set(x, y, z); g.scale.setScalar(s); D.add(g); mesh(new T3.CylinderGeometry(0.16, 0.12, 0.3, 16), M.std('#c86b3c'), g, [0, 0.15, 0]); [[0, 0.55, 0, 0.26], [0.13, 0.45, 0.06, 0.2], [-0.12, 0.47, -0.05, 0.19]].forEach(([a, b, c, rr]) => mesh(new T3.SphereGeometry(rr, 14, 10), M.std('#3d7a4f', { roughness: 0.8 }), g, [a, b, c])); return g; };
+    plant(-0.38, 0, -1.3, 1.0);
+    // ---- kitchen: window (winter morning outside), counter, kettle, fridge, clock ----
+    const frameM = M.std('#f6f3ee', { roughness: 0.5 });
+    [[2.15, 1.15, 0.92, 0.07], [2.15, 2.15, 0.92, 0.07], [1.7, 1.65, 0.07, 1.06], [2.6, 1.65, 0.07, 1.06], [2.15, 1.65, 0.04, 1.0]].forEach(([x, y, w, h]) => box(w, h, 0.16, frameM, [x, y, -1.67]));
+    box(1.0, 0.05, 0.26, frameM, [2.15, 1.13, -1.56]);
+    const sky = mesh(new T3.PlaneGeometry(9, 5), new T3.MeshBasicMaterial({ map: grad([[0, '#8fb6e0'], [0.55, '#d9d6dc'], [1, '#f6c79a']]) }), D, [2.4, 1.7, -6.2]); sky.castShadow = false;
+    for (let i = 0; i < 7; i++) { const w = 0.8 + MC.rnd(i, 1) * 0.9, h = 0.5 + MC.rnd(i, 2) * 1.0, x = -0.4 + i * 0.85 + MC.rnd(i, 3) * 0.3, z = -3.6 - MC.rnd(i, 4) * 1.6; box(w, h, 0.9, M.std('#8a7f86', { roughness: 0.9 }), [x, 0.4 + h / 2, z]); box(w + 0.06, 0.07, 0.96, M.std('#f4f7fb', { roughness: 0.9 }), [x, 0.4 + h + 0.03, z]); }
+    const sunG = new T3.Sprite(new T3.SpriteMaterial({ map: k.glow, blending: T3.AdditiveBlending, transparent: true, depthWrite: false, color: new T3.Color(1.6, 1.2, 0.8) })); sunG.position.set(4.2, 2.3, -6.0); sunG.scale.setScalar(3.2); D.add(sunG);
+    const shaftT = grad([[0, 'rgba(255,230,190,0.0)'], [0.15, 'rgba(255,230,190,0.55)'], [1, 'rgba(255,230,190,0.0)']], 8, 128);
+    const sdir = new T3.Vector3().subVectors(sun.target.position, sun.position).normalize();
+    [[-0.25, 0.85], [0.18, 0.7], [0.0, 1.0]].forEach(([dx, wv], i) => {
+      const p0 = new T3.Vector3(2.15 + dx, 1.65 + (i - 1) * 0.15, -1.66), L = 1.9 / -sdir.y, mid = p0.clone().addScaledVector(sdir, L / 2);
+      const m = new T3.Mesh(new T3.PlaneGeometry(wv * 0.55, L), new T3.MeshBasicMaterial({ map: shaftT, transparent: true, depthWrite: false, blending: T3.AdditiveBlending, opacity: 0.12, side: T3.DoubleSide }));
+      m.position.copy(mid); m.up.copy(sdir).negate(); m.lookAt(mid.clone().add(new T3.Vector3(0, 0, 1))); D.add(m);
+    });
+    const kettle = new T3.Group(); kettle.position.set(2.63, 0.91, -1.42); D.add(kettle); mesh(new T3.CylinderGeometry(0.085, 0.1, 0.2, 20), M.std('#d23b30', { roughness: 0.35, metalness: 0.2 }), kettle, [0, 0.1, 0]); mesh(new T3.TorusGeometry(0.05, 0.012, 8, 16, Math.PI), M.std('#2b2b2b'), kettle, [0, 0.22, 0]);
+    mesh(new T3.CylinderGeometry(0.04, 0.035, 0.09, 16), M.std('#f4f1ea'), D, [1.95, 0.955, -1.25]);
+    mesh(rbox(0.64, 1.86, 0.64, 0.05), M.std('#e9edf2', { roughness: 0.3, metalness: 0.15 }), D, [3.1, 0.93, -1.25]); mesh(new T3.BoxGeometry(0.03, 0.5, 0.04), chrome, D, [2.83, 1.25, -0.92]); mesh(new T3.BoxGeometry(0.64, 0.01, 0.01), M.std('#c5ccd4'), D, [3.1, 1.32, -0.93]);
+    const clock = new T3.Group(); clock.position.set(2.95, 2.18, -1.585); D.add(clock);
+    mesh(new T3.CylinderGeometry(0.15, 0.15, 0.03, 32), M.std('#1d4734'), clock, [0, 0, 0], [Math.PI / 2, 0, 0]); mesh(new T3.CircleGeometry(0.13, 32), M.std('#faf6ee'), clock, [0, 0, 0.016]);
+    const hand = (L, wv, c) => { const g = new T3.Group(); g.position.z = 0.02; clock.add(g); mesh(new T3.BoxGeometry(wv, L, 0.005), M.std(c), g, [0, L / 2 - 0.015, 0]); return g; };
+    const hH = hand(0.07, 0.012, '#14261b'), hM = hand(0.105, 0.008, '#14261b'), hS = hand(0.11, 0.004, '#e09b6b');
+    hH.rotation.z = -(7 + 10 / 60) / 12 * Math.PI * 2; hM.rotation.z = -10 / 60 * Math.PI * 2;
+    // ---- X69: fogged kitchen window (sashes open inward), drips on the sill, hygrometer, radiator ----
+    mirFog.visible = false;
+    const cabM = M.std('#2f5a44', { roughness: 0.55 }), topM = M.std('#dccab0', { roughness: 0.45 });
+    box(1.0, 0.86, 0.6, cabM, [2.2, 0.43, -1.3]); box(1.04, 0.05, 0.64, topM, [2.2, 0.885, -1.3]);
+    // sashes: hinged at the outer jambs, glass + fog layer + droplets
+    const glassW = new T3.MeshPhysicalMaterial({ color: '#e6f4ff', roughness: 0.04, transparent: true, opacity: 0.14, depthWrite: false, side: T3.DoubleSide, clearcoat: 1 });
+    const sash = (hx, dir) => {
+      const g = new T3.Group(); g.position.set(hx, 1.65, -1.64); D.add(g); const w = 0.4, cx = dir * w / 2;
+      [[cx, 0.455, w, 0.04], [cx, -0.455, w, 0.04], [dir * 0.02, 0, 0.04, 0.95], [dir * (w - 0.02), 0, 0.04, 0.95]].forEach(([x, y, ww, hh]) => mesh(new T3.BoxGeometry(ww, hh, 0.05), frameM, g, [x, y, 0]));
+      mesh(new T3.PlaneGeometry(w - 0.06, 0.89), glassW, g, [cx, 0, 0.005]).castShadow = false;
+      const fm = frostM(); fm.uniforms.tF.value = fogT; const f = mesh(new T3.PlaneGeometry(w - 0.06, 0.89), fm, g, [cx, 0, 0.012]); f.castShadow = false; f.renderOrder = 2;
+      mesh(new T3.BoxGeometry(0.02, 0.1, 0.03), chrome, g, [dir * (w - 0.03), 0, 0.04]);
+      const dr = [...Array(9)].map((_, i) => mesh(new T3.SphereGeometry(0.008 + MC.rnd(i + hx * 7, 1) * 0.006, 8, 6), glassW.clone(), g, [cx + (MC.rnd(i + hx * 7, 2) - 0.5) * 0.3, 0.4, 0.02]));
+      return { g, fm, dr, dir };
+    };
+    const sashes = [sash(1.735, 1), sash(2.565, -1)];
+    const sillW = mesh(new T3.PlaneGeometry(0.9, 0.22), new T3.MeshStandardMaterial({ color: '#cfe2ef', roughness: 0.05, metalness: 0.3, transparent: true, opacity: 0.75 }), D, [2.15, 1.157, -1.55], [-Math.PI / 2, 0, 0]); sillW.castShadow = false;
+    const strM = new T3.MeshStandardMaterial({ color: '#dfeefa', transparent: true, opacity: 0.6, roughness: 0.05, emissive: new T3.Color('#ffffff'), emissiveIntensity: 0.25 });
+    const fallD = [...Array(6)].map(() => { const m = mesh(new T3.SphereGeometry(0.01, 8, 6), strM, D, [0, -5, 0]); m.castShadow = false; return m; });
+    // hygrometer on the sill
+    const hyg = new T3.Group(); hyg.position.set(2.48, 1.16, -1.5); D.add(hyg);
+    mesh(rbox(0.12, 0.09, 0.04, 0.012), M.std('#faf6ee', { roughness: 0.4 }), hyg, [0, 0.045, 0]);
+    const hygScr = new T3.MeshBasicMaterial({ color: new T3.Color(2.2, 0.6, 0.4) }); mesh(new T3.PlaneGeometry(0.09, 0.05), hygScr, hyg, [0, 0.05, 0.021]);
+    // radiator on the back wall + valve, heat shimmer
+    const radM = M.std('#f4f2ee', { roughness: 0.45 });
+    for (let i = 0; i < 9; i++) mesh(rbox(0.06, 0.5, 0.07, 0.02), radM, D, [0.7 + i * 0.075, 0.45, -1.58]);
+    box(0.68, 0.04, 0.03, radM, [1.0, 0.68, -1.58]); box(0.68, 0.04, 0.03, radM, [1.0, 0.22, -1.58]);
+    const valve = new T3.Group(); valve.position.set(1.4, 0.62, -1.56); D.add(valve); mesh(new T3.CylinderGeometry(0.035, 0.035, 0.09, 16), M.std('#f8f8f6'), valve, [0, 0, 0], [0, 0, Math.PI / 2]);
+    const heatM = new T3.MeshBasicMaterial({ color: new T3.Color(2.4, 1.0, 0.4), transparent: true, opacity: 0, blending: T3.AdditiveBlending, depthWrite: false });
+    const heatG = mesh(new T3.PlaneGeometry(0.75, 0.6), heatM, D, [1.0, 0.45, -1.535]); heatG.castShadow = false;
+    const shimmer = [...Array(8)].map(() => { const s = new T3.Sprite(new T3.SpriteMaterial({ map: k.glow, transparent: true, depthWrite: false, opacity: 0, color: new T3.Color(1.6, 0.9, 0.5) })); D.add(s); return s; });
+    // cold air streaks while the window is open
+    const airM = new T3.MeshBasicMaterial({ color: new T3.Color(0.6, 0.9, 1.6), transparent: true, opacity: 0, blending: T3.AdditiveBlending, depthWrite: false, side: T3.DoubleSide });
+    const air = [...Array(8)].map(() => { const m = mesh(new T3.PlaneGeometry(0.5, 0.012), airM, D, [0, -5, 0], [0, Math.PI / 2, 0]); m.castShadow = false; return m; });
+    const ringM2 = new T3.MeshBasicMaterial({ color: new T3.Color(2.6, 0.9, 0.4), transparent: true, opacity: 0, depthWrite: false, blending: T3.AdditiveBlending });
+    const hiRing = mesh(new T3.TorusGeometry(0.11, 0.004, 6, 40), ringM2, D, [2.48, 1.21, -1.47]); hiRing.castShadow = false;
+    // ---- tenant (sweater) + phone ----
+    const TN = k.fig(D, '#d9a47c', 1.45, 0, -0.55, 0.97, '#1f1712');
+    const shirtM = M.std('#3d6fb0', { roughness: 0.9 }); mesh(new T3.CylinderGeometry(0.214, 0.236, 0.56, 24, 1, true), shirtM, TN.userData.B, [0, 0.48, 0]); mesh(new T3.TorusGeometry(0.2, 0.03, 8, 24), shirtM, TN.userData.B, [0, 0.76, 0], [Math.PI / 2, 0, 0]);
+    const phone = new T3.Group(); TN.userData.hand.add(phone); mesh(rbox(0.13, 0.24, 0.025, 0.02), M.std('#111'), phone, [0, 0.06, 0.03], [Math.PI / 2, 0, 0]); const scrM = new T3.MeshBasicMaterial({ color: '#9fd0ff' }); mesh(new T3.PlaneGeometry(0.11, 0.2), scrM, phone, [0, 0.074, 0.03], [-Math.PI / 2, 0, 0]);
+    const POS = new T3.Vector3(1.45, 0, -0.55); const vTN = () => POS.clone();
+    // ---- state ----
+    const openA = (t) => antMove(t, K.open - 0.05, 0.45, 0, 1, 1.15) * (1 - antMove(t, K.clear - 0.75, 0.45, 0, 1, 1.15));
+    const fogG = (t) => 0.55 + 0.75 * E.io(seg(t, 0, K.drip + 0.3));
+    const melt = (t) => E.io(seg(t, K.open + 0.2, Math.max(0.8, K.clear - K.open - 0.3)));
+    const hum = (t) => Math.round(lerp(78, 52, melt(t)));
+    const heatOn = (t) => E.io(seg(t, K.heat - 0.05, 0.4));
+    // ---- camera ----
+    const P = (a, r, h, tx, ty, tz, fov = 30, roll = 0) => () => ({ a, r, h, tx, ty, tz, fov, roll });
+    const PT = (a, r, h, dy, fov = 30, roll = 0) => (t) => { const p = vTN(t); return { a, r, h: h + p.y, tx: p.x, ty: p.y + dy, tz: p.z, fov, roll }; };
+    const A6 = MC.ant(0.6), A9 = MC.ant(0.9);
+    const camT = track([
+      [0, P(0.25, 2.8, 1.6, 2.15, 1.35, -1.55, 28)],
+      [K.drip - 0.1, P(0.25, 1.15, 1.35, 2.2, 1.22, -1.5, 24), E.io],
+      [K.drip + 0.45, PT(0.45, 2.4, 1.3, 1.0, 22, 0.03), A9],
+      [K.write - 0.3, PT(0.45, 2.5, 1.28, 1.0, 22), E.lin],
+      [K.write + 0.2, PT(0.4, 1.8, 1.42, 1.0, 26), A6],
+      [K.turn + 0.3, P(0.06, 9.6, 2.7, 0.1, 1.15, -0.55), A6],
+      [K.humid - 0.3, P(0.0, 9.2, 2.6, 0.1, 1.15, -0.55), E.lin],
+      [K.humid + 0.15, P(0.2, 1.35, 1.45, 2.25, 1.35, -1.55, 28), A9],
+      [K.open + 0.1, P(0.35, 2.2, 1.65, 2.05, 1.45, -1.3, 28), A6],
+      [K.heat + 0.05, P(-0.2, 1.7, 1.05, 1.0, 0.5, -1.5, 28), A9],
+      [K.clear - 0.05, P(0.18, 1.55, 1.65, 2.15, 1.62, -1.6, 26), A6],
+      [K.no + 0.35, P(0.5, 2.8, 1.6, 1.6, 0.95, -0.65), E.io],
+      [K.cta + 2.5, P(0.06, 10.8, 3.0, 0.1, 1.2, -0.55), E.io],
+    ]);
+    const FOC = new T3.Vector3(), tmp = new T3.Vector3();
+    k.frame((t) => {
+      const g = k.grade; g.temp = -0.15 + 0.3 * E.io(seg(t, K.clear - 0.2, 0.6)); g.th = 1.6; g.bloom = 0.35; g.sat = 1.03;
+      hS.rotation.z = -((Math.floor(t) + MC.out(2.2)(seg(t % 1, 0, 0.18))) / 60) * Math.PI * 2 - 0.3;
+      const oa = openA(t), mlt = melt(t), fg = fogG(t);
+      sashes.forEach((s) => {
+        s.g.rotation.y = -s.dir * 1.35 * oa;
+        s.fm.uniforms.uG.value = fg; s.fm.uniforms.uM.value = mlt;
+        s.dr.forEach((m, i) => { const a = ((t * (0.18 + MC.rnd(i, 3) * 0.12) + MC.rnd(i, 4)) % 1); m.visible = mlt < 0.6 && t > 0.2; m.position.y = 0.42 - a * 0.86; m.material.opacity = 0.5 * (1 - mlt); });
+      });
+      sillW.scale.set(0.3 + 0.7 * E.io(seg(t, 0, K.drip + 0.5)), 1, 1); sillW.material.opacity = 0.75 * (1 - E.io(seg(t, K.clear - 0.3, 0.6)));
+      fallD.forEach((m, i) => { const life = 0.6, a = ((t / life + MC.rnd(i, 1)) % 1), on = t > K.drip - 0.3 && t < K.open; if (!on) { m.position.y = -5; return; } m.position.set(1.85 + MC.rnd(i, 2) * 0.6, 1.14 - a * 0.23, -1.42); });
+      hygScr.color.setRGB(lerp(2.2, 0.4, mlt), lerp(0.6, 2.0, mlt), lerp(0.4, 0.7, mlt));
+      ringM2.opacity = E.io(seg(t, K.humid - 0.05, 0.3)) * (0.6 + 0.4 * Math.sin(t * 10)) * (1 - E.io(seg(t, K.open - 0.2, 0.2)));
+      const ho = heatOn(t); heatM.opacity = 0.18 * ho; valve.rotation.x = -1.6 * antMove(t, K.heat - 0.1, 0.3, 0, 1, 1.2);
+      shimmer.forEach((s, i) => { const a = ((t * 0.45 + MC.rnd(i, 1)) % 1); s.material.opacity = ho * 0.16 * Math.sin(a * Math.PI); s.position.set(0.72 + MC.rnd(i, 2) * 0.56, 0.7 + a * 0.9, -1.5); s.scale.setScalar(0.25 + a * 0.4); });
+      air.forEach((m, i) => { const a = ((t * 0.9 + MC.rnd(i, 1)) % 1); m.material = airM; airM.opacity = 0.35 * oa; m.position.set(1.85 + MC.rnd(i, 2) * 0.6, 1.3 + MC.rnd(i, 3) * 0.7 - a * 0.25, -1.55 + a * 1.4); m.scale.x = 0.6 + a; });
+      // tenant: wiping the glass → shock at the drip → phone → opens the window → turns to the radiator → joy
+      const wipe = t < K.drip ? 1 : 0;
+      const shock = E.io(seg(t, K.drip, 0.08)) * (1 - E.io(seg(t, K.drip + 0.8, 0.3)));
+      const phoneUp = MC.spring(t, K.write - 0.7, 2.2, 0.4) * (1 - E.io(seg(t, K.humid - 0.4, 0.25)));
+      const reach = E.io(seg(t, K.open - 0.35, 0.3)) * (1 - E.io(seg(t, K.open + 0.55, 0.3)));
+      const point = E.io(seg(t, K.heat - 0.2, 0.25)) * (1 - E.io(seg(t, K.clear - 0.3, 0.3)));
+      const joy = MC.spring(t, K.clear + 0.3, 2.4, 0.35);
+      const sq = -0.13 * Math.exp(-Math.pow((t - (K.drip + 0.12)) / 0.07, 2));
+      const face = lerp(lerp(lerp(2.53, 0.4, antMove(t, K.drip + 0.02, 0.25, 0, 1, 1.2)), 2.53, E.io(seg(t, K.open - 0.6, 0.3))), 3.58, point) * (1 - E.io(seg(t, K.clear + 0.1, 0.35))) + 0.4 * E.io(seg(t, K.clear + 0.1, 0.35));
+      k.drive(TN, t, vTN, {
+        face, squash: sq, tilt: wipe ? 0.04 * Math.sin(t * 5) : 0, nod: 0.25 * phoneUp - 0.1 * shock - 0.15 * reach,
+        lean: 0.35 * reach - 0.12 * joy,
+        armL: shock > 0.5 ? -2.7 : (joy > 0.02 ? -0.4 - 2.4 * joy : (wipe ? -1.7 + 0.25 * Math.sin(t * 7) : -0.2 - 2.0 * reach)),
+        armR: shock > 0.5 ? -2.7 : (joy > 0.02 ? -0.4 - 2.4 * joy : (wipe ? -0.3 : -0.25 - 1.2 * phoneUp - 2.0 * reach - 1.4 * point)),
+      });
+      k.face(TN, t, { wide: shock, o: shock * 0.9, smile: joy > 0.1 ? 1 : 0.15 });
+      phone.visible = phoneUp > 0.05; scrM.color.set(phoneUp > 0.5 ? '#9fd0ff' : '#33415c');
+      const c = camT(t); k.shoot(c, t, 0.8);
+      FOC.set(c.tx, c.ty, c.tz); k.dof = { focus: FOC, ap: c.r < 1.6 ? 0.012 : 0.03 };
+    });
+    // ---- overlays ----
+    const chip = ov('tdchip', S.chip); tl.set(chip, { xPercent: -50 }, 0); k.popIn(chip, 0.12, { y: -50 }); k.popOut(chip, K.turn, { y: -60 });
+    const m1 = ov('tdchat in', `<b>${S.who}</b>${S.m1}`), m2 = ov('tdchat out', `<b>Tenance ${de ? 'KI' : 'AI'}</b>${S.m2}`);
+    tl.set([m1, m2], { left: 540 }, 0); tl.set(m1, { top: 260 }, 0); tl.set(m2, { top: 450 }, 0);
+    k.popIn(m1, K.write - 0.12); k.popIn(m2, K.ans + 0.08); k.popOut(m1, K.humid - 0.45); k.popOut(m2, K.humid - 0.39);
+    k.burst(K.turn); sfx('impact', K.turn, -13);
+    const pulseR = ov('tdpulse', ''); tl.set(pulseR, { autoAlpha: 0 }, 0); tl.fromTo(pulseR, { autoAlpha: 0.9, scale: 0.2 }, { autoAlpha: 0, scale: 3, duration: 0.8, ease: 'power2.out', immediateRender: false }, K.turn);
+    k.brand(K.turn, 1330);
+    const cd = k.card(S.ttl, [S.l1, S.l2, S.l3], K.humid - 0.3);
+    cd.line(0, K.humid + 0.2); cd.line(1, K.open + 0.1); cd.line(2, K.heat + 0.15);
+    k.popOut(cd.c, K.no - 0.12, { y: -80 });
+    const hyT = ov('tdtag warn', '💧 78 %'); k.popIn(hyT, K.humid + 0.2, { y: 30 }); k.popOut(hyT, K.no - 0.1, { y: -40 });
+    const s1 = ov('tdtag step', S.s1); k.popIn(s1, K.open - 0.05, { y: 30 }); k.popOut(s1, K.heat - 0.12, { y: -40 });
+    const s2 = ov('tdtag step', S.s2); k.popIn(s2, K.heat + 0.05, { y: 30 }); k.popOut(s2, K.clear - 0.1, { y: -40 });
+    const okT = ov('tdtag ok', S.ok); k.popIn(okT, K.no + 0.05, { y: 40 });
+    perFrame((t) => {
+      const at = (el, v, lo = 240, hi = 840, dy = 0) => { const [x, y] = k.proj(D.localToWorld(tmp.copy(v))); el.style.left = clamp(x, lo, hi) + 'px'; el.style.top = clamp(y + dy, 330, 1450) + 'px'; };
+      const h = hum(t); hyT.textContent = '💧 ' + h + ' %'; hyT.className = 'tdtag ' + (h > 60 ? 'warn' : 'ok');
+      at(hyT, new T3.Vector3(2.48, 1.3, -1.5), 240, 840, -60); at(s1, new T3.Vector3(2.15, 2.25, -1.4), 240, 840, -20); at(s2, new T3.Vector3(1.0, 0.85, -1.5), 240, 840, -60); at(okT, new T3.Vector3(1.45, 2.3, -0.55));
+    });
+    sfx('drip', K.drip - 0.15, -9); sfx('send', K.write - 0.1, -13); sfx('pop', K.ans + 0.1, -12);
+    sfx('refresh', K.humid, -14); sfx('windowshut', K.open, -12); sfx('wind', K.open + 0.2, -18, { dur: Math.max(0.6, K.clear - K.open - 0.6) });
+    sfx('click', K.heat - 0.05, -10); sfx('windowshut', K.clear - 0.7, -12); sfx('kaching', K.no + 0.1, -14);
+    k.finish(K.cta + 0.3, K.cta + 0.6, S.end);
+    return { T: END + 0.9, K };
+  }
+  function X70() {
+    const de = lang === 'de';
+    const S = de ? { chip: "🥛 18:40 · Whg 1C", who: "Mieterin · Whg 1C", m1: "Kühlschrank nur lauwarm 🤢 Die Milch ist sauer", m2: "Regler steht auf 0 und die Lüftung ist zugestellt. Auf Stufe 4 drehen, Rückwand freiräumen ✓", ttl: "Kühlschrank warm · Whg 1C", l1: "🎛️ Regler auf 0", l2: "📦 Rückwand zugestellt", l3: "❄️ In 2 Std. wieder kalt", err: "Regler auf 0", s1: "① Auf Stufe 4 drehen", s2: "② Rückwand freiräumen", ok: "✓ Kein Techniker nötig", end: ["*Ohne* Techniker gelöst.", null] }
+      : { chip: "🥛 6:40 pm · Apt 1C", who: "Tenant · Apt 1C", m1: "Fridge is only lukewarm 🤢 The milk went sour", m2: "The dial is on 0 and the vent is blocked. Turn it to 4, clear the back wall ✓", ttl: "Warm fridge · Apt 1C", l1: "🎛️ Dial on 0", l2: "📦 Vent blocked", l3: "❄️ Cold again in 2 hrs", err: "Dial on 0", s1: "① Turn it to 4", s2: "② Clear the back wall", ok: "✓ No technician needed", end: ["Fixed *without* a technician.", null] };
+    const K = {};
+    K.warm = W(["lauwarm", "lukewarm"]).start; K.write = W(["schreibt", "writes"]).start;
+    const it = W(['Tenance']); K.turn = it.start;
+    K.ans = W(["antwortet", "answers"], it.i).start; K.dial = W(["Regler", "dial"], it.i).start; K.s1 = W(["Stufe", "four", "4"], it.i).start; K.s2 = W(["freiräumen", "clear"], it.i).start; K.cold = W(["kalt", "cold"], it.i).start; K.no = W(["Kein", "No"], it.i).start; K.cta = W(["Jetzt", "Join"], it.i).start;
+    const k = TDX({ sky: 'night', envTop: '#fff3e2', envBot: '#2d2a26', envInt: 0.75, fov: 30, pro: true });
+    const { scene, MC, ov } = k;
+    const SH = (window.PR || 1) >= 2 ? 4096 : 2048;
+    scene.add(new T3.HemisphereLight('#fff3e6', '#3a3430', 0.32));
+    const shadowed = (l, b = 6) => { l.castShadow = true; l.shadow.mapSize.set(SH, SH); Object.assign(l.shadow.camera, { left: -b, right: b, top: b, bottom: -b, near: 0.5, far: 40 }); l.shadow.radius = 3; l.shadow.bias = -0.0004; l.shadow.normalBias = 0.02; };
+    const sun = new T3.DirectionalLight('#ffd6a0', 2.0); sun.position.set(6.5, 5.5, -7.5); sun.target.position.set(1.4, 0, 0); scene.add(sun.target); shadowed(sun); scene.add(sun);
+    const keyL = new T3.DirectionalLight('#fff4ea', 0.7); keyL.position.set(-3.5, 6.5, 6.5); shadowed(keyL); scene.add(keyL);
+    const fill = new T3.DirectionalLight('#d4e2ff', 0.3); fill.position.set(3, 2, 9); scene.add(fill);
+    const D = new T3.Group(); scene.add(D);
+    // ---- canvas textures ----
+    const cvs = (w, h, f) => { const c = document.createElement('canvas'); c.width = w; c.height = h; f(c.getContext('2d'), w, h); const t = new T3.CanvasTexture(c); t.colorSpace = T3.SRGBColorSpace; t.anisotropy = 8; return t; };
+    const tiles = (nx, ny, base, grout, jit) => cvs(512, 512, (x, w, h) => { x.fillStyle = grout; x.fillRect(0, 0, w, h); const tw = w / nx, th = h / ny; for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) { const v = (MC.rnd(i * 31 + j, 3) - 0.5) * jit; const c = new T3.Color(base); c.offsetHSL(0, 0, v); x.fillStyle = '#' + c.getHexString(); x.fillRect(i * tw + 2, j * th + 2, tw - 4, th - 4); x.fillStyle = 'rgba(255,255,255,0.18)'; x.fillRect(i * tw + 3, j * th + 3, tw - 6, 3); } });
+    const wood = cvs(512, 512, (x, w, h) => { for (let i = 0; i < 8; i++) { const c = new T3.Color('#b98a5e'); c.offsetHSL(0, 0, (MC.rnd(i, 7) - 0.5) * 0.08); x.fillStyle = '#' + c.getHexString(); x.fillRect(0, i * 64, w, 64); x.strokeStyle = 'rgba(60,35,20,0.35)'; x.lineWidth = 2; x.strokeRect(-2, i * 64, w + 4, 64); for (let g = 0; g < 9; g++) { x.strokeStyle = 'rgba(90,55,30,0.18)'; x.beginPath(); const y0 = i * 64 + 6 + MC.rnd(i * 9 + g, 2) * 52; x.moveTo(0, y0); x.bezierCurveTo(w * 0.3, y0 + 4, w * 0.6, y0 - 4, w, y0 + 2); x.stroke(); } } });
+    const wallTile = tiles(10, 12, '#9fbdb2', '#7e968d', 0.05), floorTile = tiles(6, 6, '#4f5f66', '#36434a', 0.06);
+    [wallTile, floorTile, wood].forEach((t) => { t.wrapS = t.wrapT = T3.RepeatWrapping; });
+    const cloud = cvs(128, 128, (x) => { for (let i = 0; i < 7; i++) { const cx = 40 + MC.rnd(i, 1) * 48, cy = 40 + MC.rnd(i, 2) * 48, rr = 22 + MC.rnd(i, 3) * 26; const g = x.createRadialGradient(cx, cy, 0, cx, cy, rr); g.addColorStop(0, 'rgba(255,255,255,0.55)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 128, 128); } });
+    const frostT = cvs(512, 512, (x, w, h) => { x.fillStyle = 'rgba(235,245,255,0.16)'; x.fillRect(0, 0, w, h); x.lineCap = 'round'; for (let i = 0; i < 340; i++) { let px = MC.rnd(i, 1) * w, py = MC.rnd(i, 2) * h, an = MC.rnd(i, 3) * 6.28; x.strokeStyle = `rgba(255,255,255,${0.25 + MC.rnd(i, 4) * 0.5})`; x.lineWidth = 0.8 + MC.rnd(i, 5) * 1.6; x.beginPath(); x.moveTo(px, py); for (let s = 0; s < 7; s++) { an += (MC.rnd(i * 7 + s, 6) - 0.5) * 1.1; const L = 6 + MC.rnd(i * 7 + s, 7) * 18; px += Math.cos(an) * L; py += Math.sin(an) * L; x.lineTo(px, py); if (s % 2) { x.moveTo(px, py); x.lineTo(px + Math.cos(an + 1) * L * 0.5, py + Math.sin(an + 1) * L * 0.5); x.moveTo(px, py); } } x.stroke(); } });
+    const fogT = cvs(256, 256, (x, w, h) => { x.fillStyle = 'rgba(232,240,248,0.7)'; x.fillRect(0, 0, w, h); for (let i = 0; i < 600; i++) { x.fillStyle = `rgba(255,255,255,${0.15 + MC.rnd(i, 2) * 0.3})`; x.beginPath(); x.arc(MC.rnd(i, 3) * w, MC.rnd(i, 4) * h, 1 + MC.rnd(i, 1) * 3, 0, 7); x.fill(); } });
+    const grad = (stops, w = 8, h = 256) => cvs(w, h, (x) => { const g = x.createLinearGradient(0, 0, 0, h); stops.forEach(([o, c]) => g.addColorStop(o, c)); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+    // ---- studio backdrop + base ----
+    const bg = new T3.Mesh(new T3.SphereGeometry(40, 32, 16), new T3.MeshBasicMaterial({ map: grad([[0, '#0d1018'], [0.42, '#1d1c26'], [0.52, '#2b2730'], [1, '#121219']]), side: T3.BackSide, depthWrite: false })); scene.add(bg);
+    mesh(rbox(7.2, 0.32, 3.7, 0.06), M.std('#26262e', { roughness: 0.85 }), D, [0.12, -0.16, -0.15]);
+    // floors
+    const fl = (tex, rep, x0, x1) => { const t = tex.clone(); t.needsUpdate = true; t.repeat.set(...rep); t.wrapS = t.wrapT = T3.RepeatWrapping; return mesh(new T3.PlaneGeometry(x1 - x0, 3.3), M.std('#ffffff', { map: t, roughness: 0.55 }), D, [(x0 + x1) / 2, 0.002, -0.05], [-Math.PI / 2, 0, 0]); };
+    fl(floorTile, [3, 3], -3.25, 0); const wf = fl(wood, [2.5, 3], 0, 3.45); wf.material.roughness = 0.62;
+    // walls (cutaway: back + left + partition + right), tiles in the bathroom
+    const wallM = M.std('#efe3d0', { roughness: 0.92 }), trimM = M.std('#f7f3ec', { roughness: 0.6 });
+    const box = (w, h, d, mat, pos) => mesh(new T3.BoxGeometry(w, h, d), mat, D, pos);
+    box(3.3, 2.65, 0.14, wallM, [-1.6, 1.325, -1.67]);                                                            // bathroom back
+    box(1.7, 2.65, 0.14, wallM, [0.85, 1.325, -1.67]); box(0.85, 2.65, 0.14, wallM, [3.03, 1.325, -1.67]);       // kitchen back (window 1.7..2.6)
+    box(0.9, 1.15, 0.14, wallM, [2.15, 0.575, -1.67]); box(0.9, 0.5, 0.14, wallM, [2.15, 2.4, -1.67]);
+    box(0.14, 2.65, 3.3, wallM, [-3.32, 1.325, -0.05]);                                                            // left
+    box(0.1, 2.65, 0.55, wallM, [0, 1.325, -1.325]);                                                                  // partition
+    box(0.12, 2.65, 2.0, wallM, [3.51, 1.325, -0.65]);                                                             // right
+    [[-1.6, -1.67, 3.4, 0.2], [1.8, -1.67, 3.6, 0.2]].forEach(([x, z, w, d]) => box(w, 0.07, d, trimM, [x, 2.68, z]));
+    box(0.2, 0.07, 3.35, trimM, [-3.32, 2.68, -0.05]); box(0.14, 0.07, 0.59, trimM, [0, 2.68, -1.325]); box(0.16, 0.07, 2.04, trimM, [3.51, 2.68, -0.65]);
+    const tw = (w, h, pos, rot, rep) => { const t = wallTile.clone(); t.needsUpdate = true; t.repeat.set(...rep); return mesh(new T3.PlaneGeometry(w, h), M.std('#ffffff', { map: t, roughness: 0.25, metalness: 0.0 }), D, pos, rot); };
+    tw(3.25, 2.6, [-1.62, 1.3, -1.598], [0, 0, 0], [3.2, 2.6]); tw(3.3, 2.6, [-3.248, 1.3, -0.05], [0, Math.PI / 2, 0], [3.2, 2.6]);
+    box(3.4, 0.09, 0.02, M.std('#e8dccb'), [1.75, 0.045, -1.595]);                                                 // skirting (kitchen)
+    // ---- shower: tray, glass (with frost), chrome head + riser, mixer ----
+    const chrome = M.std('#e8ecf0', { metalness: 1, roughness: 0.12 });
+    mesh(rbox(1.2, 0.09, 1.08, 0.03), M.std('#f8f8f6', { roughness: 0.3 }), D, [-2.66, 0.045, -1.06]);
+    mesh(new T3.CircleGeometry(0.05, 20), chrome, D, [-2.66, 0.092, -1.0], [-Math.PI / 2, 0, 0]);
+    const glassM = new T3.MeshPhysicalMaterial({ color: '#e6f4ff', roughness: 0.04, metalness: 0, transparent: true, opacity: 0.16, depthWrite: false, side: T3.DoubleSide, envMapIntensity: 1.6, clearcoat: 1 });
+    const frostM = () => new T3.ShaderMaterial({ uniforms: { tF: { value: frostT }, uG: { value: 0 }, uM: { value: 0 } }, transparent: true, depthWrite: false, side: T3.DoubleSide,
+      vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: 'uniform sampler2D tF; uniform float uG, uM; varying vec2 vUv; void main(){ vec4 f = texture2D(tF, vUv); float e = min(min(vUv.x, 1.0 - vUv.x), min(vUv.y, 1.0 - vUv.y)) * 2.0; float a = f.a * smoothstep(uG, uG - 0.22, e) * (1.0 - uM); gl_FragColor = vec4(vec3(0.92, 0.97, 1.0) * 1.5, a * 0.95); }' });
+    const panes = [[1.17, 2.0, [-2.03, 1.09, -0.98], [0, Math.PI / 2, 0]]].map(([w, h, pos, rot]) => {
+      mesh(new T3.PlaneGeometry(w, h), glassM, D, pos, rot).castShadow = false;
+      const fm = frostM(); const f = mesh(new T3.PlaneGeometry(w, h), fm, D, pos, rot); f.castShadow = false; f.renderOrder = 2;
+      const g = new T3.Group(); g.position.set(...pos); g.rotation.set(...rot); D.add(g); [[0, h / 2], [0, -h / 2]].forEach(([dx, dy]) => mesh(new T3.BoxGeometry(w, 0.025, 0.025), chrome, g, [dx, dy, 0])); [[-w / 2], [w / 2]].forEach(([dx]) => mesh(new T3.BoxGeometry(0.025, h, 0.025), chrome, g, [dx, 0, 0]));
+      return fm;
+    });
+    mesh(new T3.CylinderGeometry(0.018, 0.018, 1.0, 12), chrome, D, [-2.6, 1.6, -1.575]);                           // riser
+    mesh(new T3.CylinderGeometry(0.016, 0.016, 0.34, 12), chrome, D, [-2.6, 2.08, -1.42], [Math.PI / 2, 0, 0]);       // arm
+    const head = new T3.Group(); head.position.set(-2.6, 2.06, -1.24); head.rotation.x = 0.45; D.add(head);
+    mesh(new T3.CylinderGeometry(0.12, 0.09, 0.035, 28), chrome, head, [0, 0, 0]);
+    mesh(new T3.CircleGeometry(0.105, 28), M.std('#9aa3ad', { metalness: 0.8, roughness: 0.4 }), head, [0, -0.0185, 0], [Math.PI / 2, 0, 0]);
+    mesh(rbox(0.16, 0.08, 0.06, 0.02), chrome, D, [-2.6, 1.1, -1.57]); mesh(new T3.CylinderGeometry(0.012, 0.012, 0.13, 8), chrome, D, [-2.55, 1.14, -1.53], [0, 0, 1.2]);
+    // bath mat, vanity + basin + mirror (fog), wall light, towel hook + towel, plant
+    mesh(rbox(0.62, 0.02, 0.42, 0.01), M.std('#7fb3a6', { roughness: 0.95 }), D, [-2.25, 0.012, -0.12]);
+    mesh(rbox(0.82, 0.74, 0.46, 0.03), M.std('#c9a27a', { roughness: 0.6 }), D, [-1.05, 0.37, -1.35]);
+    mesh(rbox(0.74, 0.07, 0.44, 0.03), M.std('#fbfbf9', { roughness: 0.25 }), D, [-1.05, 0.775, -1.35]);
+    mesh(new T3.CylinderGeometry(0.012, 0.012, 0.16, 10), chrome, D, [-1.05, 0.86, -1.5]); mesh(new T3.CylinderGeometry(0.01, 0.01, 0.1, 8), chrome, D, [-1.05, 0.93, -1.46], [Math.PI / 2, 0, 0]);
+    mesh(new T3.PlaneGeometry(0.7, 0.84), M.std('#c9d2db', { metalness: 1, roughness: 0.06 }), D, [-1.05, 1.58, -1.59]);
+    const mirFog = mesh(new T3.PlaneGeometry(0.7, 0.84), new T3.MeshBasicMaterial({ map: fogT, transparent: true, depthWrite: false, opacity: 0.8 }), D, [-1.05, 1.58, -1.585]); mirFog.castShadow = false;
+    mesh(rbox(0.5, 0.05, 0.05, 0.02), new T3.MeshBasicMaterial({ color: new T3.Color(2.2, 1.9, 1.5) }), D, [-1.05, 2.07, -1.56]);
+    const wl = new T3.PointLight('#ffd7a8', 1.6, 5); wl.position.set(-1.05, 2.0, -1.2); D.add(wl);
+    const showerL = new T3.PointLight('#ffe2c0', 1.2, 3.5); showerL.position.set(-2.5, 2.1, -0.8); D.add(showerL);
+    mesh(new T3.CylinderGeometry(0.015, 0.015, 0.08, 8), chrome, D, [-1.75, 1.62, -1.56], [Math.PI / 2, 0, 0]);
+    const towelM = M.std('#f0b84a', { roughness: 0.95 });
+    const towelH = mesh(rbox(0.38, 0.62, 0.06, 0.03), towelM, D, [-1.75, 1.33, -1.53]);
+    const towelF = mesh(rbox(0.38, 0.62, 0.06, 0.03), towelM, D, [0, 0, 0]); towelF.visible = false;
+    const plant = (x, y, z, s) => { const g = new T3.Group(); g.position.set(x, y, z); g.scale.setScalar(s); D.add(g); mesh(new T3.CylinderGeometry(0.16, 0.12, 0.3, 16), M.std('#c86b3c'), g, [0, 0.15, 0]); [[0, 0.55, 0, 0.26], [0.13, 0.45, 0.06, 0.2], [-0.12, 0.47, -0.05, 0.19]].forEach(([a, b, c, rr]) => mesh(new T3.SphereGeometry(rr, 14, 10), M.std('#3d7a4f', { roughness: 0.8 }), g, [a, b, c])); return g; };
+    plant(-0.38, 0, -1.3, 1.0);
+    // ---- kitchen: window (winter morning outside), counter, kettle, fridge, clock ----
+    const frameM = M.std('#f6f3ee', { roughness: 0.5 });
+    [[2.15, 1.15, 0.92, 0.07], [2.15, 2.15, 0.92, 0.07], [1.7, 1.65, 0.07, 1.06], [2.6, 1.65, 0.07, 1.06], [2.15, 1.65, 0.04, 1.0]].forEach(([x, y, w, h]) => box(w, h, 0.16, frameM, [x, y, -1.67]));
+    box(1.0, 0.05, 0.26, frameM, [2.15, 1.13, -1.56]);
+    const sky = mesh(new T3.PlaneGeometry(9, 5), new T3.MeshBasicMaterial({ map: grad([[0, '#8fb6e0'], [0.55, '#d9d6dc'], [1, '#f6c79a']]) }), D, [2.4, 1.7, -6.2]); sky.castShadow = false;
+    for (let i = 0; i < 7; i++) { const w = 0.8 + MC.rnd(i, 1) * 0.9, h = 0.5 + MC.rnd(i, 2) * 1.0, x = -0.4 + i * 0.85 + MC.rnd(i, 3) * 0.3, z = -3.6 - MC.rnd(i, 4) * 1.6; box(w, h, 0.9, M.std('#8a7f86', { roughness: 0.9 }), [x, 0.4 + h / 2, z]); box(w + 0.06, 0.07, 0.96, M.std('#f4f7fb', { roughness: 0.9 }), [x, 0.4 + h + 0.03, z]); }
+    const sunG = new T3.Sprite(new T3.SpriteMaterial({ map: k.glow, blending: T3.AdditiveBlending, transparent: true, depthWrite: false, color: new T3.Color(1.6, 1.2, 0.8) })); sunG.position.set(4.2, 2.3, -6.0); sunG.scale.setScalar(3.2); D.add(sunG);
+    const shaftT = grad([[0, 'rgba(255,230,190,0.0)'], [0.15, 'rgba(255,230,190,0.55)'], [1, 'rgba(255,230,190,0.0)']], 8, 128);
+    const sdir = new T3.Vector3().subVectors(sun.target.position, sun.position).normalize();
+    [[-0.25, 0.85], [0.18, 0.7], [0.0, 1.0]].forEach(([dx, wv], i) => {
+      const p0 = new T3.Vector3(2.15 + dx, 1.65 + (i - 1) * 0.15, -1.66), L = 1.9 / -sdir.y, mid = p0.clone().addScaledVector(sdir, L / 2);
+      const m = new T3.Mesh(new T3.PlaneGeometry(wv * 0.55, L), new T3.MeshBasicMaterial({ map: shaftT, transparent: true, depthWrite: false, blending: T3.AdditiveBlending, opacity: 0.12, side: T3.DoubleSide }));
+      m.position.copy(mid); m.up.copy(sdir).negate(); m.lookAt(mid.clone().add(new T3.Vector3(0, 0, 1))); D.add(m);
+    });
+    const kettle = new T3.Group(); kettle.position.set(2.63, 0.91, -1.42); D.add(kettle); mesh(new T3.CylinderGeometry(0.085, 0.1, 0.2, 20), M.std('#d23b30', { roughness: 0.35, metalness: 0.2 }), kettle, [0, 0.1, 0]); mesh(new T3.TorusGeometry(0.05, 0.012, 8, 16, Math.PI), M.std('#2b2b2b'), kettle, [0, 0.22, 0]);
+    mesh(new T3.CylinderGeometry(0.04, 0.035, 0.09, 16), M.std('#f4f1ea'), D, [1.95, 0.955, -1.25]);
+    plant(2.05, 1.155, -1.56, 0.45);
+    const clock = new T3.Group(); clock.position.set(2.95, 2.18, -1.585); D.add(clock);
+    mesh(new T3.CylinderGeometry(0.15, 0.15, 0.03, 32), M.std('#1d4734'), clock, [0, 0, 0], [Math.PI / 2, 0, 0]); mesh(new T3.CircleGeometry(0.13, 32), M.std('#faf6ee'), clock, [0, 0, 0.016]);
+    const hand = (L, wv, c) => { const g = new T3.Group(); g.position.z = 0.02; clock.add(g); mesh(new T3.BoxGeometry(wv, L, 0.005), M.std(c), g, [0, L / 2 - 0.015, 0]); return g; };
+    const hH = hand(0.07, 0.012, '#14261b'), hM = hand(0.105, 0.008, '#14261b'), hS = hand(0.11, 0.004, '#e09b6b');
+    hH.rotation.z = -(7 + 10 / 60) / 12 * Math.PI * 2; hM.rotation.z = -10 / 60 * Math.PI * 2;
+    // ---- X70: fridge with a working door, dial on 0, vent blocked by containers, sour milk ----
+    mirFog.visible = false;
+    const cabM = M.std('#2f5a44', { roughness: 0.55 }), topM = M.std('#dccab0', { roughness: 0.45 });
+    box(1.0, 0.86, 0.6, cabM, [2.2, 0.43, -1.3]); box(1.04, 0.05, 0.64, topM, [2.2, 0.885, -1.3]);
+    const frM = M.std('#e9edf2', { roughness: 0.3, metalness: 0.15 }), linM = M.std('#f5f7f9', { roughness: 0.5 });
+    box(0.64, 1.86, 0.03, frM, [3.1, 0.93, -1.555]); box(0.03, 1.86, 0.64, frM, [2.795, 0.93, -1.25]); box(0.03, 1.86, 0.64, frM, [3.405, 0.93, -1.25]);
+    box(0.64, 0.03, 0.64, frM, [3.1, 1.845, -1.25]); box(0.64, 0.06, 0.64, frM, [3.1, 0.03, -1.25]);
+    box(0.58, 1.76, 0.01, linM, [3.1, 0.93, -1.535]);
+    const shelfM = new T3.MeshPhysicalMaterial({ color: '#e8f4fb', roughness: 0.05, transparent: true, opacity: 0.35, depthWrite: false });
+    [0.55, 0.95, 1.35].forEach((y) => box(0.57, 0.012, 0.56, shelfM, [3.1, y, -1.25]));
+    // vent grille on the back wall (blocked by containers until cleared)
+    for (let i = 0; i < 5; i++) box(0.22, 0.012, 0.01, M.std('#5a636b'), [3.1, 1.02 + i * 0.035, -1.528]);
+    const tubs = [[3.0, 1.02, 0.2, 0.13, '#e2d6c2'], [3.2, 1.03, 0.18, 0.15, '#c9d9c4'], [3.1, 1.13, 0.24, 0.06, '#e6b8a2']].map(([x, y, w, h, c]) => { const m = mesh(rbox(w, h, 0.16, 0.02), M.std(c, { roughness: 0.5 }), D, [x, y, -1.45]); return m; });
+    // milk carton + stink lines, bottles, cheese
+    const milk = new T3.Group(); milk.position.set(2.95, 0.96, -1.08); D.add(milk);
+    mesh(rbox(0.09, 0.2, 0.09, 0.01), M.std('#ffffff', { roughness: 0.6 }), milk, [0, 0.1, 0]); mesh(new T3.BoxGeometry(0.092, 0.05, 0.092), M.std('#3d6fb0'), milk, [0, 0.08, 0]);
+    mesh(new T3.ConeGeometry(0.065, 0.06, 4), M.std('#ffffff'), milk, [0, 0.23, 0], [0, Math.PI / 4, 0]);
+    const stinkM = new T3.MeshBasicMaterial({ color: new T3.Color(0.7, 1.6, 0.4), transparent: true, opacity: 0, depthWrite: false, blending: T3.AdditiveBlending, side: T3.DoubleSide });
+    const stink = [0, 1, 2].map((i) => { const m = mesh(new T3.TorusGeometry(0.03, 0.004, 6, 16, Math.PI * 1.2), stinkM, D, [0, -5, 0]); m.castShadow = false; return m; });
+    [[3.25, 0.56, '#2d7a3e'], [3.33, 0.56, '#7a2d2d'], [2.92, 0.56, '#d9b23a']].forEach(([x, y, c]) => mesh(new T3.CylinderGeometry(0.03, 0.035, 0.26, 14), M.std(c, { roughness: 0.2, metalness: 0.1 }), D, [x, y + 0.13, -1.3]));
+    mesh(rbox(0.16, 0.07, 0.11, 0.015), M.std('#f2c14e', { roughness: 0.5 }), D, [3.22, 1.39, -1.15]);
+    // thermostat dial on the right inner wall
+    const dial = new T3.Group(); dial.position.set(3.37, 1.66, -1.05); D.add(dial);
+    mesh(new T3.CylinderGeometry(0.034, 0.038, 0.03, 24), M.std('#2c343c', { roughness: 0.4 }), dial, [0, 0, 0], [0, 0, Math.PI / 2]);
+    mesh(new T3.BoxGeometry(0.008, 0.03, 0.007), new T3.MeshBasicMaterial({ color: new T3.Color(2.2, 0.5, 0.3) }), dial, [-0.017, 0.014, 0]);
+    const dialT = cvs(256, 256, (x, w) => { const c = w / 2; x.fillStyle = '#f5f7f9'; x.fillRect(0, 0, w, w); x.fillStyle = '#e3edf5'; x.beginPath(); x.arc(c, c, 124, 0, 7); x.fill(); x.strokeStyle = '#9fb3c4'; x.lineWidth = 4; x.stroke(); x.font = '800 40px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; for (let n = 0; n <= 5; n++) { const f = n * 2.2 / 4; x.fillStyle = n === 4 ? '#1f6fd1' : (n === 0 ? '#d23b2d' : '#24303a'); x.fillText(String(n), c - Math.sin(f) * 96, c - Math.cos(f) * 96); } });
+    mesh(new T3.PlaneGeometry(0.15, 0.15), M.std('#ffffff', { map: dialT, roughness: 0.5 }), D, [3.388, 1.66, -1.05], [0, -Math.PI / 2, 0]).castShadow = false;
+    const ringM2 = new T3.MeshBasicMaterial({ color: new T3.Color(2.6, 0.9, 0.4), transparent: true, opacity: 0, depthWrite: false, blending: T3.AdditiveBlending });
+    const hiRing = mesh(new T3.TorusGeometry(0.07, 0.004, 6, 32), ringM2, D, [3.35, 1.66, -1.05], [0, Math.PI / 2, 0]); hiRing.castShadow = false;
+    // interior light (warm while broken, cold blue when fixed) + frost + vent airflow
+    const inL = new T3.PointLight('#ffcf8a', 0.9, 1.6); inL.position.set(3.1, 1.7, -1.15); D.add(inL);
+    const bulbM = new T3.MeshBasicMaterial({ color: new T3.Color(2.2, 1.9, 1.4) }); mesh(new T3.BoxGeometry(0.12, 0.02, 0.05), bulbM, D, [3.1, 1.82, -1.2]);
+    const frost = [...Array(14)].map(() => { const s = new T3.Sprite(new T3.SpriteMaterial({ map: k.glow, transparent: true, depthWrite: false, opacity: 0, color: new T3.Color(0.9, 1.2, 1.6) })); D.add(s); return s; });
+    const airM = new T3.MeshBasicMaterial({ color: new T3.Color(0.6, 0.9, 1.6), transparent: true, opacity: 0, blending: T3.AdditiveBlending, depthWrite: false, side: T3.DoubleSide });
+    const air = [...Array(7)].map(() => { const m = mesh(new T3.PlaneGeometry(0.012, 0.35), airM, D, [0, -5, 0], [Math.PI / 2, 0, 0]); m.castShadow = false; return m; });
+    // door (hinge on the right), handle, door shelves with bottles
+    const door = new T3.Group(); door.position.set(3.42, 0, -0.93); D.add(door);
+    mesh(rbox(0.64, 1.84, 0.045, 0.02), frM, door, [-0.32, 0.93, 0.023]); mesh(new T3.BoxGeometry(0.03, 0.5, 0.04), chrome, door, [-0.6, 1.25, 0.07]);
+    [0.6, 1.1].forEach((y) => { mesh(new T3.BoxGeometry(0.5, 0.06, 0.012), shelfM, door, [-0.32, y + 0.03, -0.075]); });
+    [[-0.45, 0.6, '#c0563a'], [-0.32, 0.6, '#f2f2ee'], [-0.2, 1.1, '#3ec46b']].forEach(([x, y, c]) => mesh(new T3.CylinderGeometry(0.025, 0.028, 0.18, 12), M.std(c, { roughness: 0.3 }), door, [x, y + 0.09, -0.04]));
+    // ---- tenant (hoodie) + phone ----
+    const TN = k.fig(D, '#c98f6a', 2.25, 0, -0.5, 0.95, '#161011');
+    const shirtM = M.std('#7a4b8a', { roughness: 0.9 }); mesh(new T3.CylinderGeometry(0.214, 0.236, 0.56, 24, 1, true), shirtM, TN.userData.B, [0, 0.48, 0]); mesh(new T3.TorusGeometry(0.2, 0.03, 8, 24), shirtM, TN.userData.B, [0, 0.76, 0], [Math.PI / 2, 0, 0]);
+    const phone = new T3.Group(); TN.userData.hand.add(phone); mesh(rbox(0.13, 0.24, 0.025, 0.02), M.std('#111'), phone, [0, 0.06, 0.03], [Math.PI / 2, 0, 0]); const scrM = new T3.MeshBasicMaterial({ color: '#9fd0ff' }); mesh(new T3.PlaneGeometry(0.11, 0.2), scrM, phone, [0, 0.074, 0.03], [-Math.PI / 2, 0, 0]);
+    const POS = new T3.Vector3(2.25, 0, -0.5); const vTN = () => POS.clone();
+    // ---- state ----
+    const doorA = (t) => 1 * (1 - antMove(t, K.no + 0.15, 0.45, 0, 1, 1.1));
+    const coldK = (t) => E.io(seg(t, K.s2 + 0.3, Math.max(0.8, K.cold - K.s2)));
+    const temp = (t) => Math.round(lerp(14, 4, coldK(t)));
+    const slide = (t) => antMove(t, K.s2 - 0.05, 0.4, 0, 1, 1.15);
+    // ---- camera ----
+    const P = (a, r, h, tx, ty, tz, fov = 30, roll = 0) => () => ({ a, r, h, tx, ty, tz, fov, roll });
+    const PT = (a, r, h, dy, fov = 30, roll = 0) => (t) => { const p = vTN(t); return { a, r, h: h + p.y, tx: p.x, ty: p.y + dy, tz: p.z, fov, roll }; };
+    const A6 = MC.ant(0.6), A9 = MC.ant(0.9);
+    const camT = track([
+      [0, P(-0.35, 1.95, 1.4, 3.05, 1.05, -1.1, 28)],
+      [K.warm - 0.1, P(-0.2, 1.3, 1.25, 3.0, 1.08, -1.15, 24), E.io],
+      [K.warm + 0.45, PT(-0.45, 2.4, 1.3, 1.0, 22, 0.03), A9],
+      [K.write - 0.3, PT(-0.45, 2.5, 1.28, 1.0, 22), E.lin],
+      [K.write + 0.2, PT(-0.4, 1.8, 1.42, 1.0, 26), A6],
+      [K.turn + 0.3, P(0.06, 9.6, 2.7, 0.1, 1.15, -0.55), A6],
+      [K.dial - 0.3, P(0.0, 9.2, 2.6, 0.1, 1.15, -0.55), E.lin],
+      [K.dial + 0.15, P(-0.85, 0.8, 1.75, 3.37, 1.64, -1.05, 26), A9],
+      [K.s1 + 0.1, P(-0.78, 0.68, 1.72, 3.37, 1.65, -1.05, 26), E.io],
+      [K.s2 + 0.1, P(-0.2, 1.4, 1.2, 3.1, 1.08, -1.3, 26), A6],
+      [K.cold - 0.05, P(-0.3, 1.75, 1.3, 3.1, 1.0, -1.2, 28), A6],
+      [K.no + 0.35, P(-0.45, 2.8, 1.6, 2.4, 0.95, -0.55), E.io],
+      [K.cta + 2.5, P(0.06, 10.8, 3.0, 0.1, 1.2, -0.55), E.io],
+    ]);
+    const FOC = new T3.Vector3(), tmp = new T3.Vector3();
+    k.frame((t) => {
+      const ck = coldK(t), g = k.grade; g.temp = 0.22 - 0.5 * ck; g.th = 1.6; g.bloom = 0.35; g.sat = 1.04;
+      hS.rotation.z = -((Math.floor(t) + MC.out(2.2)(seg(t % 1, 0, 0.18))) / 60) * Math.PI * 2 - 0.3;
+      door.rotation.y = 1.45 * doorA(t);
+      inL.color.setRGB(lerp(1.0, 0.65, ck), lerp(0.8, 0.85, ck), lerp(0.55, 1.0, ck)); inL.intensity = 0.9 + 0.5 * ck;
+      bulbM.color.setRGB(lerp(2.2, 1.4, ck), lerp(1.9, 1.8, ck), lerp(1.4, 2.4, ck));
+      stink.forEach((m, i) => { const a = ((t * 0.6 + i / 3) % 1), on = 1 - E.io(seg(t, K.cold - 0.2, 0.5)); stinkM.opacity = 0.55 * on; m.position.set(2.95 + 0.03 * Math.sin(t * 4 + i), 1.22 + a * 0.3, -1.08); m.rotation.z = Math.sin(t * 3 + i) * 0.6; m.scale.setScalar(0.7 + a * 0.6); });
+      ringM2.opacity = E.io(seg(t, K.dial - 0.05, 0.3)) * (0.6 + 0.4 * Math.sin(t * 10)) * (1 - E.io(seg(t, K.s1 + 0.4, 0.2)));
+      dial.rotation.x = -2.2 * antMove(t, K.s1 - 0.05, 0.4, 0, 1, 1.15);
+      const sl = slide(t); tubs.forEach((m, i) => { m.position.z = -1.45 + 0.28 * sl * (i === 2 ? 0.8 : 1); m.position.x += 0; });
+      airM.opacity = 0.4 * E.io(seg(t, K.s2 + 0.25, 0.4)) * (1 - E.io(seg(t, K.no + 0.1, 0.4)));
+      air.forEach((m, i) => { const a = ((t * 0.8 + MC.rnd(i, 1)) % 1); m.position.set(2.99 + MC.rnd(i, 2) * 0.22, 1.02 + MC.rnd(i, 3) * 0.16, -1.5 + a * 0.45); });
+      frost.forEach((s, i) => { const a = ((t * 0.35 + MC.rnd(i, 1)) % 1); s.material.opacity = ck * 0.2 * Math.sin(a * Math.PI); s.position.set(2.85 + MC.rnd(i, 2) * 0.5, 0.15 + MC.rnd(i, 3) * 1.6 - a * 0.2, -1.45 + MC.rnd(i, 4) * 0.5 + a * 0.3); s.scale.setScalar(0.15 + a * 0.3); });
+      // tenant: opens the fridge, sniffs → disgust → phone → turns the dial → clears the back wall → joy
+      const sniff = E.io(seg(t, 0.6, 0.4)) * (1 - E.io(seg(t, K.warm - 0.05, 0.15)));
+      const shock = E.io(seg(t, K.warm, 0.08)) * (1 - E.io(seg(t, K.warm + 0.8, 0.3)));
+      const phoneUp = MC.spring(t, K.write - 0.7, 2.2, 0.4) * (1 - E.io(seg(t, K.dial - 0.45, 0.25)));
+      const reachUp = E.io(seg(t, K.s1 - 0.35, 0.3)) * (1 - E.io(seg(t, K.s1 + 0.6, 0.3)));
+      const work = E.io(seg(t, K.s2 - 0.35, 0.3)) * (1 - E.io(seg(t, K.s2 + 0.8, 0.3)));
+      const joy = MC.spring(t, K.cold + 0.3, 2.4, 0.35);
+      const sq = -0.13 * Math.exp(-Math.pow((t - (K.warm + 0.12)) / 0.07, 2));
+      const face = lerp(lerp(2.05, -0.4, antMove(t, K.warm + 0.02, 0.25, 0, 1, 1.2)), 2.05, E.io(seg(t, K.dial - 0.55, 0.3))) * (1 - E.io(seg(t, K.cold + 0.2, 0.35))) - 0.4 * E.io(seg(t, K.cold + 0.2, 0.35));
+      k.drive(TN, t, vTN, {
+        face, squash: sq, tilt: 0, nod: 0.3 * sniff + 0.25 * phoneUp - 0.15 * shock - 0.25 * reachUp + 0.2 * work,
+        lean: 0.3 * sniff + 0.35 * work - 0.12 * joy - 0.15 * shock,
+        armL: shock > 0.5 ? -2.4 : (joy > 0.02 ? -0.4 - 2.4 * joy : -0.2 - 1.3 * work + 0.2 * work * Math.sin(t * 9) - 0.6 * sniff),
+        armR: shock > 0.5 ? -2.4 : (joy > 0.02 ? -0.4 - 2.4 * joy : -0.25 - 1.2 * phoneUp - 2.3 * reachUp - 1.3 * work - 0.2 * work * Math.sin(t * 9)),
+      });
+      k.face(TN, t, { wide: shock, o: shock * 0.7, smile: joy > 0.1 ? 1 : 0.1 });
+      phone.visible = phoneUp > 0.05; scrM.color.set(phoneUp > 0.5 ? '#9fd0ff' : '#33415c');
+      const c = camT(t); k.shoot(c, t, 0.8);
+      FOC.set(c.tx, c.ty, c.tz); k.dof = { focus: FOC, ap: c.r < 1.6 ? 0.012 : 0.03 };
+    });
+    // ---- overlays ----
+    const chip = ov('tdchip', S.chip); tl.set(chip, { xPercent: -50 }, 0); k.popIn(chip, 0.12, { y: -50 }); k.popOut(chip, K.turn, { y: -60 });
+    const m1 = ov('tdchat in', `<b>${S.who}</b>${S.m1}`), m2 = ov('tdchat out', `<b>Tenance ${de ? 'KI' : 'AI'}</b>${S.m2}`);
+    tl.set([m1, m2], { left: 540 }, 0); tl.set(m1, { top: 260 }, 0); tl.set(m2, { top: 450 }, 0);
+    k.popIn(m1, K.write - 0.12); k.popIn(m2, K.ans + 0.08); k.popOut(m1, K.dial - 0.45); k.popOut(m2, K.dial - 0.39);
+    k.burst(K.turn); sfx('impact', K.turn, -13);
+    const pulseR = ov('tdpulse', ''); tl.set(pulseR, { autoAlpha: 0 }, 0); tl.fromTo(pulseR, { autoAlpha: 0.9, scale: 0.2 }, { autoAlpha: 0, scale: 3, duration: 0.8, ease: 'power2.out', immediateRender: false }, K.turn);
+    k.brand(K.turn, 1330);
+    const cd = k.card(S.ttl, [S.l1, S.l2, S.l3], K.dial - 0.3);
+    cd.line(0, K.dial + 0.2); cd.line(1, K.s2 + 0.05); cd.line(2, K.cold + 0.2);
+    k.popOut(cd.c, K.no - 0.12, { y: -80 });
+    const thT = ov('tdtag warn', '🌡️ 14 °C'); k.popIn(thT, K.warm - 0.2, { y: 30 }); k.popOut(thT, K.turn - 0.1, { y: -40 }); k.popIn(thT, K.s2 + 0.2, { y: 30 }); k.popOut(thT, K.no - 0.1, { y: -40 });
+    const eT = ov('tdtag warn', '⚠️ ' + S.err); k.popIn(eT, K.dial + 0.25, { y: 30 }); k.popOut(eT, K.s1 - 0.1, { y: -40 });
+    const s1 = ov('tdtag step', S.s1); k.popIn(s1, K.s1 - 0.05, { y: 30 }); k.popOut(s1, K.s2 - 0.12, { y: -40 });
+    const s2 = ov('tdtag step', S.s2); k.popIn(s2, K.s2 - 0.05, { y: 30 }); k.popOut(s2, K.cold - 0.12, { y: -40 });
+    const okT = ov('tdtag ok', S.ok); k.popIn(okT, K.no + 0.05, { y: 40 });
+    perFrame((t) => {
+      const at = (el, v, lo = 240, hi = 840, dy = 0) => { const [x, y] = k.proj(D.localToWorld(tmp.copy(v))); el.style.left = clamp(x, lo, hi) + 'px'; el.style.top = clamp(y + dy, 330, 1450) + 'px'; };
+      const tc = temp(t); thT.textContent = '🌡️ ' + tc + ' °C'; thT.className = 'tdtag ' + (tc > 7 ? 'warn' : 'ok');
+      at(thT, new T3.Vector3(3.1, 1.5, -1.0), 240, 840, -40); at(eT, new T3.Vector3(3.37, 1.66, -1.05), 240, 840, -380); at(s1, new T3.Vector3(3.37, 1.66, -1.05), 240, 840, -380); at(s2, new T3.Vector3(3.1, 1.25, -1.3), 240, 840, -80); at(okT, new T3.Vector3(2.25, 2.3, -0.5));
+    });
+    sfx('send', K.write - 0.1, -13); sfx('pop', K.ans + 0.1, -12);
+    sfx('refresh', K.dial, -14); sfx('click', K.s1 + 0.15, -8); sfx('thud', K.s2 + 0.2, -11);
+    sfx('kaching', K.no + 0.1, -14); sfx('click', K.no + 0.45, -10);
+    k.finish(K.cta + 0.3, K.cta + 0.6, S.end);
+    return { T: END + 0.9, K };
+  }
   const GR = {
     X29: [[2, 4, 1, 4, 3, 4, 2, 1, 1, 2, 1, 4, 4], [2, 4, 2, 4, 4, 2, 2, 1, 4, 1, 4, 4, 1]],
     X30: [[4, 2, 4, 4, 4, 2, 4, 3, 1, 1, 1, 4], [4, 2, 4, 4, 1, 2, 4, 4, 2, 1, 1, 1, 4]],
@@ -10269,7 +10971,7 @@
     X49: [[2, 2, 3, 2, 2, 2, 4, 1, 4, 2, 4], [2, 2, 3, 2, 2, 2, 4, 2, 4, 4]],
     X50: [[3, 4, 2, 3, 3, 3, 4, 3, 2, 1, 4], [3, 4, 1, 3, 4, 4, 4, 2, 2, 1, 4]],
     X51: [[1, 3, 4, 3, 3, 1, 4, 4, 4], [1, 2, 3, 3, 3, 4, 4, 2, 3, 3]],
-    X52: [[4, 1, 4, 1, 3, 3, 2, 2, 4, 1, 2, 4], [4, 2, 4, 1, 3, 3, 2, 3, 4, 1, 2, 3]], X53: [[3, 1, 4, 1, 3, 3, 3, 4, 2, 4, 4], [2, 1, 4, 1, 3, 3, 4, 2, 4, 2, 4, 2, 3]], X54: [[4, 1, 3, 3, 3, 2, 2, 3, 1, 3, 4], [4, 1, 4, 2, 3, 3, 2, 3, 4, 4, 1, 3]], X55: [[4, 4, 3, 3, 4, 4, 4, 2, 3, 4], [1, 4, 1, 3, 3, 4, 2, 4, 4, 2, 3, 3]], X56: [[4, 1, 4, 1, 3, 3, 4, 2, 4, 4, 1, 3, 4], [4, 4, 1, 3, 3, 4, 1, 4, 4, 4, 1, 3, 3]], X57: [[4, 4, 3, 3, 3, 4, 1, 4, 2, 3, 4], [4, 4, 1, 3, 3, 4, 4, 1, 3, 4, 1, 3, 3]], X58: [[3, 3, 3, 3, 3, 3, 4, 3, 4, 1, 3, 4], [4, 4, 4, 3, 3, 4, 4, 4, 4, 1, 4, 3]], X59: [[3, 4, 2, 3, 3, 4, 2, 2, 2, 4, 2, 3, 4], [2, 4, 2, 3, 3, 4, 1, 3, 3, 4, 2, 3, 3]], X60: [[4, 2, 3, 3, 2, 4, 2, 4, 3, 2, 4], [4, 4, 3, 3, 2, 4, 3, 4, 4, 2, 3]], X61: [[3, 3, 4, 3, 3, 2, 4, 1, 1, 2, 2, 4, 2, 4], [2, 4, 4, 3, 3, 2, 4, 3, 3, 2, 4, 2, 3]], X62: [[2, 4, 4, 4, 3, 3, 3, 1, 3, 4, 4, 2, 4, 4], [2, 4, 4, 3, 3, 3, 4, 1, 4, 3, 4, 3, 4, 1, 3]], X63: [[3, 4, 2, 3, 3, 4, 4, 2, 4, 4, 1, 3, 4], [2, 4, 3, 3, 3, 4, 4, 2, 4, 4, 1, 4, 3]], X64: [[4, 4, 1, 3, 3, 4, 1, 4, 4, 4, 1, 2, 2, 4], [4, 4, 1, 3, 3, 4, 2, 4, 4, 1, 4, 1, 3, 3, 3]], X65: [[1, 3, 3, 4, 3, 3, 4, 2, 2, 4, 4, 4, 4, 4], [2, 4, 4, 3, 3, 3, 4, 2, 4, 4, 3, 4, 3, 3]], X66: [[3, 4, 3, 3, 3, 4, 1, 4, 1, 4, 4, 4, 1, 4], [4, 1, 4, 3, 3, 3, 4, 1, 4, 3, 4, 1, 4, 4, 1, 3]], X67: [[1, 3, 3, 2, 3, 3, 3, 4, 3, 2, 4, 4, 1, 4], [1, 4, 4, 1, 4, 2, 3, 4, 1, 4, 1, 4, 1, 4, 4, 1, 3]],
+    X52: [[4, 1, 4, 1, 3, 3, 2, 2, 4, 1, 2, 4], [4, 2, 4, 1, 3, 3, 2, 3, 4, 1, 2, 3]], X53: [[3, 1, 4, 1, 3, 3, 3, 4, 2, 4, 4], [2, 1, 4, 1, 3, 3, 4, 2, 4, 2, 4, 2, 3]], X54: [[4, 1, 3, 3, 3, 2, 2, 3, 1, 3, 4], [4, 1, 4, 2, 3, 3, 2, 3, 4, 4, 1, 3]], X55: [[4, 4, 3, 3, 4, 4, 4, 2, 3, 4], [1, 4, 1, 3, 3, 4, 2, 4, 4, 2, 3, 3]], X56: [[4, 1, 4, 1, 3, 3, 4, 2, 4, 4, 1, 3, 4], [4, 4, 1, 3, 3, 4, 1, 4, 4, 4, 1, 3, 3]], X57: [[4, 4, 3, 3, 3, 4, 1, 4, 2, 3, 4], [4, 4, 1, 3, 3, 4, 4, 1, 3, 4, 1, 3, 3]], X58: [[3, 3, 3, 3, 3, 3, 4, 3, 4, 1, 3, 4], [4, 4, 4, 3, 3, 4, 4, 4, 4, 1, 4, 3]], X59: [[3, 4, 2, 3, 3, 4, 2, 2, 2, 4, 2, 3, 4], [2, 4, 2, 3, 3, 4, 1, 3, 3, 4, 2, 3, 3]], X60: [[4, 2, 3, 3, 2, 4, 2, 4, 3, 2, 4], [4, 4, 3, 3, 2, 4, 3, 4, 4, 2, 3]], X61: [[3, 3, 4, 3, 3, 2, 4, 1, 1, 2, 2, 4, 2, 4], [2, 4, 4, 3, 3, 2, 4, 3, 3, 2, 4, 2, 3]], X62: [[2, 4, 4, 4, 3, 3, 3, 1, 3, 4, 4, 2, 4, 4], [2, 4, 4, 3, 3, 3, 4, 1, 4, 3, 4, 3, 4, 1, 3]], X63: [[3, 4, 2, 3, 3, 4, 4, 2, 4, 4, 1, 3, 4], [2, 4, 3, 3, 3, 4, 4, 2, 4, 4, 1, 4, 3]], X64: [[4, 4, 1, 3, 3, 4, 1, 4, 4, 4, 1, 2, 2, 4], [4, 4, 1, 3, 3, 4, 2, 4, 4, 1, 4, 1, 3, 3, 3]], X65: [[1, 3, 3, 4, 3, 3, 4, 2, 2, 4, 4, 4, 4, 4], [2, 4, 4, 3, 3, 3, 4, 2, 4, 4, 3, 4, 3, 3]], X66: [[3, 4, 3, 3, 3, 4, 1, 4, 1, 4, 4, 4, 1, 4], [4, 1, 4, 3, 3, 3, 4, 1, 4, 3, 4, 1, 4, 4, 1, 3]], X67: [[1, 3, 3, 2, 3, 3, 3, 4, 3, 2, 4, 4, 1, 4], [1, 4, 4, 1, 4, 2, 3, 4, 1, 4, 1, 4, 1, 4, 4, 1, 3]], X68: [[2, 3, 3, 3, 2, 3, 3, 3, 2, 3, 3, 2, 3, 3, 3, 4], [4, 3, 2, 3, 3, 3, 3, 4, 3, 4, 4, 4, 4, 3, 3]], X69: [[3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 3, 2, 4], [3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 4, 4, 3, 2, 3, 3, 3]], X70: [[4, 3, 3, 3, 3, 4, 4, 3, 2, 3, 4, 4, 3, 4], [3, 2, 3, 3, 3, 3, 4, 3, 3, 4, 4, 4, 3, 3, 3]],
     X28: [[1, 2, 4, 1, 4, 4, 1, 3, 4, 4, 2, 4], [2, 2, 4, 2, 2, 4, 4, 2, 4, 3, 2, 4, 1]],
     X27: [[3, 4, 3, 4, 1, 3, 4, 2, 2, 4], [3, 4, 1, 3, 1, 2, 4, 1, 4, 1, 4, 2, 2, 4]],
     X21: [[2, 4, 2, 1, 4, 1, 3, 2, 1, 4, 4, 2, 1, 1, 1], [3, 4, 1, 4, 1, 3, 2, 1, 4, 2, 2, 3, 2, 3, 4]],
@@ -10302,7 +11004,7 @@
     W2: [[2, 3, 4, 3, 3, 1, 2, 3, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 3, 2, 3], [3, 4, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 2, 3, 3, 2, 2, 2, 2]],
     W3: [[2, 4, 4, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 3, 2], [3, 4, 4, 1, 3, 3, 1, 3, 1, 4, 1, 4, 1, 3, 3, 2, 3, 2]],
   };
-  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, X16, X17, X18, X19, X20, X21, X22, X23, X24, X25, X26, X27, X28, X29, X30, X31, X32, X33, X34, X35, X36, X37, X38, X39, X40, X41, X42, X43, X44, X45, X46, X47, X48, X49, X50, X51, X52, X53, X54, X55, X56, X57, X58, X59, X60, X61, X62, X63, X64, X65, X66, X67 }[C]();
+  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, X16, X17, X18, X19, X20, X21, X22, X23, X24, X25, X26, X27, X28, X29, X30, X31, X32, X33, X34, X35, X36, X37, X38, X39, X40, X41, X42, X43, X44, X45, X46, X47, X48, X49, X50, X51, X52, X53, X54, X55, X56, X57, X58, X59, X60, X61, X62, X63, X64, X65, X66, X67, X68, X69, X70 }[C]();
   captions(GR[C][lang === 'de' ? 0 : 1]);
   stage.appendChild(document.getElementById('cap'));
   stage.appendChild(document.querySelector('.grain'));
