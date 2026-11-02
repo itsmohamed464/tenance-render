@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "buffer-de-extra": {
+      "type": "http",
+      "url": "https://mcp.buffer.com/mcp",
+      "headers": { "Authorization": "Bearer ${BUFFER_DE_EXTRA_KEY:-}" }
+    },
+    "buffer-global-main": {
+      "type": "http",
+      "url": "https://mcp.buffer.com/mcp",
+      "headers": { "Authorization": "Bearer ${BUFFER_GLOBAL_MAIN_KEY:-}" }
+    },
+    "buffer-global-extra": {
+      "type": "http",
+      "url": "https://mcp.buffer.com/mcp",
+      "headers": { "Authorization": "Bearer ${BUFFER_GLOBAL_EXTRA_KEY:-}" }
+    }
+  }
+}
