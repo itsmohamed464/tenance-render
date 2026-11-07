@@ -90,6 +90,9 @@ const MUSIC = {
   X69: { f: 'm3D2.mp3', segs: [{ f: 'm2B3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X70: { f: 'm3F3.mp3', segs: [{ f: 'm2C2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X71: { f: 'm3D3.mp3', segs: [{ f: 'm2A3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
+  X83: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
+  X82: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
+  X81: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X80: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X79: { f: 'm3F3.mp3', segs: [{ f: 'm2C2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X78: { f: 'm3D2.mp3', segs: [{ f: 'm2B3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
@@ -268,6 +271,12 @@ const V = {
   'X70-en': { name: 'aifridge02-en', concept: 'X70', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-de': { name: 'kirauchmelder04-de', concept: 'X71', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-en': { name: 'aismoke04-en', concept: 'X71', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X83-de': { name: 'kifenster08-de', concept: 'X83', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X83-en': { name: 'aiwindow08-en', concept: 'X83', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X82-de': { name: 'kiheizung08-de', concept: 'X82', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X82-en': { name: 'airadiator08-en', concept: 'X82', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X81-de': { name: 'kistrom08-de', concept: 'X81', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X81-en': { name: 'aibreaker08-en', concept: 'X81', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X80-de': { name: 'kiklingel07-de', concept: 'X80', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X80-en': { name: 'aidoorbell07-en', concept: 'X80', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X79-de': { name: 'kibalkon07-de', concept: 'X79', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
@@ -478,11 +487,23 @@ for (const id of ids) {
   const sheetT = [0.3, 1.5, 3, 4.5, 6, 7.5, 9, 10.5, T - 0.9, T - 0.1].filter((t) => t < T);
   const sheetF = sheetT.map((t) => Math.round(t * FPS));
   let tSeek = 0, tCap = 0;
+  // RESUME=1: frames are cached on disk (out/fr_<name>/NNNNNN.jpg) so a killed render continues where it stopped
+  const RES = !!process.env.RESUME;
+  const fdir = path.join(OUT, `fr_${v.name}`);
+  const fp = (f) => path.join(fdir, String(f).padStart(6, '0') + '.jpg');
+  const shot = async (f) => { await page.evaluate((t) => window.seek(t), f / FPS); return Buffer.from((await cdp.send('Page.captureScreenshot', { format: 'jpeg', quality: 93, optimizeForSpeed: true })).data, 'base64'); };
+  if (RES) {
+    fs.mkdirSync(fdir, { recursive: true });
+    for (let f = 0; f < N; f++) {
+      if (fs.existsSync(fp(f))) continue;
+      fs.writeFileSync(fp(f) + '.tmp', await shot(f)); fs.renameSync(fp(f) + '.tmp', fp(f));
+      if (f % 60 === 0) process.stdout.write(`${id} ${f}/${N}\r`);
+    }
+  }
   for (let f = 0; f < N; f++) {
     const a0 = Date.now();
-    await page.evaluate((t) => window.seek(t), f / FPS);
-    const a1 = Date.now();
-    const buf = Buffer.from((await cdp.send('Page.captureScreenshot', { format: 'jpeg', quality: 93, optimizeForSpeed: true })).data, 'base64');
+    const a1 = a0;
+    const buf = RES ? fs.readFileSync(fp(f)) : await shot(f);
     tSeek += a1 - a0; tCap += Date.now() - a1;
     if (sheetF.includes(f)) { const p = path.join(OUT, `${v.name}.f${f}.jpg`); fs.writeFileSync(p, buf); shots.push(p); }
     if (!ff.stdin.write(buf)) await once(ff.stdin, 'drain');
@@ -497,6 +518,7 @@ for (const id of ids) {
   const ln = mixAudio(v, cues, T, wav, K);
   const final = path.join(OUT, `${v.name}.mp4`);
   execFileSync(FF, ['-y', '-hide_banner', '-loglevel', 'error', '-i', silent, '-i', wav, '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-t', T.toFixed(3), '-movflags', '+faststart', final]);
+  if (process.env.RESUME && fs.existsSync(final) && fs.statSync(final).size > 1e6) fs.rmSync(path.join(OUT, `fr_${v.name}`), { recursive: true, force: true });
   if (shots.length) {
     execFileSync(FF, ['-y', '-hide_banner', '-loglevel', 'error', ...shots.flatMap((f) => ['-i', f]), '-filter_complex', shots.map((_, i) => `[${i}]scale=216:384[v${i}]`).join(';') + ';' + shots.map((_, i) => `[v${i}]`).join('') + `hstack=${shots.length}`, path.join(OUT, `${v.name}.sheet.jpg`)]);
     shots.forEach((f) => fs.unlinkSync(f));
