@@ -1,0 +1,3 @@
+X86-de WebGL: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) MBN=32 PR=2 FPS=30
+X86-de 0/471X86-de 60/471X86-de 120/471X86-de 180/471X86-de 240/471X86-de 300/471X86-de 360/471X86-de 420/471X86-de 0/471X86-de 120/471X86-de 240/471X86-de 360/471X86-de avg per frame: seek+render 0 ms, capture 1 ms
+X86-de -> kispuelung09-de.mp4 T=15.70 frames=471 render=775s inLUFS=-21.23 size=48883101
