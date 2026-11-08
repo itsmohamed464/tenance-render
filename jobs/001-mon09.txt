@@ -1,3 +1,5 @@
 # Monday Nov 9 batch
 X84-de
 X84-en
+X85-de
+X85-en
