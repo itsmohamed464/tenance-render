@@ -1,0 +1,5 @@
+# Sunday Nov 8 batch, in priority order
+X82-de
+X82-en
+X83-de
+X83-en

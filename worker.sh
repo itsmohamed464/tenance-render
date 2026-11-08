@@ -15,7 +15,7 @@ while true; do
   if [ -z "$id" ]; then sleep 30; continue; fi
   echo "$(date +%H:%M:%S) rendering $id"
   start=$(date +%s)
-  ( cd v2 && node r2.mjs "$id" ) > "logs/$id.log" 2>&1
+  ( cd v2 && RESUME=1 node r2.mjs "$id" --fps=30 ) > "logs/$id.log" 2>&1
   name=$(grep -oE -- '-> [^ ]+\.mp4' "logs/$id.log" | tail -1 | cut -c4-)
   if [ -n "$name" ] && [ -f "v2/out/$name" ]; then
     cp "v2/out/$name" results/
