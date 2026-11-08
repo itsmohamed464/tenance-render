@@ -1,11 +1,3 @@
-X63-en WebGL: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) MBN=32 PR=2 FPS=60
-X63-en 0/925X63-en 120/925X63-en 240/925X63-en 360/925X63-en 480/925X63-en 600/925X63-en 720/925X63-en 840/925node:internal/modules/run_main:107
-    triggerUncaughtException(
-    ^
-
-cdpSession.send: Target page, context or browser has been closed
-    at /Users/mohamed/tenance-render/v2/r2.mjs:446:40 {
-  log: []
-}
-
-Node.js v24.15.0
+X63-en WebGL: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) MBN=32 PR=2 FPS=30
+X63-en 0/463X63-en 60/463X63-en 120/463X63-en 180/463X63-en 240/463X63-en 300/463X63-en 360/463X63-en 420/463X63-en 0/463X63-en 120/463X63-en 240/463X63-en 360/463X63-en avg per frame: seek+render 0 ms, capture 1 ms
+X63-en -> aiwindow30-en.mp4 T=15.42 frames=463 render=411s inLUFS=-20.04 size=56819151
