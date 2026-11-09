@@ -15,7 +15,7 @@ fs.mkdirSync(OUT, { recursive: true });
 const argv = process.argv.slice(2);
 const opt = Object.fromEntries(argv.filter((a) => a.startsWith('--')).map((a) => { const [k, v] = a.slice(2).split('='); return [k, v ?? true]; }));
 const ids = argv.filter((a) => !a.startsWith('--'));
-const FPS = Number(opt.fps || 60);
+const FPS = Number(opt.fps && opt.fps !== '30' ? opt.fps : 60);   // the Mac worker passes --fps=30; full 60 fps is wanted for final renders
 
 // music: segs play the track from `src` starting at video time `at` (number or K key + lead);
 // `onset` aligns a single track's beat drop to K.turn + lead.
@@ -90,6 +90,9 @@ const MUSIC = {
   X69: { f: 'm3D2.mp3', segs: [{ f: 'm2B3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X70: { f: 'm3F3.mp3', segs: [{ f: 'm2C2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X71: { f: 'm3D3.mp3', segs: [{ f: 'm2A3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
+  X89: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
+  X88: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
+  X87: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X86: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X85: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X84: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
@@ -274,6 +277,12 @@ const V = {
   'X70-en': { name: 'aifridge02-en', concept: 'X70', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-de': { name: 'kirauchmelder04-de', concept: 'X71', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-en': { name: 'aismoke04-en', concept: 'X71', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X89-de': { name: 'kikuehlschrank10-de', concept: 'X89', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X89-en': { name: 'aifridge10-en', concept: 'X89', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X88-de': { name: 'kituer10-de', concept: 'X88', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X88-en': { name: 'aidoor10-en', concept: 'X88', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X87-de': { name: 'kispuelmaschine10-de', concept: 'X87', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X87-en': { name: 'aidishwasher10-en', concept: 'X87', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X86-de': { name: 'kispuelung09-de', concept: 'X86', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X86-en': { name: 'aitoiletrun09-en', concept: 'X86', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X85-de': { name: 'kidusche09-de', concept: 'X85', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },

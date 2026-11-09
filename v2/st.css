@@ -1989,3 +1989,8 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
 .X84 #cap{top:1640px}.X84 .tdtimer{top:420px}.X84 .tdtag{font-size:38px}
 .X85 #cap{top:1640px}.X85 .tdtimer{top:420px}.X85 .tdtag{font-size:38px}
 .X86 #cap{top:1640px}.X86 .tdtimer{top:420px}.X86 .tdtag{font-size:38px}
+.tdhook{position:absolute;left:50%;top:300px;max-width:900px;padding:18px 40px;border-radius:40px;background:rgba(16,30,22,.86);border:5px solid #e09b6b;color:#faf6ee;font:700 70px/1.12 Clash;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.5);visibility:hidden}
+.tdsave{position:absolute;left:50%;top:330px;padding:20px 40px;border-radius:34px;background:#5ac86a;color:#0f2a17;border:5px solid #faf6ee;font:700 54px Clash;white-space:nowrap;box-shadow:0 20px 50px rgba(0,0,0,.5);visibility:hidden}
+.X87 #cap{top:1640px}.X87 .tdtimer{top:420px}.X87 .tdtag{font-size:38px}
+.X88 #cap{top:1640px}.X88 .tdtimer{top:420px}.X88 .tdtag{font-size:38px}
+.X89 #cap{top:1640px}.X89 .tdtimer{top:420px}.X89 .tdtag{font-size:38px}

@@ -1,0 +1,7 @@
+# Tuesday Nov 10 batch (hook-first format, 60 fps)
+X87-de
+X87-en
+X88-de
+X88-en
+X89-de
+X89-en
