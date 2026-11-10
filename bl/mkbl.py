@@ -29,7 +29,7 @@ SPECS['X90'] = dict(
   post=[['ans', ['antwortet', 'answers']], ['air', ['Luft', 'air']], ['valve', ['Ventil', 'valve']], ['water', ['Wasser', 'water']], ['warm', ['warm']], ['sleep', ['schläfst', 'sleeping']], ['save', ['spart', 'saves']], ['cta', ['Jetzt', 'Join']]],
   hook={'out': ['write', -0.15]}, chat={'in1': ['write', -0.12], 'in2': ['ans', 0.08], 'out1': ['air', -0.5], 'out2': ['air', -0.44]},
   card={'t': ['air', -0.3], 'lines': [['air', 0.1], ['valve', 0], ['warm', 0]], 'out': ['save', -0.12]},
-  tags=[dict(k='zz', cls='step', anchor='zzz', dy=-150, **{'in': ['night', 0.0], 'out': ['night', 0.8]}), dict(k='cold', cls='warn', anchor='rad2', dy=-210, **{'in': ['write', 0.4], 'out': ['turn', 0.6]}),
+  tags=[dict(k='cold', cls='warn', anchor='rad2', dy=-210, **{'in': ['write', 0.4], 'out': ['turn', 0.6]}),
         dict(k='air', cls='warn', anchor='valve', dy=-200, **{'in': ['air', 0.05], 'out': ['valve', -0.15]}), dict(k='s1', cls='step', anchor='valve', dy=-200, **{'in': ['valve', -0.05], 'out': ['water', -0.15]}),
         dict(k='s2', cls='step', anchor='valve', dy=-200, **{'in': ['water', -0.05], 'out': ['warm', -0.25]}), dict(k='warm', cls='ok', anchor='rad', dy=-190, **{'in': ['warm', 0.05], 'out': ['sleep', -0.4]}),
         dict(k='sl', cls='ok', anchor='ll', dy=-170, **{'in': ['sleep', 0.2], 'out': ['save', -0.1]})],

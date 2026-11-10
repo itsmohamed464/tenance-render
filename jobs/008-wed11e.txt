@@ -1,0 +1,3 @@
+# v2b: phone-macro opening fixed, no overlapping tag, mascot path off camera
+X94-de
+X94-en

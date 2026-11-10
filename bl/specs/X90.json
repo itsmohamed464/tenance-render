@@ -174,20 +174,6 @@
  },
  "tags": [
   {
-   "k": "zz",
-   "cls": "step",
-   "anchor": "zzz",
-   "dy": -150,
-   "in": [
-    "night",
-    0.0
-   ],
-   "out": [
-    "night",
-    0.8
-   ]
-  },
-  {
    "k": "cold",
    "cls": "warn",
    "anchor": "rad2",

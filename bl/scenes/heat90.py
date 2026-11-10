@@ -92,12 +92,12 @@ def build(L, K, T, lang):
     cx.anch.update({'zzz': LL.head, 'valve': L.empty('aV', (0.45, 1.62, 0.95)), 'll': LL.head, 'tn': TN.head, 'rad': L.empty('aR', (0.95, 1.6, 0.9)), 'rad2': L.empty('aR2', (0.95, 1.6, 0.4)), 'ph': L.empty('aP', (-0.3, 1.4, UZ + 0.9)), 'van': vanA, 'mas': mas})
     n_, w_, tu, an, ai, va, wa, wr, sl, sv = [K[x] for x in ('night', 'write', 'turn', 'ans', 'air', 'valve', 'water', 'warm', 'sleep', 'save')]
     WIDE = ((0, -12.4, 2.65), (0, 0.4, 2.55), 34); UP = ((-0.45, -5.6, 4.1), (-0.65, 1.0, 3.8), 31); LO = ((0.45, -5.8, 1.5), (0.0, 0.9, 1.1), 30); RD = ((1.0, -2.8, 1.35), (0.33, 1.6, 0.95), 28)
-    MID = ((0.4, -7.5, 1.7), (0.0, 0.9, 1.45), 31); OPEN = ((-0.12, 0.35, UZ + 0.72), (-0.3, 1.45, UZ + 0.5), 24); UP2 = ((-0.9, -4.6, 4.0), (-0.8, 1.2, 3.6), 30)
+    MID = ((0.4, -7.5, 1.7), (0.0, 0.9, 1.45), 31); OPEN = ((-0.2, 0.78, UZ + 0.64), (-0.3, 1.45, UZ + 0.5), 21); UP2 = ((-0.9, -4.6, 4.0), (-0.8, 1.2, 3.6), 30)
     P = lambda t, p: (t, p[0], p[1], p[2])
     camf = L.track([P(0, OPEN), P(n_ + 0.5, OPEN), P(n_ + 1.2, UP), P(w_ - 0.1, UP), P(w_ + 0.5, LO), P(tu - 0.3, LO), P(tu + 0.6, WIDE), P(ai - 0.3, WIDE), P(ai + 0.5, RD), P(wa + 0.9, RD), P(wr + 0.1, MID), P(sl - 0.3, MID), P(sl + 0.7, UP2), P(sv + 0.1, UP2), P(sv + 0.9, WIDE), P(T + 1, WIDE)])
     # mascot flight plan: (t, pos, scale)
     LP, TP, RP = (-0.9, 0.9, UZ + 1.0), (-0.1, 0.0, 1.55), (1.0, 1.25, 1.35)
-    mf = L.track([(0, (0, 0, -9), (0, 0, -9), 0), (tu - 0.01, LP, LP, 0), (tu + 0.35, LP, LP, 1), (tu + 1.0, (-0.5, 0.3, 2.3), (0, 0, 0), 1), (an, TP, TP, 1), (ai - 0.1, TP, TP, 1), (ai + 0.5, RP, RP, 1), (wr - 0.2, RP, RP, 1),
+    mf = L.track([(0, (0, 0, -9), (0, 0, -9), 0), (tu - 0.01, LP, LP, 0), (tu + 0.35, LP, LP, 1), (tu + 1.0, (-1.0, 1.1, 2.4), (0, 0, 0), 1), (an, TP, TP, 1), (ai - 0.1, TP, TP, 1), (ai + 0.5, RP, RP, 1), (wr - 0.2, RP, RP, 1),
                   (wr + 0.5, (0.55, 0.8, 2.0), (0, 0, 0), 1), (sl - 0.4, (0.0, 0.6, 2.4), (0, 0, 0), 1), (sl + 0.6, (-0.9, 1.1, UZ + 1.55), (0, 0, 0), 1), (T + 1, (-0.9, 1.1, UZ + 1.55), (0, 0, 0), 1)])
     sp_ = lambda t, a, b: eio(seg(t, a, b - a))
     cues_kick = [n_ + 0.1, tu, va, wr, sv]
@@ -111,7 +111,7 @@ def build(L, K, T, lang):
         buz = (1.0 if n_ + 0.1 < t < n_ + 1.3 else 0.0) * (0.5 + 0.5 * math.sin(t * 60)); hold = sp_(t, n_ + 1.4, n_ + 1.7) * (1 - sp_(t, an + 1.0, an + 1.3))
         phU.scale = (1, 1, 1) if hold < 0.5 else (0.001,) * 3; phL.scale = (1, 1, 1) if hold >= 0.5 else (0.001,) * 3
         phU.location = (-0.3 + 0.006 * math.sin(t * 90) * buz, 1.45, UZ + 0.495); phU.rotation_euler = (0, 0, 0.4 + 0.05 * math.sin(t * 70) * buz)
-        phUes.default_value = 5.0 * (buz * 0.9 + 0.1 * (1 - hold) * (1.0 if t > n_ else 0.0)); phLes.default_value = 6.0; phoneL.data.energy = 45 * buz + 25 * hold; phoneL.data.color = (0.62, 0.82, 1.0)
+        phUes.default_value = 2.6 * (buz * 0.9 + 0.1 * (1 - hold) * (1.0 if t > n_ else 0.0)); phLes.default_value = 6.0; phoneL.data.energy = 18 * buz + 25 * hold; phoneL.data.color = (0.62, 0.82, 1.0)
         for i, r in enumerate(rings):
             u = ((t - n_ - 0.1 - i * 0.28) % 0.84) / 0.84; on = 1 if n_ + 0.1 < t < n_ + 1.3 else 0; r.scale = (0.2 + 3.0 * u,) * 3 if on else (0.001,) * 3; r.location = (-0.3, 1.45, UZ + 0.52)
         # ---- tenant
