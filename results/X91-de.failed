@@ -1,0 +1,40 @@
+X91-de WebGL: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) MBN=1 PR=1 FPS=60
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3197 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3195 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3191 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3196 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3195 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3198 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3193 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3197 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3198 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3194 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3193 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3196 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3194 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3199 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3193 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3197 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3196 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3198 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3194 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3196 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3195 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3192 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3198 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3196 / 2048)
+
+Sent an internal break event. Press ^C again to kill Blender
+
+Blender killed
+Error: Not freed memory blocks: 153038, total unfreed memory 209.219185 MB
+
+file:///Users/mohamed/tenance-render/v2/r2.mjs:519
+    const run = (extra) => { const lf = path.join(bdir, 'blender.log'), fd = fs.openSync(lf, 'a'); const r = spawnSync(BL[0], [...BL[1], `scene=${v.bl}`, `k=${kj}`, `out=${bdir}`, `fps=${v.fps || 30}`, ...extra], { stdio: ['ignore', fd, fd] }); fs.closeSync(fd); if (r.status) { console.log(fs.readFileSync(lf, 'utf8').split('\n').filter((l) => !/^Fra:|EGL Error/.test(l)).slice(-30).join('\n')); throw new Error('blender failed ' + r.status + ' ' + (r.error || '')); } };
+                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+
+Error: blender failed 2 
+    at run (file:///Users/mohamed/tenance-render/v2/r2.mjs:519:404)
+    at file:///Users/mohamed/tenance-render/v2/r2.mjs:521:135
+
+Node.js v24.15.0
