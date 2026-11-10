@@ -278,6 +278,7 @@ const V = {
   'X70-en': { name: 'aifridge02-en', concept: 'X70', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-de': { name: 'kirauchmelder04-de', concept: 'X71', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-en': { name: 'aismoke04-en', concept: 'X71', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X92-en': { name: 'aiheating11b-en', concept: 'X90', lang: 'en', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
   'X92-de': { name: 'kiheizung11b-de', concept: 'X90', lang: 'de', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
   'X91-de': { name: 'kiheizung11b-de', concept: 'X90', lang: 'de', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
   'X91-en': { name: 'aiheating11b-en', concept: 'X90', lang: 'en', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
