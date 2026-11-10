@@ -1,0 +1,2 @@
+# Blender probe (returns the log as results/BLCHECK.failed)
+BLCHECK

@@ -411,6 +411,17 @@ const SFXPEAK = {};
 for (const f of fs.readdirSync(AUD).filter((x) => x.startsWith('sfx_'))) SFXPEAK[f.slice(4, -4)] = maxVol(path.join(AUD, f));
 
 const GLINFO = () => { const g = document.createElement('canvas').getContext('webgl2'); if (!g) return 'no WebGL2'; const e = g.getExtension('WEBGL_debug_renderer_info'); return e ? g.getParameter(e.UNMASKED_RENDERER_WEBGL) : g.getParameter(g.RENDERER); };
+// BLCHECK — finds Blender on this machine, prints version / engines / GPU devices (exits 1 so the Mac worker returns the log)
+if (ids[0] === 'BLCHECK') {
+  const cands = [process.env.BLENDER, '/Applications/Blender.app/Contents/MacOS/Blender', process.env.HOME + '/Applications/Blender.app/Contents/MacOS/Blender', spawnSync('which', ['blender']).stdout.toString().trim()].filter((x) => x && fs.existsSync(x));
+  console.log('BLCHECK candidates:', JSON.stringify(cands));
+  for (const b of cands.slice(0, 1)) {
+    const code = "import bpy;print('BLV',bpy.app.version_string);print('BLENG',[e.identifier for e in bpy.types.RenderSettings.bl_rna.properties['engine'].enum_items]);c=bpy.context.preferences.addons['cycles'].preferences;c.compute_device_type='METAL';c.get_devices();print('BLDEV',[(d.name,d.type,d.use) for d in c.devices])";
+    const r = spawnSync(b, ['--background', '--factory-startup', '--python-expr', code], { encoding: 'utf8', timeout: 120000 });
+    console.log((r.stdout || '').split('\n').filter((l) => /^BL|Blender|rror/.test(l)).join('\n'), (r.stderr || '').slice(-400));
+  }
+  process.exit(1);
+}
 // BENCH:<id> — times the render path with several Chromium launch configs (prints a table, exits 1 so the Mac worker returns the log)
 if (ids[0] && ids[0].startsWith('BENCH')) {
   const bid = ids[0].split(':')[1] || 'X52-en', v = V[bid]; v.words = words(v);
