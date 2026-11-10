@@ -1,0 +1,40 @@
+X90-de WebGL: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) MBN=1 PR=1 FPS=60
+18:22.387  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0101.jpg'
+18:33.989  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0102.jpg'
+18:48.074  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0103.jpg'
+19:00.401  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0104.jpg'
+19:17.211  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0105.jpg'
+19:27.195  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0106.jpg'
+19:36.594  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0107.jpg'
+19:46.006  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0108.jpg'
+19:59.012  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0109.jpg'
+20:08.330  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0110.jpg'
+20:17.399  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0111.jpg'
+20:27.003  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0112.jpg'
+20:36.919  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0113.jpg'
+20:45.962  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0114.jpg'
+20:55.894  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0115.jpg'
+21:07.466  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0116.jpg'
+21:19.632  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0117.jpg'
+21:31.631  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0118.jpg'
+21:42.012  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0119.jpg'
+21:52.670  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0120.jpg'
+22:02.593  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0121.jpg'
+22:12.757  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0122.jpg'
+22:26.096  render           | Saved: '/Users/mohamed/tenance-render/v2/out/bl_kiheizung11-de/f_0123.jpg'
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:31:22)
+
+Sent an internal break event. Press ^C again to kill Blender
+
+Blender killed
+Error: Not freed memory blocks: 102307, total unfreed memory 151.869339 MB
+
+file:///Users/mohamed/tenance-render/v2/r2.mjs:502
+    const run = (extra) => { const lf = path.join(bdir, 'blender.log'), fd = fs.openSync(lf, 'a'); const r = spawnSync(BL[0], [...BL[1], `scene=${v.bl}`, `k=${kj}`, `out=${bdir}`, `fps=${v.fps || 30}`, ...extra], { stdio: ['ignore', fd, fd] }); fs.closeSync(fd); if (r.status) { console.log(fs.readFileSync(lf, 'utf8').split('\n').filter((l) => !/^Fra:|EGL Error/.test(l)).slice(-30).join('\n')); throw new Error('blender failed ' + r.status + ' ' + (r.error || '')); } };
+                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+
+Error: blender failed 2 
+    at run (file:///Users/mohamed/tenance-render/v2/r2.mjs:502:404)
+    at file:///Users/mohamed/tenance-render/v2/r2.mjs:504:135
+
+Node.js v24.15.0
