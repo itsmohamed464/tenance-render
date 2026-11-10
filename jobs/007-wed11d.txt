@@ -1,0 +1,3 @@
+# v2 re-run with crash retry (X92 renders lost the 3D layer after ~5s)
+X93-de
+X93-en

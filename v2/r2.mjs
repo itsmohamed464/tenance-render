@@ -278,6 +278,8 @@ const V = {
   'X70-en': { name: 'aifridge02-en', concept: 'X70', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-de': { name: 'kirauchmelder04-de', concept: 'X71', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-en': { name: 'aismoke04-en', concept: 'X71', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X93-de': { name: 'kiheizung11b-de', concept: 'X90', lang: 'de', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
+  'X93-en': { name: 'aiheating11b-en', concept: 'X90', lang: 'en', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
   'X92-en': { name: 'aiheating11b-en', concept: 'X90', lang: 'en', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
   'X92-de': { name: 'kiheizung11b-de', concept: 'X90', lang: 'de', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
   'X91-de': { name: 'kiheizung11b-de', concept: 'X90', lang: 'de', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
@@ -518,9 +520,13 @@ for (const id of ids) {
     const kj = path.join(bdir, 'k.json'); fs.writeFileSync(kj, JSON.stringify({ T, K, lang: v.lang }));
     const rp = path.join(D, '../bl/render.py'), BLX = process.env.BLENDER || ['/Applications/Blender.app/Contents/MacOS/Blender', process.env.HOME + '/Applications/Blender.app/Contents/MacOS/Blender'].find((x) => fs.existsSync(x)) || 'blender';
     const BL = process.env.BLPY ? [process.env.BLPY, [rp]] : [BLX, ['-b', '--factory-startup', '-P', rp, '--']];
-    const run = (extra) => { const lf = path.join(bdir, 'blender.log'), fd = fs.openSync(lf, 'a'); const r = spawnSync(BL[0], [...BL[1], `scene=${v.bl}`, `k=${kj}`, `out=${bdir}`, `fps=${v.fps || 30}`, ...extra], { stdio: ['ignore', fd, fd] }); fs.closeSync(fd); if (r.status) { console.log(fs.readFileSync(lf, 'utf8').split('\n').filter((l) => !/^Fra:|EGL Error/.test(l)).slice(-30).join('\n')); throw new Error('blender failed ' + r.status + ' ' + (r.error || '')); } };
+    const run = (extra) => { const lf = path.join(bdir, 'blender.log'), fd = fs.openSync(lf, 'a'); const r = spawnSync(BL[0], [...BL[1], `scene=${v.bl}`, `k=${kj}`, `out=${bdir}`, `fps=${v.fps || 30}`, ...extra], { stdio: ['ignore', fd, fd] }); fs.closeSync(fd); if (r.status !== 0) { console.log('blender exit', r.status, r.signal || '', fs.readFileSync(lf, 'utf8').split('\n').filter((l) => !/^Fra:|EGL Error/.test(l)).slice(-30).join('\n')); throw new Error('blender failed ' + r.status + ' ' + (r.signal || '') + ' ' + (r.error || '')); } };
     if (opt.preview && opt['no-blender']) { /* reuse stills + anchors from the last run */ } else if (opt.preview) { run(['bake=1']); run([`q=${process.env.BLQ || 'draft'}`, `res=${process.env.BLRES || '540x960'}`, `still=${String(opt.preview)}`]); }
-    else if (!opt['no-blender'] && fs.readdirSync(bdir).filter((f) => /^f_\d+\.jpg$/.test(f)).length < Math.round(T * (v.fps || 30))) run([`q=${process.env.BLQ || 'fast'}`, `res=${process.env.BLRES || '810x1440'}`]);
+    else if (!opt['no-blender']) {
+      const need = Math.round(T * (v.fps || 30)), have = () => fs.readdirSync(bdir).filter((f) => /^f_\d+\.jpg$/.test(f)).length;
+      for (let a = 0; a < 6 && have() < need; a++) { try { run([`q=${process.env.BLQ || 'fast'}`, `res=${process.env.BLRES || '810x1440'}`]); } catch (e) { console.log('blender attempt', a, 'frames', have(), '/', need, String(e).slice(0, 120)); } }
+      if (have() < need) throw new Error(`blender produced only ${have()}/${need} frames`);
+    }
     // cinematic grade (bloom + vignette + grain) on the Blender frames before the overlay pass
     const gr = (inp, out, extra = []) => execFileSync(FF, ['-y', '-hide_banner', '-loglevel', 'error', ...extra, '-i', inp, '-vf', GRADE, '-q:v', '2', out]);
     if (opt.preview) for (const tk of String(opt.preview).split(',')) { const src = path.join(bdir, `still_${tk}.jpg`); if (fs.existsSync(src)) gr(src, path.join(bdir, `g_still_${tk}.jpg`)); }
