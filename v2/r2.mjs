@@ -90,6 +90,7 @@ const MUSIC = {
   X69: { f: 'm3D2.mp3', segs: [{ f: 'm2B3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X70: { f: 'm3F3.mp3', segs: [{ f: 'm2C2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X71: { f: 'm3D3.mp3', segs: [{ f: 'm2A3.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
+  X90: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X89: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X88: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
   X87: { f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 },
@@ -277,6 +278,8 @@ const V = {
   'X70-en': { name: 'aifridge02-en', concept: 'X70', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-de': { name: 'kirauchmelder04-de', concept: 'X71', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-en': { name: 'aismoke04-en', concept: 'X71', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X90-de': { name: 'kiheizung11-de', concept: 'X90', lang: 'de', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
+  'X90-en': { name: 'aiheating11-en', concept: 'X90', lang: 'en', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
   'X89-de': { name: 'kikuehlschrank10-de', concept: 'X89', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X89-en': { name: 'aifridge10-en', concept: 'X89', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X88-de': { name: 'kituer10-de', concept: 'X88', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
@@ -473,7 +476,7 @@ for (const id of ids) {
   if (!v) throw new Error('unknown id ' + id);
   v.words = words(v);
   const t0 = Date.now();
-  const CFG = { id, concept: v.concept, lang: v.lang, words: v.words };
+  const CFG = { id, concept: v.concept, lang: v.lang, words: v.words, spec: v.bl ? JSON.parse(fs.readFileSync(path.join(D, '../bl/specs', v.concept + '.json'), 'utf8')) : undefined };
   const MB = +(process.env.MBN || v.mb || 0), PR = +(process.env.PR || v.pr || 1);
   const html = `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="st.css"></head><body><div id="stage"></div><script>window.CFG=${JSON.stringify(CFG)};window.MBN=${MB};window.PR=${PR};</script>${/^[WX]/.test(v.concept) ? `<script type="module">import * as THREE from './three.module.min.js'; window.THREE = THREE; const ld = (s) => new Promise((r, j) => { const e = document.createElement('script'); e.src = s; e.onload = r; e.onerror = () => j(new Error('load ' + s)); document.body.appendChild(e); }); try { await ld('../vid/gsap.min.js'); await ld('rt.js'); await ld('sw.js'); window.__ok = 1; } catch (e) { window.__err = String(e.stack || e); window.__ok = 1; }</script>` : '<script src="../vid/gsap.min.js"></script><script src="rt.js"></script><script src="sc.js"></script>'}</body></html>`;
   const hp = path.join(D, `${id}.html`);
@@ -490,10 +493,22 @@ for (const id of ids) {
   console.log(id, 'WebGL:', await page.evaluate(GLINFO), `MBN=${MB || 'default'} PR=${PR} FPS=${FPS}`);
   const cues = await page.evaluate(() => window.CUES);
   const K = await page.evaluate(() => window.K);
+  let bdir = null; const FPSv = v.fps || FPS;
+  if (v.bl) {
+    bdir = path.join(OUT, `bl_${v.name}`); fs.mkdirSync(bdir, { recursive: true });
+    const kj = path.join(bdir, 'k.json'); fs.writeFileSync(kj, JSON.stringify({ T, K, lang: v.lang }));
+    const rp = path.join(D, '../bl/render.py'), BLX = process.env.BLENDER || ['/Applications/Blender.app/Contents/MacOS/Blender', process.env.HOME + '/Applications/Blender.app/Contents/MacOS/Blender'].find((x) => fs.existsSync(x)) || 'blender';
+    const BL = process.env.BLPY ? [process.env.BLPY, [rp]] : [BLX, ['-b', '--factory-startup', '-P', rp, '--']];
+    const run = (extra) => { const lf = path.join(bdir, 'blender.log'), fd = fs.openSync(lf, 'a'); const r = spawnSync(BL[0], [...BL[1], `scene=${v.bl}`, `k=${kj}`, `out=${bdir}`, `fps=${v.fps || 30}`, ...extra], { stdio: ['ignore', fd, fd] }); fs.closeSync(fd); if (r.status) { console.log(fs.readFileSync(lf, 'utf8').split('\n').filter((l) => !/^Fra:|EGL Error/.test(l)).slice(-30).join('\n')); throw new Error('blender failed ' + r.status + ' ' + (r.error || '')); } };
+    if (opt.preview && opt['no-blender']) { /* reuse stills + anchors from the last run */ } else if (opt.preview) { run(['bake=1']); run([`q=${process.env.BLQ || 'draft'}`, `res=${process.env.BLRES || '540x960'}`, `still=${String(opt.preview)}`]); }
+    else if (!opt['no-blender'] && fs.readdirSync(bdir).filter((f) => /^f_\d+\.jpg$/.test(f)).length < Math.round(T * (v.fps || 30))) run([`q=${process.env.BLQ || 'final'}`]);
+    const an = path.join(bdir, 'anchors.json'); if (fs.existsSync(an)) await page.evaluate((a) => { window.ANCH = a; }, JSON.parse(fs.readFileSync(an, 'utf8')));
+  }
   if (opt.preview) {
-    const ts = String(opt.preview).split(',').map(Number);
+    const toks = String(opt.preview).split(','), ts = toks.map(Number);
     const outs = [];
-    for (const t of ts) {
+    for (const [ti, t] of ts.entries()) {
+      if (v.bl) await page.evaluate((x) => window.setBg(x), 'file://' + path.join(bdir, `still_${toks[ti]}.jpg`));
       await page.evaluate((x) => window.seek(x), t);
       const f = path.join(OUT, `${id}_p${t.toFixed(2)}.jpg`);
       fs.writeFileSync(f, await page.screenshot({ type: 'jpeg', quality: 88 }));
@@ -508,19 +523,19 @@ for (const id of ids) {
   }
   const silent = path.join(OUT, `${v.name}.silent.mp4`);
   const shots = [];
-  const N = Math.round(T * FPS);
+  const N = Math.round(T * FPSv);
   const cdp = await page.context().newCDPSession(page);
   if (!(opt['audio-only'] && fs.existsSync(silent))) {
-  const ff = spawn(FF, ['-y', '-hide_banner', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-', ...(PR > 1 ? ['-vf', 'scale=1080:1920:flags=lanczos'] : []), '-c:v', 'libx264', '-preset', 'slow', '-crf', String(opt.crf || v.crf || 20), '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-r', String(FPS), '-movflags', '+faststart', silent], { stdio: ['pipe', 'ignore', 'inherit'] });
+  const ff = spawn(FF, ['-y', '-hide_banner', '-loglevel', 'error', '-f', 'image2pipe', '-framerate', String(FPSv), '-c:v', 'mjpeg', '-i', '-', ...(PR > 1 ? ['-vf', 'scale=1080:1920:flags=lanczos'] : []), '-c:v', 'libx264', '-preset', 'slow', '-crf', String(opt.crf || v.crf || 20), '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-r', String(FPSv), '-movflags', '+faststart', silent], { stdio: ['pipe', 'ignore', 'inherit'] });
   const done = once(ff, 'close');
   const sheetT = [0.3, 1.5, 3, 4.5, 6, 7.5, 9, 10.5, T - 0.9, T - 0.1].filter((t) => t < T);
-  const sheetF = sheetT.map((t) => Math.round(t * FPS));
+  const sheetF = sheetT.map((t) => Math.round(t * FPSv));
   let tSeek = 0, tCap = 0;
   // RESUME=1: frames are cached on disk (out/fr_<name>/NNNNNN.jpg) so a killed render continues where it stopped
   const RES = !!process.env.RESUME;
   const fdir = path.join(OUT, `fr_${v.name}`);
   const fp = (f) => path.join(fdir, String(f).padStart(6, '0') + '.jpg');
-  const shot = async (f) => { await page.evaluate((t) => window.seek(t), f / FPS); return Buffer.from((await cdp.send('Page.captureScreenshot', { format: 'jpeg', quality: 93, optimizeForSpeed: true })).data, 'base64'); };
+  const shot = async (f) => { if (v.bl) await page.evaluate((x) => window.setBg(x), 'file://' + path.join(bdir, `f_${String(f).padStart(4, '0')}.jpg`)); await page.evaluate((t) => window.seek(t), f / FPSv); return Buffer.from((await cdp.send('Page.captureScreenshot', { format: 'jpeg', quality: v.bl ? 97 : 93, optimizeForSpeed: !v.bl })).data, 'base64'); };
   if (RES) {
     fs.mkdirSync(fdir, { recursive: true });
     for (let f = 0; f < N; f++) {
@@ -547,11 +562,11 @@ for (const id of ids) {
   const ln = mixAudio(v, cues, T, wav, K);
   const final = path.join(OUT, `${v.name}.mp4`);
   execFileSync(FF, ['-y', '-hide_banner', '-loglevel', 'error', '-i', silent, '-i', wav, '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-t', T.toFixed(3), '-movflags', '+faststart', final]);
-  if (process.env.RESUME && fs.existsSync(final) && fs.statSync(final).size > 1e6) fs.rmSync(path.join(OUT, `fr_${v.name}`), { recursive: true, force: true });
+  if (process.env.RESUME && fs.existsSync(final) && fs.statSync(final).size > 1e6) { fs.rmSync(path.join(OUT, `fr_${v.name}`), { recursive: true, force: true }); if (bdir) fs.rmSync(bdir, { recursive: true, force: true }); }
   if (shots.length) {
     execFileSync(FF, ['-y', '-hide_banner', '-loglevel', 'error', ...shots.flatMap((f) => ['-i', f]), '-filter_complex', shots.map((_, i) => `[${i}]scale=216:384[v${i}]`).join(';') + ';' + shots.map((_, i) => `[v${i}]`).join('') + `hstack=${shots.length}`, path.join(OUT, `${v.name}.sheet.jpg`)]);
     shots.forEach((f) => fs.unlinkSync(f));
   }
-  console.log(`${id} -> ${v.name}.mp4 T=${T.toFixed(2)} frames=${N} render=${((Date.now() - t0) / 1000).toFixed(0)}s inLUFS=${ln.input_i} size=${fs.statSync(final).size}`);
+  console.log(`${id} -> ${v.name}.mp4 T=${T.toFixed(2)} fps=${FPSv} frames=${N} render=${((Date.now() - t0) / 1000).toFixed(0)}s inLUFS=${ln.input_i} size=${fs.statSync(final).size}`);
 }
 await browser.close();

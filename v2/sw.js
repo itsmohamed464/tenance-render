@@ -15337,6 +15337,42 @@
     k.finish(K.cta + 0.3, K.cta + 0.6, S.end);
     return { T: END + 0.9, K };
   }
+
+  // ================= BLX: generic overlay scene for Blender-rendered videos. The 3D layer is a per-frame JPEG background (window.setBg),
+  // everything else (hook, chip, chat, brand, card, tags that follow Blender anchors, sticker, end card) is the same DOM kit as the Three.js scenes. =================
+  function BLX() {
+    const SP = CFG.spec, de = lang === 'de', S = SP[lang], FP = SP.fps || 30;
+    const K = {};
+    SP.pre.forEach(([n, c]) => { K[n] = W(c).start; });
+    const it = W(['Tenance']); K.turn = it.start;
+    SP.post.forEach(([n, c]) => { K[n] = W(c, it.i).start; });
+    const tt = (a) => K[a[0]] + (a[1] || 0);
+    const k = TDX({ sky: 'night', envTop: '#fff3e2', envBot: '#2d2a26', envInt: 0.75, fov: 30, pro: true });
+    const { ov } = k;
+    const bg = document.createElement('img'); bg.style.cssText = 'position:absolute;left:0;top:0;width:1080px;height:1920px;z-index:0;background:#10131c';
+    stage.insertBefore(bg, stage.firstChild);
+    const hs = document.createElement('style'); hs.textContent = '#stage canvas,.tdsky{display:none !important}'; document.head.appendChild(hs);
+    window.setBg = (src) => new Promise((r) => { bg.onload = () => r(); bg.onerror = () => r(); bg.src = src; });
+    const H = SP.hook, hook = ov('tdhook', S.hook); tl.set(hook, { xPercent: -50, autoAlpha: 1 }, 0); tl.fromTo(hook, { scale: 1.12 }, { scale: 1, duration: 0.35, ease: 'back.out(2)' }, 0); k.popOut(hook, tt(H.out), { y: -60 });
+    const chip = ov('tdchip', S.chip); tl.set(chip, { xPercent: -50 }, 0); k.popIn(chip, 0.12, { y: -50 }); k.popOut(chip, K.turn, { y: -60 });
+    const C = SP.chat, m1 = ov('tdchat in', `<b>${S.who}</b>${S.m1}`), m2 = ov('tdchat out', `<b>Tenance ${de ? 'KI' : 'AI'}</b>${S.m2}`);
+    tl.set([m1, m2], { left: 540 }, 0); tl.set(m1, { top: 260 }, 0); tl.set(m2, { top: 450 }, 0);
+    k.popIn(m1, tt(C.in1)); k.popIn(m2, tt(C.in2)); k.popOut(m1, tt(C.out1)); k.popOut(m2, tt(C.out2));
+    k.burst(K.turn); sfx('impact', K.turn, -13);
+    const pulseR = ov('tdpulse', ''); tl.set(pulseR, { autoAlpha: 0 }, 0); tl.fromTo(pulseR, { autoAlpha: 0.9, scale: 0.2 }, { autoAlpha: 0, scale: 3, duration: 0.8, ease: 'power2.out', immediateRender: false }, K.turn);
+    k.brand(K.turn, 1330);
+    const cd = k.card(S.ttl, [S.l1, S.l2, S.l3], tt(SP.card.t));
+    SP.card.lines.forEach((a, i) => cd.line(i, tt(a))); k.popOut(cd.c, tt(SP.card.out), { y: -80 });
+    const tags = SP.tags.map((g) => { const e = ov('tdtag ' + g.cls, S.tags[g.k]); k.popIn(e, tt(g.in), { y: 30 }); if (g.out) k.popOut(e, tt(g.out), { y: -40 }); return { e, a: g.anchor, dy: g.dy || -120 }; });
+    const sv = ov('tdsave', S.sv); tl.set(sv, { xPercent: -50, rotation: -3 }, 0); k.popIn(sv, tt(SP.save), { y: 60 });
+    perFrame((t) => {
+      const A = window.ANCH || {}, f = Math.max(0, Math.round(t * FP));
+      tags.forEach((g) => { const a = A[g.a]; if (!a) return; const p = a[Math.min(f, a.length - 1)]; g.e.style.left = clamp(p[0], 260, 820) + 'px'; g.e.style.top = clamp(p[1] + g.dy, 450, 1450) + 'px'; });
+    });
+    (SP.sfx || []).forEach(([n, key, off, db]) => sfx(n, K[key] + off, db));
+    k.finish(K.cta + 0.3, K.cta + 0.6, S.end);
+    return { T: END + 0.9, K };
+  }
   const GR = {
     X29: [[2, 4, 1, 4, 3, 4, 2, 1, 1, 2, 1, 4, 4], [2, 4, 2, 4, 4, 2, 2, 1, 4, 1, 4, 4, 1]],
     X30: [[4, 2, 4, 4, 4, 2, 4, 3, 1, 1, 1, 4], [4, 2, 4, 4, 1, 2, 4, 4, 2, 1, 1, 1, 4]],
@@ -15394,8 +15430,8 @@
     W2: [[2, 3, 4, 3, 3, 1, 2, 3, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 3, 2, 3], [3, 4, 3, 3, 3, 3, 3, 2, 2, 2, 2, 3, 2, 3, 3, 2, 2, 2, 2]],
     W3: [[2, 4, 4, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 2, 3, 2], [3, 4, 4, 1, 3, 3, 1, 3, 1, 4, 1, 4, 1, 3, 3, 2, 3, 2]],
   };
-  const out = { W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, X16, X17, X18, X19, X20, X21, X22, X23, X24, X25, X26, X27, X28, X29, X30, X31, X32, X33, X34, X35, X36, X37, X38, X39, X40, X41, X42, X43, X44, X45, X46, X47, X48, X49, X50, X51, X52, X53, X54, X55, X56, X57, X58, X59, X60, X61, X62, X63, X64, X65, X66, X67, X68, X69, X70, X71, X72, X73, X74, X75, X76, X77, X78, X79, X80, X81, X82, X83, X84, X85, X86, X87, X88, X89 }[C]();
-  captions(GR[C][lang === 'de' ? 0 : 1]);
+  const out = ({ W1, W2, W3, X1, X2, X3, X4, X5, X6, X7, X8, X9, X10, X11, X12, X13, X14, X15, X16, X17, X18, X19, X20, X21, X22, X23, X24, X25, X26, X27, X28, X29, X30, X31, X32, X33, X34, X35, X36, X37, X38, X39, X40, X41, X42, X43, X44, X45, X46, X47, X48, X49, X50, X51, X52, X53, X54, X55, X56, X57, X58, X59, X60, X61, X62, X63, X64, X65, X66, X67, X68, X69, X70, X71, X72, X73, X74, X75, X76, X77, X78, X79, X80, X81, X82, X83, X84, X85, X86, X87, X88, X89 }[C] || BLX)();
+  captions((GR[C] || CFG.spec.gr)[lang === 'de' ? 0 : 1]);
   stage.appendChild(document.getElementById('cap'));
   stage.appendChild(document.querySelector('.grain'));
   const r0 = window.ready;
