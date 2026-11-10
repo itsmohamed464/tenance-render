@@ -278,6 +278,8 @@ const V = {
   'X70-en': { name: 'aifridge02-en', concept: 'X70', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-de': { name: 'kirauchmelder04-de', concept: 'X71', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-en': { name: 'aismoke04-en', concept: 'X71', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X91-de': { name: 'kiheizung11b-de', concept: 'X90', lang: 'de', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
+  'X91-en': { name: 'aiheating11b-en', concept: 'X90', lang: 'en', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
   'X90-de': { name: 'kiheizung11-de', concept: 'X90', lang: 'de', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
   'X90-en': { name: 'aiheating11-en', concept: 'X90', lang: 'en', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
   'X89-de': { name: 'kikuehlschrank10-de', concept: 'X89', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
@@ -493,6 +495,7 @@ for (const id of ids) {
   console.log(id, 'WebGL:', await page.evaluate(GLINFO), `MBN=${MB || 'default'} PR=${PR} FPS=${FPS}`);
   const cues = await page.evaluate(() => window.CUES);
   const K = await page.evaluate(() => window.K);
+  const TH = "if(gt(val,185),(val-185)*3,0)", GRADE = `format=gbrp,split[a][b];[b]lutrgb=r='${TH}':g='${TH}':b='${TH}',gblur=sigma=20:steps=2[g];[a][g]blend=all_mode=screen:all_opacity=0.45,vignette=PI/4,eq=saturation=1.1:contrast=1.04,noise=alls=4:allf=t,format=yuvj420p`;
   let bdir = null; const FPSv = v.fps || FPS;
   if (v.bl) {
     bdir = path.join(OUT, `bl_${v.name}`); fs.mkdirSync(bdir, { recursive: true });
@@ -502,13 +505,17 @@ for (const id of ids) {
     const run = (extra) => { const lf = path.join(bdir, 'blender.log'), fd = fs.openSync(lf, 'a'); const r = spawnSync(BL[0], [...BL[1], `scene=${v.bl}`, `k=${kj}`, `out=${bdir}`, `fps=${v.fps || 30}`, ...extra], { stdio: ['ignore', fd, fd] }); fs.closeSync(fd); if (r.status) { console.log(fs.readFileSync(lf, 'utf8').split('\n').filter((l) => !/^Fra:|EGL Error/.test(l)).slice(-30).join('\n')); throw new Error('blender failed ' + r.status + ' ' + (r.error || '')); } };
     if (opt.preview && opt['no-blender']) { /* reuse stills + anchors from the last run */ } else if (opt.preview) { run(['bake=1']); run([`q=${process.env.BLQ || 'draft'}`, `res=${process.env.BLRES || '540x960'}`, `still=${String(opt.preview)}`]); }
     else if (!opt['no-blender'] && fs.readdirSync(bdir).filter((f) => /^f_\d+\.jpg$/.test(f)).length < Math.round(T * (v.fps || 30))) run([`q=${process.env.BLQ || 'final'}`]);
+    // cinematic grade (bloom + vignette + grain) on the Blender frames before the overlay pass
+    const gr = (inp, out, extra = []) => execFileSync(FF, ['-y', '-hide_banner', '-loglevel', 'error', ...extra, '-i', inp, '-vf', GRADE, '-q:v', '2', out]);
+    if (opt.preview) for (const tk of String(opt.preview).split(',')) { const src = path.join(bdir, `still_${tk}.jpg`); if (fs.existsSync(src)) gr(src, path.join(bdir, `g_still_${tk}.jpg`)); }
+    else if (!fs.existsSync(path.join(bdir, 'graded'))) { gr(path.join(bdir, 'f_%04d.jpg'), path.join(bdir, 'g_%04d.jpg'), ['-framerate', String(v.fps || 30)]); fs.writeFileSync(path.join(bdir, 'graded'), '1'); }
     const an = path.join(bdir, 'anchors.json'); if (fs.existsSync(an)) await page.evaluate((a) => { window.ANCH = a; }, JSON.parse(fs.readFileSync(an, 'utf8')));
   }
   if (opt.preview) {
     const toks = String(opt.preview).split(','), ts = toks.map(Number);
     const outs = [];
     for (const [ti, t] of ts.entries()) {
-      if (v.bl) await page.evaluate((x) => window.setBg(x), 'file://' + path.join(bdir, `still_${toks[ti]}.jpg`));
+      if (v.bl) await page.evaluate((x) => window.setBg(x), 'file://' + path.join(bdir, `g_still_${toks[ti]}.jpg`));
       await page.evaluate((x) => window.seek(x), t);
       const f = path.join(OUT, `${id}_p${t.toFixed(2)}.jpg`);
       fs.writeFileSync(f, await page.screenshot({ type: 'jpeg', quality: 88 }));
@@ -535,7 +542,7 @@ for (const id of ids) {
   const RES = !!process.env.RESUME;
   const fdir = path.join(OUT, `fr_${v.name}`);
   const fp = (f) => path.join(fdir, String(f).padStart(6, '0') + '.jpg');
-  const shot = async (f) => { if (v.bl) await page.evaluate((x) => window.setBg(x), 'file://' + path.join(bdir, `f_${String(f).padStart(4, '0')}.jpg`)); await page.evaluate((t) => window.seek(t), f / FPSv); return Buffer.from((await cdp.send('Page.captureScreenshot', { format: 'jpeg', quality: v.bl ? 97 : 93, optimizeForSpeed: !v.bl })).data, 'base64'); };
+  const shot = async (f) => { if (v.bl) await page.evaluate((x) => window.setBg(x), 'file://' + path.join(bdir, `g_${String(f).padStart(4, '0')}.jpg`)); await page.evaluate((t) => window.seek(t), f / FPSv); return Buffer.from((await cdp.send('Page.captureScreenshot', { format: 'jpeg', quality: v.bl ? 97 : 93, optimizeForSpeed: !v.bl })).data, 'base64'); };
   if (RES) {
     fs.mkdirSync(fdir, { recursive: true });
     for (let f = 0; f < N; f++) {

@@ -105,11 +105,12 @@ def camera(sc, fov=30):
     cd.dof.use_dof = True; cd.dof.aperture_fstop = 2.8
     o = bpy.data.objects.new('cam', cd); sc.collection.objects.link(o); sc.camera = o; return o
 
-def aim(cam, loc, tgt, fov, t, shake=0.8, fstop=2.8):
+def aim(cam, loc, tgt, fov, t, shake=0.8, fstop=2.8, kick=0.0, roll=0.0):
     n = lambda a, b: noise.noise(Vector((t * 0.9 + a, b, 0.0)))
     cam.location = (loc[0] + 0.03 * shake * n(0, 1), loc[1] + 0.03 * shake * n(5, 2), loc[2] + 0.03 * shake * n(9, 3))
     tg = Vector(tgt) + Vector((0.02 * shake * n(3, 4), 0, 0.02 * shake * n(7, 5)))
     cam.rotation_euler = (tg - Vector(cam.location)).to_track_quat('-Z', 'Y').to_euler()
+    cam.rotation_euler.rotate_axis('Z', roll + 0.012 * kick * math.sin(t * 40)); fov = fov * (1 - 0.05 * min(kick, 1.5))
     cam.data.angle = math.radians(fov); cam.data.dof.focus_distance = (tg - Vector(cam.location)).length; cam.data.dof.aperture_fstop = fstop
 
 # ---- pill figure (forward = -Y; yaw 0 faces the camera) ----
@@ -121,14 +122,17 @@ class Fig:
         s.head = empty(name + 'hd', (0, 0, 1.0), s.body); sph(name + 'skull', 0.185, (0, 0, 0.15), sk, (1, 1, 1), s.head); sph(name + 'hair', 0.195, (0, 0.025, 0.19), hm, (1, 1, 0.82), s.head)
         s.eyes = [sph(name + 'e%d' % i, 0.024, (x, -0.165, 0.17), dk, (1, 0.6, 1), s.head) for i, x in enumerate((-0.065, 0.065))]
         s.mouth = sph(name + 'mo', 0.03, (0, -0.172, 0.095), mo, (1, 0.35, 0.5), s.head)
+        s.brows = [sph(name + 'br%d' % i, 0.03, (x, -0.168, 0.225), hm, (1.7, 0.35, 0.3), s.head) for i, x in enumerate((-0.065, 0.065))]
+        wh = mat('wh' + name, '#ffffff', 0.2, emit='#ffffff', es=0.6)
+        for i, x in enumerate((-0.065, 0.065)): sph(name + 'hl%d' % i, 0.008, (x + 0.01, -0.186, 0.18), wh, (1, 0.5, 1), s.head)
         s.arms = []
         for i, sx in enumerate((-1, 1)):
             p = empty(name + 'ar%d' % i, (sx * 0.215, 0, 0.8), s.body); sph(name + 'arm%d' % i, 0.06, (0, 0, -0.17), bm, (1, 1, 2.7), p)
             h = empty(name + 'hand%d' % i, (0, 0, -0.38), p); sph(name + 'hnd%d' % i, 0.058, (0, 0, 0), sk, (1, 1, 1), h); s.arms.append((p, h))
         s.hands = [a[1] for a in s.arms]
     def objs(s):
-        return [s.root, s.body, s.head] + [a[0] for a in s.arms] + s.eyes + [s.mouth]
-    def pose(s, pos=None, yaw=0.0, lean=0.0, roll=0.0, nod=0.0, turn=0.0, armL=0.0, armR=0.0, armLz=0.0, armRz=0.0, squash=0.0, lift=0.0, blink=0.0, smile=0.4, wide=0.0, o=0.0):
+        return [s.root, s.body, s.head] + [a[0] for a in s.arms] + s.eyes + s.brows + [s.mouth]
+    def pose(s, pos=None, yaw=0.0, lean=0.0, roll=0.0, nod=0.0, turn=0.0, armL=0.0, armR=0.0, armLz=0.0, armRz=0.0, squash=0.0, lift=0.0, blink=0.0, smile=0.4, wide=0.0, o=0.0, brow=0.0, browY=0.0):
         if pos is not None: s.root.location = pos
         s.root.rotation_euler = (0, 0, yaw)
         s.body.rotation_euler = (lean, roll, 0); s.body.location = (0, 0, lift)
@@ -138,6 +142,7 @@ class Fig:
         k = max(0.12, 1 - max(blink, 0)) * (1 + 0.4 * wide)
         for e in s.eyes: e.scale = (1 + 0.4 * wide, 0.6, k)
         s.mouth.scale = (1 + 0.6 * smile, 0.35, 0.5 + 1.2 * o + 0.3 * smile)
+        for i, b in enumerate(s.brows): b.rotation_euler = (0, brow if i == 0 else -brow, 0); b.location = ((-0.065, 0.065)[i], -0.168, 0.225 + browY)
 
 def blink(t, seed=0.0):
     ph = (t + seed) % 3.7; return math.sin(ph / 0.13 * math.pi) if ph < 0.13 else 0.0
@@ -169,3 +174,11 @@ def track(keys):
                 return L3(a[1], b[1]), L3(a[2], b[2]), lerp(a[3], b[3], u)
         k = keys[-1]; return k[1], k[2], k[3]
     return f
+
+def torus(name, R, r, loc, m, rot=(0, 0, 0), parent=None):
+    bpy.ops.mesh.primitive_torus_add(major_radius=R, minor_radius=r, major_segments=48, minor_segments=12, location=loc, rotation=rot); o = bpy.context.active_object; o.name = name
+    return _fin(o, m, 0, parent)
+
+def punch(t, cues, k=9.0):
+    """decaying camera kick (0..1) after each cue time"""
+    return sum(math.exp(-(t - c) * k) for c in cues if t >= c)
