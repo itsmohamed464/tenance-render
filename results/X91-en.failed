@@ -1,0 +1,17 @@
+X91-en WebGL: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) MBN=1 PR=1 FPS=60
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:31:22)
+
+Sent an internal break event. Press ^C again to kill Blender
+
+Blender killed
+Error: Not freed memory blocks: 4642, total unfreed memory 1.178322 MB
+
+file:///Users/mohamed/tenance-render/v2/r2.mjs:520
+    const run = (extra) => { const lf = path.join(bdir, 'blender.log'), fd = fs.openSync(lf, 'a'); const r = spawnSync(BL[0], [...BL[1], `scene=${v.bl}`, `k=${kj}`, `out=${bdir}`, `fps=${v.fps || 30}`, ...extra], { stdio: ['ignore', fd, fd] }); fs.closeSync(fd); if (r.status) { console.log(fs.readFileSync(lf, 'utf8').split('\n').filter((l) => !/^Fra:|EGL Error/.test(l)).slice(-30).join('\n')); throw new Error('blender failed ' + r.status + ' ' + (r.error || '')); } };
+                                                                                                                                                                                                                                                                                                                                                                                                                   ^
+
+Error: blender failed 2 
+    at run (file:///Users/mohamed/tenance-render/v2/r2.mjs:520:404)
+    at file:///Users/mohamed/tenance-render/v2/r2.mjs:522:135
+
+Node.js v24.15.0
