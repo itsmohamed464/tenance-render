@@ -84,6 +84,7 @@ def build(L, K, T, lang):
     lampL = L.point('lampL', (-1.75, 0.45, 1.15), 60, '#ffcf88', 0.12); radL = L.point('radL', (0.95, 1.3, 0.5), 0, '#ff9a4a', 0.2); phoneL = L.point('phoneL', (-0.3, 1.4, UZ + 0.7), 0, '#9fd0ff', 0.05); pendL = L.point('pendL', (-0.3, 0.3, 1.95), 30, '#ffd9a0', 0.1)
     vlL = L.point('vlL', (6.5, -2.75, 0.9), 0, '#ff9a1a', 0.1); vlL.parent = van; vlL.location = (-0.45, 0, 0.7)
     for lt in (kU, kL, fl, moonL, street, lampL, radL, phoneL, pendL, vlL, mlight): cx.prop(lt.data, 'energy'); cx.prop(lt.data, 'color')
+    for lt in (fl, street, lampL, radL, phoneL, pendL, vlL, mlight): lt.data.use_shadow = False
     bsdf = lambda m: m.node_tree.nodes['Principled BSDF'].inputs
     for s_ in (phUes, phLes, phTes, bsdf(radM)['Emission Strength'], bsdf(radM)['Base Color'], bsdf(frostM)['Alpha'], bsdf(waveM)['Alpha'], bsdf(vl)['Emission Strength']): cx.prop(s_, 'default_value')
     cam = L.camera(sc, 34); cx.key(cam); cx.prop(cam.data, 'lens'); cx.prop(cam.data.dof, 'focus_distance'); cx.prop(cam.data.dof, 'aperture_fstop')

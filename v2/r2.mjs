@@ -509,7 +509,7 @@ for (const id of ids) {
   console.log(id, 'WebGL:', await page.evaluate(GLINFO), `MBN=${MB || 'default'} PR=${PR} FPS=${FPS}`);
   const cues = await page.evaluate(() => window.CUES);
   const K = await page.evaluate(() => window.K);
-  const TH = "if(gt(val,185),(val-185)*3,0)", GRADE = `format=gbrp,split[a][b];[b]lutrgb=r='${TH}':g='${TH}':b='${TH}',gblur=sigma=20:steps=2[g];[a][g]blend=all_mode=screen:all_opacity=0.45,vignette=PI/4,eq=saturation=1.1:contrast=1.04,noise=alls=4:allf=t,format=yuvj420p`;
+  const TH = "if(gt(val,185),(val-185)*3,0)", GRADE = `scale=1080:1920:flags=lanczos,format=gbrp,split[a][b];[b]lutrgb=r='${TH}':g='${TH}':b='${TH}',gblur=sigma=20:steps=2[g];[a][g]blend=all_mode=screen:all_opacity=0.45,vignette=PI/4,eq=saturation=1.1:contrast=1.04,noise=alls=4:allf=t,format=yuvj420p`;
   let bdir = null; const FPSv = v.fps || FPS;
   if (v.bl) {
     bdir = path.join(OUT, `bl_${v.name}`); fs.mkdirSync(bdir, { recursive: true });
@@ -518,7 +518,7 @@ for (const id of ids) {
     const BL = process.env.BLPY ? [process.env.BLPY, [rp]] : [BLX, ['-b', '--factory-startup', '-P', rp, '--']];
     const run = (extra) => { const lf = path.join(bdir, 'blender.log'), fd = fs.openSync(lf, 'a'); const r = spawnSync(BL[0], [...BL[1], `scene=${v.bl}`, `k=${kj}`, `out=${bdir}`, `fps=${v.fps || 30}`, ...extra], { stdio: ['ignore', fd, fd] }); fs.closeSync(fd); if (r.status) { console.log(fs.readFileSync(lf, 'utf8').split('\n').filter((l) => !/^Fra:|EGL Error/.test(l)).slice(-30).join('\n')); throw new Error('blender failed ' + r.status + ' ' + (r.error || '')); } };
     if (opt.preview && opt['no-blender']) { /* reuse stills + anchors from the last run */ } else if (opt.preview) { run(['bake=1']); run([`q=${process.env.BLQ || 'draft'}`, `res=${process.env.BLRES || '540x960'}`, `still=${String(opt.preview)}`]); }
-    else if (!opt['no-blender'] && fs.readdirSync(bdir).filter((f) => /^f_\d+\.jpg$/.test(f)).length < Math.round(T * (v.fps || 30))) run([`q=${process.env.BLQ || 'final'}`]);
+    else if (!opt['no-blender'] && fs.readdirSync(bdir).filter((f) => /^f_\d+\.jpg$/.test(f)).length < Math.round(T * (v.fps || 30))) run([`q=${process.env.BLQ || 'fast'}`, `res=${process.env.BLRES || '810x1440'}`]);
     // cinematic grade (bloom + vignette + grain) on the Blender frames before the overlay pass
     const gr = (inp, out, extra = []) => execFileSync(FF, ['-y', '-hide_banner', '-loglevel', 'error', ...extra, '-i', inp, '-vf', GRADE, '-q:v', '2', out]);
     if (opt.preview) for (const tk of String(opt.preview).split(',')) { const src = path.join(bdir, `still_${tk}.jpg`); if (fs.existsSync(src)) gr(src, path.join(bdir, `g_still_${tk}.jpg`)); }
