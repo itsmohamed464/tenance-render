@@ -1,0 +1,18 @@
+BLBENCH fast: 6 frames in 38.5s total (includes ~scene build + bake) status=0
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3230 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3229 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3231 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3228 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3229 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3230 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3228 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3230 / 2048) 
+BLBENCH final: 6 frames in 116.8s total (includes ~scene build + bake) status=0
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3231 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3228 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3231 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3228 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3229 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3232 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3231 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (3228 / 2048) 
