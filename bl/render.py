@@ -18,5 +18,6 @@ if 'still' in A:
     sys.exit(0)
 anch = L.bake(sc, cx, upd, fps, T); json.dump(anch, open(os.path.join(out, 'anchors.json'), 'w'))
 if 'bake' in A: sys.exit(0)
+if 'frames' in A: a_, b_ = [int(x) for x in A['frames'].split('-')]; sc.frame_start, sc.frame_end = a_, b_
 sc.render.filepath = os.path.join(out, 'f_'); bpy.ops.render.render(animation=True)
 print('BLRENDER DONE', len(os.listdir(out)))

@@ -416,6 +416,20 @@ const SFXPEAK = {};
 for (const f of fs.readdirSync(AUD).filter((x) => x.startsWith('sfx_'))) SFXPEAK[f.slice(4, -4)] = maxVol(path.join(AUD, f));
 
 const GLINFO = () => { const g = document.createElement('canvas').getContext('webgl2'); if (!g) return 'no WebGL2'; const e = g.getExtension('WEBGL_debug_renderer_info'); return e ? g.getParameter(e.UNMASKED_RENDERER_WEBGL) : g.getParameter(g.RENDERER); };
+// BLBENCH — times 6 Blender frames at the final / fast presets (exits 1 so the Mac worker returns the log)
+if (ids[0] === 'BLBENCH') {
+  const BLX = process.env.BLENDER || ['/Applications/Blender.app/Contents/MacOS/Blender'].find((x) => fs.existsSync(x)) || 'blender';
+  const bd = path.join(OUT, 'blbench'); fs.mkdirSync(bd, { recursive: true });
+  const kj = path.join(bd, 'k.json'); fs.writeFileSync(kj, JSON.stringify({ T: 14.6, lang: 'de', K: { night: 0.9, write: 1.8, turn: 3.7, ans: 4.7, air: 5.9, valve: 7.2, water: 8.3, warm: 9.7, sleep: 10.6, save: 11.8, cta: 13.2 } }));
+  for (const q of ['fast', 'final']) {
+    fs.rmSync(path.join(bd, q), { recursive: true, force: true });
+    const t0 = Date.now(); const r = spawnSync(BLX, ['-b', '--factory-startup', '-P', path.join(D, '../bl/render.py'), '--', 'scene=heat90', `k=${kj}`, `out=${path.join(bd, q)}`, 'fps=30', `q=${q}`, 'frames=150-155'], { encoding: 'utf8' });
+    const n = fs.existsSync(path.join(bd, q)) ? fs.readdirSync(path.join(bd, q)).filter((f) => f.endsWith('.jpg')).length : 0;
+    console.log(`BLBENCH ${q}: ${n} frames in ${((Date.now() - t0) / 1000).toFixed(1)}s total (includes ~scene build + bake) status=${r.status}`);
+    console.log((r.stdout || '').split('\n').filter((l) => /Time:|rror|Traceback/.test(l)).slice(-8).join('\n'), (r.stderr || '').slice(-300));
+  }
+  process.exit(1);
+}
 // BLCHECK — finds Blender on this machine, prints version / engines / GPU devices (exits 1 so the Mac worker returns the log)
 if (ids[0] === 'BLCHECK') {
   const cands = [process.env.BLENDER, '/Applications/Blender.app/Contents/MacOS/Blender', process.env.HOME + '/Applications/Blender.app/Contents/MacOS/Blender', spawnSync('which', ['blender']).stdout.toString().trim()].filter((x) => x && fs.existsSync(x));

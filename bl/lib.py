@@ -30,12 +30,12 @@ def setup(sc, W, H, fps, T, q='final'):
     for e in ('BLENDER_EEVEE_NEXT', 'BLENDER_EEVEE'):
         try: sc.render.engine = e; break
         except TypeError: pass
-    ee = sc.eevee; fin = q == 'final'
-    for k, v in {'taa_render_samples': 64 if fin else 6, 'use_raytracing': True, 'ray_tracing_method': 'SCREEN', 'use_shadows': True, 'shadow_ray_count': 2, 'shadow_step_count': 6, 'use_gtao': True, 'gtao_distance': 0.8,
+    ee = sc.eevee; fin = q in ('final', 'fast')
+    for k, v in {'taa_render_samples': {'final': 64, 'fast': 20}.get(q, 6), 'use_raytracing': True, 'ray_tracing_method': 'SCREEN', 'use_shadows': True, 'shadow_ray_count': 1 if q == 'fast' else 2, 'shadow_step_count': 4 if q == 'fast' else 6, 'use_gtao': True, 'gtao_distance': 0.8,
                  'fast_gi_method': 'GLOBAL_ILLUMINATION', 'use_fast_gi': True}.items():
         try: setattr(ee, k, v)
         except Exception: pass
-    try: ee.ray_tracing_options.resolution_scale = '1' if fin else '4'
+    try: ee.ray_tracing_options.resolution_scale = {'final': '1', 'fast': '2'}.get(q, '4')
     except Exception: pass
     try: sc.render.use_motion_blur = fin; sc.render.motion_blur_shutter = 0.45
     except Exception: pass
