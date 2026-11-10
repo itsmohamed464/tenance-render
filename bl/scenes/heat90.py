@@ -74,7 +74,7 @@ def build(L, K, T, lang):
     orbM = M('orb', '#ffd27a', 0.2, emit='#ffcf6a', es=12.0); orbs = [sph('orb%d' % i, 0.05 - 0.01 * i, (0, 0, -9), orbM) for i in range(4)]
     puffM = M('puff', '#ffffff', 0.5, emit='#dfeeff', es=1.5); puffs = [sph('puff%d' % i, 0.04, (0, 0, -9), puffM) for i in range(6)]; breath = [sph('br%d' % i, 0.05, (0, 0, -9), puffM) for i in range(3)]
     dropM = M('drop', '#8cc8ff', 0.05, emit='#8cc8ff', es=0.6); drops = [sph('drop%d' % i, 0.018, (0, 0, -9), dropM) for i in range(5)]
-    rings = [L.torus('ring%d' % i, 0.1, 0.006, (-0.3, 1.45, UZ + 0.52), M('ringM', '#9fd0ff', 0.2, emit='#9fd0ff', es=5.0), (0, 0, 0)) for i in range(3)]
+    rings = [L.torus('ring%d' % i, 0.1, 0.006, (-0.3, 1.45, UZ + 0.52), M('ringM', '#9fd0ff', 0.2, emit='#9fd0ff', es=2.2), (0, 0, 0)) for i in range(3)]
     waveM = M('wave', '#ff9a4a', 0.4, emit='#ff8a3a', es=3.0, alpha=0.5); wave = L.cyl('wave', 1.0, 0.01, (0.95, 1.2, 0.07), waveM, verts=64)
     confs = [sph('cf%d' % i, 0.025, (0, 0, -9), M('cfm%d' % i, c, 0.3, emit=c, es=3.0)) for i, c in enumerate(['#ffd27a', '#ff7aa8', '#7fd8ff', '#8cff9a', '#ffd27a', '#ff7aa8', '#7fd8ff', '#8cff9a', '#ffd27a', '#ff7aa8', '#7fd8ff', '#8cff9a'])]
     # ---- lights
@@ -111,7 +111,7 @@ def build(L, K, T, lang):
         buz = (1.0 if n_ + 0.1 < t < n_ + 1.3 else 0.0) * (0.5 + 0.5 * math.sin(t * 60)); hold = sp_(t, n_ + 1.4, n_ + 1.7) * (1 - sp_(t, an + 1.0, an + 1.3))
         phU.scale = (1, 1, 1) if hold < 0.5 else (0.001,) * 3; phL.scale = (1, 1, 1) if hold >= 0.5 else (0.001,) * 3
         phU.location = (-0.3 + 0.006 * math.sin(t * 90) * buz, 1.45, UZ + 0.495); phU.rotation_euler = (0, 0, 0.4 + 0.05 * math.sin(t * 70) * buz)
-        phUes.default_value = 2.6 * (buz * 0.9 + 0.1 * (1 - hold) * (1.0 if t > n_ else 0.0)); phLes.default_value = 6.0; phoneL.data.energy = 18 * buz + 25 * hold; phoneL.data.color = (0.62, 0.82, 1.0)
+        phUes.default_value = 1.1 * (buz * 0.9 + 0.1 * (1 - hold) * (1.0 if t > n_ else 0.0)); phLes.default_value = 6.0; phoneL.data.energy = 6 * buz + 25 * hold; phoneL.data.color = (0.62, 0.82, 1.0)
         for i, r in enumerate(rings):
             u = ((t - n_ - 0.1 - i * 0.28) % 0.84) / 0.84; on = 1 if n_ + 0.1 < t < n_ + 1.3 else 0; r.scale = (0.2 + 3.0 * u,) * 3 if on else (0.001,) * 3; r.location = (-0.3, 1.45, UZ + 0.52)
         # ---- tenant

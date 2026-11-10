@@ -1,0 +1,3 @@
+# v2c: phone glow toned down (first frame was blown out)
+X95-de
+X95-en

@@ -278,6 +278,8 @@ const V = {
   'X70-en': { name: 'aifridge02-en', concept: 'X70', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-de': { name: 'kirauchmelder04-de', concept: 'X71', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-en': { name: 'aismoke04-en', concept: 'X71', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X95-de': { name: 'kiheizung11d-de', concept: 'X90', lang: 'de', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
+  'X95-en': { name: 'aiheating11d-en', concept: 'X90', lang: 'en', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
   'X94-de': { name: 'kiheizung11c-de', concept: 'X90', lang: 'de', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
   'X94-en': { name: 'aiheating11c-en', concept: 'X90', lang: 'en', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
   'X93-de': { name: 'kiheizung11b-de', concept: 'X90', lang: 'de', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'heat90', fps: 30 },
