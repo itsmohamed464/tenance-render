@@ -1,0 +1,372 @@
+{
+ "scene": "smoke",
+ "fps": 30,
+ "de": {
+  "hook": "03:12 Uhr. Es piept. Wieder. 🔔",
+  "chip": "🕒 03:12 · Whg 1C",
+  "who": "Mieter · Whg 1C",
+  "m1": "Der Rauchmelder piept seit einer Stunde 😩",
+  "m2": "Batterie leer. Abdeckung drehen, neue Batterie ✓",
+  "ttl": "Rauchmelder piept · Whg 1C",
+  "l1": "🔋 Ursache: Batterie leer",
+  "l2": "🔧 Neue Batterie einsetzen",
+  "l3": "🤫 Ruhe",
+  "sv": "💶 Spart den Nachteinsatz",
+  "end": [
+   "Du *schläfst* weiter.",
+   null
+  ],
+  "tags": {
+   "bad": "🔔 Piept",
+   "van": "🚐💸 Notdienst unterwegs",
+   "cancel": "✅ Notdienst abgesagt",
+   "cause": "🔋 Batterie leer",
+   "s1": "① Abdeckung drehen",
+   "s2": "② Neue Batterie rein",
+   "ok": "🤫 Ruhe",
+   "sl": "😴 Du schläfst weiter"
+  }
+ },
+ "en": {
+  "hook": "3:12 am. It beeps. Again. 🔔",
+  "chip": "🕒 3:12 am · Apt 1C",
+  "who": "Tenant · Apt 1C",
+  "m1": "The smoke detector has been beeping for an hour 😩",
+  "m2": "Battery empty. Twist the cover, new battery ✓",
+  "ttl": "Smoke detector beeps · Apt 1C",
+  "l1": "🔋 Cause: battery empty",
+  "l2": "🔧 Insert a new battery",
+  "l3": "🤫 Quiet",
+  "sv": "💶 Saves the night call-out",
+  "end": [
+   "You *keep sleeping*.",
+   null
+  ],
+  "tags": {
+   "bad": "🔔 Beeping",
+   "van": "🚐💸 Emergency call-out coming",
+   "cancel": "✅ Call-out cancelled",
+   "cause": "🔋 Battery empty",
+   "s1": "① Twist the cover",
+   "s2": "② New battery in",
+   "ok": "🤫 Quiet",
+   "sl": "😴 You keep sleeping"
+  }
+ },
+ "pre": [
+  [
+   "night",
+   [
+    "Drei",
+    "Three"
+   ]
+  ],
+  [
+   "write",
+   [
+    "schreibt",
+    "writes"
+   ]
+  ]
+ ],
+ "post": [
+  [
+   "ans",
+   [
+    "antwortet",
+    "answers"
+   ]
+  ],
+  [
+   "cause",
+   [
+    "Batterie",
+    "battery"
+   ]
+  ],
+  [
+   "step1",
+   [
+    "Abdeckung",
+    "Twist"
+   ]
+  ],
+  [
+   "step2",
+   [
+    "neue",
+    "new"
+   ]
+  ],
+  [
+   "fix",
+   [
+    "Ruhe",
+    "quiet"
+   ]
+  ],
+  [
+   "sleep",
+   [
+    "schläfst",
+    "sleeping"
+   ]
+  ],
+  [
+   "save",
+   [
+    "spart",
+    "saves"
+   ]
+  ],
+  [
+   "cta",
+   [
+    "Jetzt",
+    "Join"
+   ]
+  ]
+ ],
+ "hook": {
+  "out": [
+   "write",
+   -0.15
+  ]
+ },
+ "chat": {
+  "in1": [
+   "write",
+   -0.12
+  ],
+  "in2": [
+   "ans",
+   0.08
+  ],
+  "out1": [
+   "cause",
+   -0.5
+  ],
+  "out2": [
+   "cause",
+   -0.44
+  ]
+ },
+ "card": {
+  "t": [
+   "cause",
+   -0.3
+  ],
+  "lines": [
+   [
+    "cause",
+    0.1
+   ],
+   [
+    "step1",
+    0
+   ],
+   [
+    "fix",
+    0
+   ]
+  ],
+  "out": [
+   "save",
+   -0.12
+  ]
+ },
+ "tags": [
+  {
+   "k": "bad",
+   "cls": "warn",
+   "anchor": "focus2",
+   "dy": -210,
+   "in": [
+    "write",
+    0.3
+   ],
+   "out": [
+    "turn",
+    0.5
+   ]
+  },
+  {
+   "k": "van",
+   "cls": "warn",
+   "anchor": "van",
+   "dy": -90,
+   "in": [
+    "write",
+    0.5
+   ],
+   "out": [
+    "ans",
+    0.2
+   ]
+  },
+  {
+   "k": "cancel",
+   "cls": "ok",
+   "anchor": "van",
+   "dy": -90,
+   "in": [
+    "ans",
+    0.5
+   ],
+   "out": [
+    "ans",
+    2.2
+   ]
+  },
+  {
+   "k": "cause",
+   "cls": "warn",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "cause",
+    0.05
+   ],
+   "out": [
+    "step1",
+    -0.15
+   ]
+  },
+  {
+   "k": "s1",
+   "cls": "step",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "step1",
+    -0.05
+   ],
+   "out": [
+    "step2",
+    -0.15
+   ]
+  },
+  {
+   "k": "s2",
+   "cls": "step",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "step2",
+    -0.05
+   ],
+   "out": [
+    "fix",
+    -0.25
+   ]
+  },
+  {
+   "k": "ok",
+   "cls": "ok",
+   "anchor": "focus2",
+   "dy": -190,
+   "in": [
+    "fix",
+    0.05
+   ],
+   "out": [
+    "sleep",
+    -0.4
+   ]
+  },
+  {
+   "k": "sl",
+   "cls": "ok",
+   "anchor": "ll",
+   "dy": -170,
+   "in": [
+    "sleep",
+    0.2
+   ],
+   "out": [
+    "save",
+    -0.1
+   ]
+  }
+ ],
+ "save": [
+  "save",
+  0.05
+ ],
+ "sfx": [
+  [
+   "buzz",
+   "night",
+   0.1,
+   -10
+  ],
+  [
+   "send",
+   "write",
+   -0.1,
+   -13
+  ],
+  [
+   "pop",
+   "ans",
+   0.1,
+   -12
+  ],
+  [
+   "chime",
+   "fix",
+   0.3,
+   -11
+  ],
+  [
+   "kaching",
+   "save",
+   0.1,
+   -12
+  ],
+  [
+   "unscrew",
+   "step1",
+   0.1,
+   -9
+  ],
+  [
+   "click",
+   "step2",
+   0.3,
+   -9
+  ]
+ ],
+ "gr": [
+  [
+   3,
+   3,
+   3,
+   3,
+   2,
+   4,
+   2,
+   3,
+   3,
+   4,
+   4,
+   4
+  ],
+  [
+   3,
+   3,
+   3,
+   2,
+   3,
+   2,
+   4,
+   3,
+   4,
+   4,
+   4,
+   3,
+   2,
+   3
+  ]
+ ]
+}

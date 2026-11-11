@@ -3,7 +3,7 @@ import bpy, bmesh, math, json, os, sys
 from mathutils import Vector, Euler, noise
 
 def hexc(h, a=1.0):
-    h = h.lstrip('#'); r, g, b = [int(h[i:i + 2], 16) / 255 for i in (0, 2, 4)]
+    h = h.lstrip('#'); h = ''.join(c * 2 for c in h) if len(h) == 3 else h; r, g, b = [int(h[i:i + 2], 16) / 255 for i in (0, 2, 4)]
     f = lambda c: (c / 12.92) if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
     return (f(r), f(g), f(b), a)
 
