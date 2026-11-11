@@ -1,0 +1,7 @@
+# Sat Nov 14: lockout 07:30 (best slot), heating pressure 16:00, mold 19:30
+X104-de
+X104-en
+X105-de
+X105-en
+X106-de
+X106-en

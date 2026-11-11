@@ -1,0 +1,379 @@
+{
+ "scene": "mold",
+ "fps": 30,
+ "de": {
+  "hook": "Schwarze Flecken. Du bist im Urlaub. 🌴",
+  "chip": "🕓 16:20 · Whg 2A",
+  "who": "Mieter · Whg 2A",
+  "m1": "Da sind schwarze Flecken an der Wand, Schimmel? 😨",
+  "m2": "Oft nur Kondenswasser. Fenster auf, Spiritus ✓",
+  "ttl": "Schwarze Flecken · Whg 2A",
+  "l1": "💧 Ursache: Kondenswasser",
+  "l2": "🪟 Fenster weit öffnen",
+  "l3": "✨ Wand ist sauber",
+  "sv": "💶 Spart den Gutachter",
+  "end": [
+   "Du bleibst am *Strand*.",
+   null
+  ],
+  "tags": {
+   "bad": "⚫ Flecken",
+   "van": "🚐💸 Gutachter unterwegs",
+   "cancel": "✅ Termin abgesagt",
+   "cause": "💧 Oft nur Kondenswasser",
+   "s1": "① Fenster weit öffnen",
+   "s2": "② Mit Spiritus abwischen",
+   "ok": "✨ Wand sauber",
+   "sl": "🏝️ Du bleibst am Strand"
+  }
+ },
+ "en": {
+  "hook": "Black spots. You are on holiday. 🌴",
+  "chip": "🕓 4:20 pm · Apt 2A",
+  "who": "Tenant · Apt 2A",
+  "m1": "There are black spots on the wall, mold? 😨",
+  "m2": "Often just condensation. Window open, alcohol ✓",
+  "ttl": "Black spots · Apt 2A",
+  "l1": "💧 Cause: condensation",
+  "l2": "🪟 Open the window wide",
+  "l3": "✨ Wall is clean",
+  "sv": "💶 Saves the surveyor",
+  "end": [
+   "You stay on the *beach*.",
+   null
+  ],
+  "tags": {
+   "bad": "⚫ Spots",
+   "van": "🚐💸 Surveyor coming",
+   "cancel": "✅ Appointment cancelled",
+   "cause": "💧 Often just condensation",
+   "s1": "① Open the window wide",
+   "s2": "② Wipe with alcohol",
+   "ok": "✨ Wall clean",
+   "sl": "🏝️ You stay on the beach"
+  }
+ },
+ "pre": [
+  [
+   "night",
+   [
+    "Schwarze",
+    "Black"
+   ]
+  ],
+  [
+   "write",
+   [
+    "schreibt",
+    "writes"
+   ]
+  ]
+ ],
+ "post": [
+  [
+   "ans",
+   [
+    "antwortet",
+    "answers"
+   ]
+  ],
+  [
+   "cause",
+   [
+    "Kondenswasser",
+    "condensation"
+   ]
+  ],
+  [
+   "step1",
+   [
+    "Fenster",
+    "window"
+   ]
+  ],
+  [
+   "step2",
+   [
+    "Spiritus",
+    "alcohol"
+   ]
+  ],
+  [
+   "fix",
+   [
+    "sauber",
+    "clean"
+   ]
+  ],
+  [
+   "sleep",
+   [
+    "Strand",
+    "beach"
+   ]
+  ],
+  [
+   "save",
+   [
+    "spart",
+    "saves"
+   ]
+  ],
+  [
+   "cta",
+   [
+    "Jetzt",
+    "Join"
+   ]
+  ]
+ ],
+ "hook": {
+  "out": [
+   "write",
+   -0.15
+  ]
+ },
+ "chat": {
+  "in1": [
+   "write",
+   -0.12
+  ],
+  "in2": [
+   "ans",
+   0.08
+  ],
+  "out1": [
+   "cause",
+   -0.5
+  ],
+  "out2": [
+   "cause",
+   -0.44
+  ]
+ },
+ "card": {
+  "t": [
+   "cause",
+   -0.3
+  ],
+  "lines": [
+   [
+    "cause",
+    0.1
+   ],
+   [
+    "step1",
+    0
+   ],
+   [
+    "fix",
+    0
+   ]
+  ],
+  "out": [
+   "save",
+   -0.12
+  ]
+ },
+ "tags": [
+  {
+   "k": "bad",
+   "cls": "warn",
+   "anchor": "focus2",
+   "dy": -210,
+   "in": [
+    "write",
+    0.3
+   ],
+   "out": [
+    "turn",
+    0.5
+   ]
+  },
+  {
+   "k": "van",
+   "cls": "warn",
+   "anchor": "van",
+   "dy": -90,
+   "in": [
+    "write",
+    0.5
+   ],
+   "out": [
+    "ans",
+    0.2
+   ]
+  },
+  {
+   "k": "cancel",
+   "cls": "ok",
+   "anchor": "van",
+   "dy": -90,
+   "in": [
+    "ans",
+    0.5
+   ],
+   "out": [
+    "ans",
+    2.2
+   ]
+  },
+  {
+   "k": "cause",
+   "cls": "warn",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "cause",
+    0.05
+   ],
+   "out": [
+    "step1",
+    -0.15
+   ]
+  },
+  {
+   "k": "s1",
+   "cls": "step",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "step1",
+    -0.05
+   ],
+   "out": [
+    "step2",
+    -0.15
+   ]
+  },
+  {
+   "k": "s2",
+   "cls": "step",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "step2",
+    -0.05
+   ],
+   "out": [
+    "fix",
+    -0.25
+   ]
+  },
+  {
+   "k": "ok",
+   "cls": "ok",
+   "anchor": "focus2",
+   "dy": -190,
+   "in": [
+    "fix",
+    0.05
+   ],
+   "out": [
+    "sleep",
+    -0.4
+   ]
+  },
+  {
+   "k": "sl",
+   "cls": "ok",
+   "anchor": "ll",
+   "dy": -170,
+   "in": [
+    "sleep",
+    0.2
+   ],
+   "out": [
+    "save",
+    -0.1
+   ]
+  }
+ ],
+ "save": [
+  "save",
+  0.05
+ ],
+ "sfx": [
+  [
+   "buzz",
+   "night",
+   0.1,
+   -10
+  ],
+  [
+   "send",
+   "write",
+   -0.1,
+   -13
+  ],
+  [
+   "pop",
+   "ans",
+   0.1,
+   -12
+  ],
+  [
+   "chime",
+   "fix",
+   0.3,
+   -11
+  ],
+  [
+   "kaching",
+   "save",
+   0.1,
+   -12
+  ],
+  [
+   "windowshut",
+   "step1",
+   0.0,
+   -12
+  ],
+  [
+   "squeak",
+   "fix",
+   -0.1,
+   -10
+  ]
+ ],
+ "gr": [
+  [
+   3,
+   2,
+   3,
+   3,
+   3,
+   2,
+   3,
+   2,
+   3,
+   4,
+   3,
+   2,
+   3,
+   2,
+   4,
+   4
+  ],
+  [
+   3,
+   2,
+   3,
+   3,
+   3,
+   2,
+   3,
+   2,
+   4,
+   3,
+   2,
+   3,
+   2,
+   3,
+   3,
+   4,
+   3
+  ]
+ ]
+}
