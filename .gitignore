@@ -5,3 +5,5 @@ v2/[WX]*-de.html
 v2/[WX]*-en.html
 v2/bench_*.html
 v2/sw.js.pre*
+__pycache__/
+*.pyc
