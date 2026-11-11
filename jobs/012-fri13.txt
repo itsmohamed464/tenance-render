@@ -1,0 +1,7 @@
+# Fri Nov 13: no hot water 07:30 (best slot), washer 16:00, fridge 19:30
+X101-de
+X101-en
+X102-de
+X102-en
+X103-de
+X103-en
