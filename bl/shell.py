@@ -80,11 +80,15 @@ class Shell:
         B('sofa', (1.15, 0.65, 0.32), (-1.3, 1.3, 0.21), sofaM, 0.04); B('sofab', (1.15, 0.16, 0.5), (-1.3, 1.62, 0.5), sofaM, 0.05); B('sofal', (0.14, 0.65, 0.5), (-1.84, 1.3, 0.33), sofaM, 0.04); B('sofar', (0.14, 0.65, 0.5), (-0.76, 1.3, 0.33), sofaM, 0.04)
         B('cush', (0.3, 0.12, 0.3), (-1.0, 1.45, 0.55), M('cush', '#e09b6b', 0.8), 0.05, rot=(0.2, 0, 0.3)); B('table', (0.55, 0.4, 0.16), (-0.3, 0.55, 0.13), M('tbl', '#c9a27a', 0.5), 0.015)
         for i, (px, pz, c) in enumerate(((-1.4, 1.9, '#e09b6b'), (-0.8, 1.7, '#7fa9d8'), (-1.1, 1.45, '#5aa84a'))): B('pic%d' % i, (0.3, 0.02, 0.38), (px, 1.76, pz), M('pc%d' % i, c, 0.6), 0.01); B('pf%d' % i, (0.34, 0.015, 0.42), (px, 1.768, pz), M('pfr', '#2b2b2b', 0.5), 0.005)
-        L.cyl('lampP', 0.012, 1.1, (-1.75, 0.45, 0.6), s.steel, verts=12); sph('lampS', 0.16, (-1.75, 0.45, 1.2), M('lampM', '#ffe2b0', 0.4, emit='#ffcf88', es=1.2), (1, 1, 0.8))
-        L.cyl('cord', 0.005, 0.5, (-0.3, 0.3, 2.35), s.steel, verts=8); sph('pend', 0.13, (-0.3, 0.3, 2.05), M('pendM', '#ffe9c4', 0.4, emit='#ffd9a0', es=1.4), (1, 1, 0.8))
-        L.point('lampL', (-1.75, 0.45, 1.15), 40, '#ffcf88', 0.12).data.use_shadow = False; L.point('pendL', (-0.3, 0.3, 1.95), 25, '#ffd9a0', 0.1).data.use_shadow = False
+        lampM = M('lampM', '#ffe2b0', 0.4, emit='#ffcf88', es=1.2); pendM = M('pendM', '#ffe9c4', 0.4, emit='#ffd9a0', es=1.4); s.lamp_socks = [lampM.node_tree.nodes['Principled BSDF'].inputs['Emission Strength'], pendM.node_tree.nodes['Principled BSDF'].inputs['Emission Strength']]
+        L.cyl('lampP', 0.012, 1.1, (-1.75, 0.45, 0.6), s.steel, verts=12); sph('lampS', 0.16, (-1.75, 0.45, 1.2), lampM, (1, 1, 0.8))
+        L.cyl('cord', 0.005, 0.5, (-0.3, 0.3, 2.35), s.steel, verts=8); sph('pend', 0.13, (-0.3, 0.3, 2.05), pendM, (1, 1, 0.8))
+        s.llights = []
+        for nm, loc, en, col in (('lampL', (-1.75, 0.45, 1.15), 40, '#ffcf88'), ('pendL', (-0.3, 0.3, 1.95), 25, '#ffd9a0')):
+            lt = L.point(nm, loc, en, col, 0.12); lt.data.use_shadow = False; lt.data.keyframe_insert('energy', frame=0) if False else None; s.llights.append((lt, en)); s.cx.prop(lt.data, 'energy')
+        for q in s.lamp_socks: s.cx.prop(q, 'default_value')
     # ---- topic hooks -------------------------------------------------------------------------------------------------
-    def finish(s, spot, spot_yaw, reach, focus, anchors, act, shiver=1.0, tenant_pos=(-0.2, 0.2), spot_z=0.05):
+    def finish(s, spot, spot_yaw, reach, focus, anchors, act, shiver=1.0, tenant_pos=(-0.2, 0.2), spot_z=0.05, work_lean=0.12, dark=None):
         """spot: tenant (x,y) while working; reach: arm raise while working; focus: camera pose ((loc),(tgt),fov) for the topic close-up; act(t, ph): topic prop animation"""
         L, K, T, cx, UZ, sc = s.L, s.K, s.T, s.cx, s.UZ, s.sc; lerp, seg, eio, eout, sp = L.lerp, L.seg, L.eio, L.eout, L.spring; LL, TN, bs, night = s.LL, s.TN, s.bs, s.mode == 'night'
         n_, w_, tu, an, ca, s1, s2, fx, sl, sv = [K[x] for x in ('night', 'write', 'turn', 'ans', 'cause', 'step1', 'step2', 'fix', 'sleep', 'save')]
@@ -120,7 +124,7 @@ class Shell:
             bad = 1 - sp_(t, fx, fx + 0.8); sh = 0.02 * math.sin(t * 38) * bad * shiver; work = sp_(t, s1 - 0.5, s1 + 0.1) * (1 - sp_(t, s2 + 0.9, s2 + 1.3)); twist = math.sin(t * 9) * 0.18 * (1 if s1 + 0.1 < t < s2 + 0.9 else 0)
             joy = sp(t, fx + 0.2, 2.4, 0.35) * (1 - sp_(t, sl + 0.2, sl + 0.8))
             yawT = lerp(lerp(0.9, 0.0, sp_(t, w_ - 1.0, w_ - 0.4)), 0.9, sp_(t, an + 1.0, an + 1.5)); yawT = lerp(yawT, spot_yaw, walk); yawT = lerp(yawT, 0.0, sp_(t, fx + 0.6, fx + 1.2) * (1 if walk > 0.99 else 0))
-            TN.pose(pos=pos, yaw=yawT + sh, lean=0.06 * bad - 0.1 * joy + 0.12 * work, roll=sh, nod=0.2 * phn, armR=(0.4 + 2.4 * joy) if joy > 0.02 else (0.25 + 1.1 * phn + 0.9 * bad * (1 - phn) * (1 - work) * shiver),
+            TN.pose(pos=pos, yaw=yawT + sh, lean=0.06 * bad - 0.1 * joy + work_lean * work, roll=sh, nod=0.2 * phn, armR=(0.4 + 2.4 * joy) if joy > 0.02 else (0.25 + 1.1 * phn + 0.9 * bad * (1 - phn) * (1 - work) * shiver),
                     armL=(0.4 + 2.4 * joy) if joy > 0.02 else (0.2 + reach * work + 0.9 * bad * (1 - work) * shiver), armLz=twist, blink=L.blink(t, 1.3), smile=0.05 + 0.9 * (1 if joy > 0.1 else 0), wide=0.25 * bad, o=0.3 * bad * (1 - phn), brow=-0.45 * bad + 0.1 * joy)
             # message orbs, mascot, van
             def orbpos(o, i, t0, a, b):
@@ -136,7 +140,11 @@ class Shell:
             s.van.location = (x if t > w_ + 0.1 else 8.0, -2.75, 0.0); s.van.rotation_euler = (0.0, 0.05 * seg(t, tu + 0.3, 0.3) * (1 - seg(t, tu + 0.6, 0.4)) - 0.04 * (vin < 0.98) * (1 - vin), math.pi * sp_(t, an + 0.5, an + 1.0))
             for w_o in s.wheels: w_o.rotation_euler = (math.pi / 2 + x * 10.0, 0, 0)
             bl = 0.5 + 0.5 * math.sin(t * 22); on = 1 if w_ + 0.1 < t < an + 1.5 else 0; bs(s.vl)['Emission Strength'].default_value = 8.0 * bl * on; s.vlL.data.energy = 120 * bl * on
-            h = sp_(t, fx - 0.1, fx + 1.3); act(t, dict(walk=walk, work=work, twist=twist, fix=h, joy=joy, bad=bad, s1=s1, s2=s2, fx=fx, ca=ca))
+            h = sp_(t, fx - 0.1, fx + 1.3); ph_all = dict(walk=walk, work=work, twist=twist, fix=h, joy=joy, bad=bad, s1=s1, s2=s2, fx=fx, ca=ca, n=n_); act(t, ph_all)
             s.kL.data.color = (lerp(0.48, 1.0, h), lerp(0.63, 0.78, h), lerp(1.0, 0.55, h)) if night else (1.0, 0.93, 0.8); s.kL.data.energy = lerp(260, 340, h) if night else 420
-            s.kU.data.energy = (lerp(260, 200, sit) if night else 520); s.moonL.data.energy = 180 if night else 260; s.fl.data.energy = 300 if night else 420; s.street.data.energy = 160
+            if dark:
+                f = dark(t, ph_all); s.kL.data.energy *= f; s.fl.data.energy *= (0.08 + 0.92 * f); s.street.data.energy *= (0.3 + 0.7 * f); s.mlight.data.energy *= (0.5 + 0.5 * f); s.kL.data.color = (0.5, 0.6, 1.0) if f < 0.5 else s.kL.data.color
+                for lt, base in getattr(s, 'llights', []): lt.data.energy = base * f
+                for q, base in zip(getattr(s, 'lamp_socks', []), (1.2, 1.4)): q.default_value = base * f
+            s.kU.data.energy = (lerp(260, 200, sit) if night else 520); s.moonL.data.energy = 180 if night else 260; s.fl.data.energy = (300 if night else 420) * ((0.08 + 0.92 * dark(t, ph_all)) if dark else 1); s.street.data.energy = 160 * ((0.3 + 0.7 * dark(t, ph_all)) if dark else 1)
         return upd, cx
