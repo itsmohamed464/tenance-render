@@ -1,0 +1,371 @@
+{
+ "scene": "toilet",
+ "fps": 30,
+ "de": {
+  "hook": "00:20 Uhr. Toilette verstopft. 🚽",
+  "chip": "🕛 00:20 · Whg 1B",
+  "who": "Mieter · Whg 1B",
+  "m1": "Die Toilette ist verstopft und steigt 😱",
+  "m2": "Zu viel Papier. Saugglocke, kräftig pumpen ✓",
+  "ttl": "Toilette verstopft · Whg 1B",
+  "l1": "🧻 Ursache: zu viel Papier",
+  "l2": "🪠 Saugglocke pumpen",
+  "l3": "🌀 Abfluss frei",
+  "sv": "💶 Spart den Notdienst",
+  "end": [
+   "Du *schläfst* weiter.",
+   null
+  ],
+  "tags": {
+   "bad": "🚽 Verstopft",
+   "van": "🚐💸 Notdienst unterwegs",
+   "cancel": "✅ Notdienst abgesagt",
+   "cause": "🧻 Zu viel Papier",
+   "s1": "① Saugglocke aufsetzen",
+   "s2": "② Kräftig pumpen",
+   "ok": "🌀 Abfluss frei",
+   "sl": "😴 Du schläfst weiter"
+  }
+ },
+ "en": {
+  "hook": "12:20 am. Toilet blocked. 🚽",
+  "chip": "🕛 12:20 am · Apt 1B",
+  "who": "Tenant · Apt 1B",
+  "m1": "The toilet is blocked and rising 😱",
+  "m2": "Too much paper. Plunger, pump hard ✓",
+  "ttl": "Toilet blocked · Apt 1B",
+  "l1": "🧻 Cause: too much paper",
+  "l2": "🪠 Pump with the plunger",
+  "l3": "🌀 Drain clear",
+  "sv": "💶 Saves the call-out",
+  "end": [
+   "You *keep sleeping*.",
+   null
+  ],
+  "tags": {
+   "bad": "🚽 Blocked",
+   "van": "🚐💸 Emergency plumber coming",
+   "cancel": "✅ Call-out cancelled",
+   "cause": "🧻 Too much paper",
+   "s1": "① Place the plunger",
+   "s2": "② Pump hard",
+   "ok": "🌀 Drain clear",
+   "sl": "😴 You keep sleeping"
+  }
+ },
+ "pre": [
+  [
+   "night",
+   [
+    "Kurz",
+    "Just"
+   ]
+  ],
+  [
+   "write",
+   [
+    "schreibt",
+    "writes"
+   ]
+  ]
+ ],
+ "post": [
+  [
+   "ans",
+   [
+    "antwortet",
+    "answers"
+   ]
+  ],
+  [
+   "cause",
+   [
+    "Papier",
+    "paper"
+   ]
+  ],
+  [
+   "step1",
+   [
+    "Saugglocke",
+    "Place"
+   ]
+  ],
+  [
+   "step2",
+   [
+    "pumpen",
+    "pump"
+   ]
+  ],
+  [
+   "fix",
+   [
+    "frei",
+    "clear"
+   ]
+  ],
+  [
+   "sleep",
+   [
+    "schläfst",
+    "sleeping"
+   ]
+  ],
+  [
+   "save",
+   [
+    "spart",
+    "saves"
+   ]
+  ],
+  [
+   "cta",
+   [
+    "Jetzt",
+    "Join"
+   ]
+  ]
+ ],
+ "hook": {
+  "out": [
+   "write",
+   -0.15
+  ]
+ },
+ "chat": {
+  "in1": [
+   "write",
+   -0.12
+  ],
+  "in2": [
+   "ans",
+   0.08
+  ],
+  "out1": [
+   "cause",
+   -0.5
+  ],
+  "out2": [
+   "cause",
+   -0.44
+  ]
+ },
+ "card": {
+  "t": [
+   "cause",
+   -0.3
+  ],
+  "lines": [
+   [
+    "cause",
+    0.1
+   ],
+   [
+    "step1",
+    0
+   ],
+   [
+    "fix",
+    0
+   ]
+  ],
+  "out": [
+   "save",
+   -0.12
+  ]
+ },
+ "tags": [
+  {
+   "k": "bad",
+   "cls": "warn",
+   "anchor": "focus2",
+   "dy": -210,
+   "in": [
+    "write",
+    0.3
+   ],
+   "out": [
+    "turn",
+    0.5
+   ]
+  },
+  {
+   "k": "van",
+   "cls": "warn",
+   "anchor": "van",
+   "dy": -90,
+   "in": [
+    "write",
+    0.5
+   ],
+   "out": [
+    "ans",
+    0.2
+   ]
+  },
+  {
+   "k": "cancel",
+   "cls": "ok",
+   "anchor": "van",
+   "dy": -90,
+   "in": [
+    "ans",
+    0.5
+   ],
+   "out": [
+    "ans",
+    2.2
+   ]
+  },
+  {
+   "k": "cause",
+   "cls": "warn",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "cause",
+    0.05
+   ],
+   "out": [
+    "step1",
+    -0.15
+   ]
+  },
+  {
+   "k": "s1",
+   "cls": "step",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "step1",
+    -0.05
+   ],
+   "out": [
+    "step2",
+    -0.15
+   ]
+  },
+  {
+   "k": "s2",
+   "cls": "step",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "step2",
+    -0.05
+   ],
+   "out": [
+    "fix",
+    -0.25
+   ]
+  },
+  {
+   "k": "ok",
+   "cls": "ok",
+   "anchor": "focus2",
+   "dy": -190,
+   "in": [
+    "fix",
+    0.05
+   ],
+   "out": [
+    "sleep",
+    -0.4
+   ]
+  },
+  {
+   "k": "sl",
+   "cls": "ok",
+   "anchor": "ll",
+   "dy": -170,
+   "in": [
+    "sleep",
+    0.2
+   ],
+   "out": [
+    "save",
+    -0.1
+   ]
+  }
+ ],
+ "save": [
+  "save",
+  0.05
+ ],
+ "sfx": [
+  [
+   "buzz",
+   "night",
+   0.1,
+   -10
+  ],
+  [
+   "send",
+   "write",
+   -0.1,
+   -13
+  ],
+  [
+   "pop",
+   "ans",
+   0.1,
+   -12
+  ],
+  [
+   "chime",
+   "fix",
+   0.3,
+   -11
+  ],
+  [
+   "kaching",
+   "save",
+   0.1,
+   -12
+  ],
+  [
+   "plop",
+   "step1",
+   0.1,
+   -9
+  ],
+  [
+   "gurgle",
+   "fix",
+   -0.1,
+   -9
+  ]
+ ],
+ "gr": [
+  [
+   3,
+   3,
+   4,
+   3,
+   2,
+   3,
+   2,
+   2,
+   4,
+   4,
+   4,
+   4
+  ],
+  [
+   3,
+   3,
+   4,
+   3,
+   2,
+   3,
+   3,
+   2,
+   4,
+   4,
+   3,
+   2,
+   3
+  ]
+ ]
+}

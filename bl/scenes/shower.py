@@ -26,4 +26,4 @@ def build(L, K, T, lang):
         u = seg(t, fx - 0.1, 1.5); swirl.scale = (0.1 + 1.0 * (1 - u),) * 3 if 0 < u < 1 else (0.001,) * 3; swirl.rotation_euler = (0, 0, t * 6.0); swirl.location = (-1.1, 0.95, 0.12 + lvl)
         for i, dp in enumerate(drops):
             uu = (t - s2 - 0.3 - 0.12 * i) / 0.6; dp.location = (-1.1 + 0.05 * i, 0.9, 0.2 + 0.3 * math.sin(math.pi * uu)) if 0 < uu < 1 else (0, 0, -9); dp.scale = (1,) * 3
-    return sh.finish(spot=(-0.65, 0.5), spot_yaw=3.7, reach=0.25, focus=((-2.0, -3.4, 1.5), (-1.1, 0.95, 0.3), 30), anchors={'focus': fb, 'focus2': fa}, act=act, shiver=0.0, work_lean=0.95)
+    return sh.finish(spot=(-0.45, 0.95), spot_yaw=4.71, reach=0.25, focus=((-1.6, -3.4, 1.5), (-0.8, 0.95, 0.45), 30), anchors={'focus': fb, 'focus2': fa}, act=act, shiver=0.0, work_lean=0.6)

@@ -20,4 +20,4 @@ def build(L, K, T, lang):
         d = eio(seg(t, fx - 0.2, 1.2)); wat.location = (-1.0, 1.2, lerp(0.6, 0.45, d)); u = seg(t, fx - 0.1, 1.4); swirl.scale = (0.1 + 1.0 * (1 - u),) * 3 if 0 < u < 1 else (0.001,) * 3; swirl.rotation_euler = (0, 0, t * 6.0); swirl.location = (-1.0, 1.2, wat.location[2] + 0.01)
         for i, b in enumerate(bubs):
             uu = (t - s2 - 0.1 * i) / 0.7; b.location = (-1.0 + 0.1 * math.sin(i * 2), 1.2 + 0.05 * math.cos(i * 3), 0.62 + 0.25 * uu) if 0 < uu < 1 and t < fx + 0.5 else (0, 0, -9); b.scale = (1,) * 3
-    return sh.finish(spot=(-0.6, 0.55), spot_yaw=3.7, reach=0.4, focus=((-1.9, -3.4, 1.4), (-1.0, 1.2, 0.5), 30), anchors={'focus': fb, 'focus2': fa}, act=act, shiver=0.0, work_lean=0.75)
+    return sh.finish(spot=(-0.4, 1.15), spot_yaw=4.71, reach=0.4, focus=((-1.5, -3.4, 1.4), (-0.7, 1.2, 0.6), 30), anchors={'focus': fb, 'focus2': fa}, act=act, shiver=0.0, work_lean=0.5)
