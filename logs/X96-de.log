@@ -1,0 +1,3 @@
+X96-de WebGL: ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) MBN=1 PR=1 FPS=60
+X96-de 0/496X96-de 60/496X96-de 120/496X96-de 180/496X96-de 240/496X96-de 300/496X96-de 360/496X96-de 420/496X96-de 480/496X96-de 0/496X96-de 120/496X96-de 240/496X96-de 360/496X96-de 480/496X96-de avg per frame: seek+render 0 ms, capture 2 ms
+X96-de -> kiherd11-de.mp4 T=16.53 fps=30 frames=496 render=820s inLUFS=-21.48 size=58742564
