@@ -1,0 +1,373 @@
+{
+ "scene": "thermostat",
+ "fps": 30,
+ "de": {
+  "hook": "Ein Heizkörper bleibt kalt. 🥶",
+  "chip": "🕗 19:50 · Whg 4C",
+  "who": "Mieter · Whg 4C",
+  "m1": "Nur ein Heizkörper bleibt kalt, die anderen sind warm 😕",
+  "m2": "Ventilstift hängt. Kappe ab, Stift lösen ✓",
+  "ttl": "Heizkörper kalt · Whg 4C",
+  "l1": "📌 Ursache: Ventilstift hängt",
+  "l2": "🪙 Stift mit Münze lösen",
+  "l3": "🔥 Heizkörper wird warm",
+  "sv": "💶 Spart den Handwerker",
+  "end": [
+   "Du *schläfst* weiter.",
+   null
+  ],
+  "tags": {
+   "bad": "🥶 Kalt",
+   "van": "🚐💸 Handwerker unterwegs",
+   "cancel": "✅ Einsatz abgesagt",
+   "cause": "📌 Ventilstift hängt",
+   "s1": "① Kappe abschrauben",
+   "s2": "② Stift mit Münze lösen",
+   "ok": "🔥 Heizkörper warm",
+   "sl": "😴 Du schläfst weiter"
+  }
+ },
+ "en": {
+  "hook": "One radiator stays cold. 🥶",
+  "chip": "🕗 7:50 pm · Apt 4C",
+  "who": "Tenant · Apt 4C",
+  "m1": "Only one radiator stays cold, the others are warm 😕",
+  "m2": "Valve pin stuck. Cap off, free the pin ✓",
+  "ttl": "Radiator cold · Apt 4C",
+  "l1": "📌 Cause: valve pin stuck",
+  "l2": "🪙 Free the pin with a coin",
+  "l3": "🔥 Radiator warms up",
+  "sv": "💶 Saves the handyman",
+  "end": [
+   "You *keep sleeping*.",
+   null
+  ],
+  "tags": {
+   "bad": "🥶 Cold",
+   "van": "🚐💸 Handyman coming",
+   "cancel": "✅ Call-out cancelled",
+   "cause": "📌 Valve pin stuck",
+   "s1": "① Unscrew the cap",
+   "s2": "② Free the pin with a coin",
+   "ok": "🔥 Radiator warm",
+   "sl": "😴 You keep sleeping"
+  }
+ },
+ "pre": [
+  [
+   "night",
+   [
+    "Ein",
+    "One"
+   ]
+  ],
+  [
+   "write",
+   [
+    "schreibt",
+    "writes"
+   ]
+  ]
+ ],
+ "post": [
+  [
+   "ans",
+   [
+    "antwortet",
+    "answers"
+   ]
+  ],
+  [
+   "cause",
+   [
+    "Ventilstift",
+    "pin"
+   ]
+  ],
+  [
+   "step1",
+   [
+    "Kappe",
+    "cap"
+   ]
+  ],
+  [
+   "step2",
+   [
+    "Münze",
+    "coin"
+   ]
+  ],
+  [
+   "fix",
+   [
+    "warm",
+    "warm"
+   ]
+  ],
+  [
+   "sleep",
+   [
+    "schläfst",
+    "sleeping"
+   ]
+  ],
+  [
+   "save",
+   [
+    "spart",
+    "saves"
+   ]
+  ],
+  [
+   "cta",
+   [
+    "Jetzt",
+    "Join"
+   ]
+  ]
+ ],
+ "hook": {
+  "out": [
+   "write",
+   -0.15
+  ]
+ },
+ "chat": {
+  "in1": [
+   "write",
+   -0.12
+  ],
+  "in2": [
+   "ans",
+   0.08
+  ],
+  "out1": [
+   "cause",
+   -0.5
+  ],
+  "out2": [
+   "cause",
+   -0.44
+  ]
+ },
+ "card": {
+  "t": [
+   "cause",
+   -0.3
+  ],
+  "lines": [
+   [
+    "cause",
+    0.1
+   ],
+   [
+    "step1",
+    0
+   ],
+   [
+    "fix",
+    0
+   ]
+  ],
+  "out": [
+   "save",
+   -0.12
+  ]
+ },
+ "tags": [
+  {
+   "k": "bad",
+   "cls": "warn",
+   "anchor": "focus2",
+   "dy": -210,
+   "in": [
+    "write",
+    0.3
+   ],
+   "out": [
+    "turn",
+    0.5
+   ]
+  },
+  {
+   "k": "van",
+   "cls": "warn",
+   "anchor": "van",
+   "dy": -90,
+   "in": [
+    "write",
+    0.5
+   ],
+   "out": [
+    "ans",
+    0.2
+   ]
+  },
+  {
+   "k": "cancel",
+   "cls": "ok",
+   "anchor": "van",
+   "dy": -90,
+   "in": [
+    "ans",
+    0.5
+   ],
+   "out": [
+    "ans",
+    2.2
+   ]
+  },
+  {
+   "k": "cause",
+   "cls": "warn",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "cause",
+    0.05
+   ],
+   "out": [
+    "step1",
+    -0.15
+   ]
+  },
+  {
+   "k": "s1",
+   "cls": "step",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "step1",
+    -0.05
+   ],
+   "out": [
+    "step2",
+    -0.15
+   ]
+  },
+  {
+   "k": "s2",
+   "cls": "step",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "step2",
+    -0.05
+   ],
+   "out": [
+    "fix",
+    -0.25
+   ]
+  },
+  {
+   "k": "ok",
+   "cls": "ok",
+   "anchor": "focus2",
+   "dy": -190,
+   "in": [
+    "fix",
+    0.05
+   ],
+   "out": [
+    "sleep",
+    -0.4
+   ]
+  },
+  {
+   "k": "sl",
+   "cls": "ok",
+   "anchor": "ll",
+   "dy": -170,
+   "in": [
+    "sleep",
+    0.2
+   ],
+   "out": [
+    "save",
+    -0.1
+   ]
+  }
+ ],
+ "save": [
+  "save",
+  0.05
+ ],
+ "sfx": [
+  [
+   "buzz",
+   "night",
+   0.1,
+   -10
+  ],
+  [
+   "send",
+   "write",
+   -0.1,
+   -13
+  ],
+  [
+   "pop",
+   "ans",
+   0.1,
+   -12
+  ],
+  [
+   "chime",
+   "fix",
+   0.3,
+   -11
+  ],
+  [
+   "kaching",
+   "save",
+   0.1,
+   -12
+  ],
+  [
+   "unscrew",
+   "step1",
+   0.1,
+   -9
+  ],
+  [
+   "heater",
+   "fix",
+   -0.1,
+   -10
+  ]
+ ],
+ "gr": [
+  [
+   4,
+   3,
+   4,
+   3,
+   2,
+   3,
+   2,
+   3,
+   2,
+   4,
+   4,
+   4,
+   4
+  ],
+  [
+   4,
+   3,
+   4,
+   3,
+   2,
+   3,
+   2,
+   3,
+   3,
+   3,
+   4,
+   4,
+   4,
+   3
+  ]
+ ]
+}

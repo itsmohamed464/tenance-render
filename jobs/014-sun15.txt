@@ -1,0 +1,7 @@
+# Sun Nov 15: balcony drain 07:30 (best slot), tap aerator 16:00, radiator pin 19:30
+X107-de
+X107-en
+X108-de
+X108-en
+X109-de
+X109-en
