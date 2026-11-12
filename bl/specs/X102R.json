@@ -1,0 +1,376 @@
+{
+ "scene": "washer",
+ "fps": 30,
+ "de": {
+  "hook": "Dein Urlaub. Sein Wasserschaden? 🌊",
+  "chip": "🕑 14:10 · Whg 2C",
+  "who": "Mieter · Whg 2C",
+  "m1": "Die Waschmaschine pumpt nicht ab 😖",
+  "m2": "Flusensieb verstopft. Klappe auf, Sieb reinigen ✓",
+  "ttl": "Waschmaschine pumpt nicht ab · Whg 2C",
+  "l1": "🧺 Ursache: Flusensieb verstopft",
+  "l2": "🧤 Sieb reinigen",
+  "l3": "💧 Wasser läuft ab",
+  "sv": "💶 Spart den Techniker",
+  "end": [
+   "Du bleibst am *Strand*.",
+   null
+  ],
+  "tags": {
+   "bad": "💧 Pfütze",
+   "van": "🚐💸 Techniker unterwegs",
+   "cancel": "✅ Einsatz abgesagt",
+   "cause": "🧺 Flusensieb verstopft",
+   "s1": "① Klappe öffnen",
+   "s2": "② Sieb reinigen",
+   "ok": "✨ Wasser läuft ab",
+   "sl": "🏝️ Du bleibst am Strand"
+  }
+ },
+ "en": {
+  "hook": "Your holiday. His flood? 🌊",
+  "chip": "🕑 2:10 pm · Apt 2C",
+  "who": "Tenant · Apt 2C",
+  "m1": "The washing machine will not drain 😖",
+  "m2": "Lint filter clogged. Open the flap, clean it ✓",
+  "ttl": "Washer not draining · Apt 2C",
+  "l1": "🧺 Cause: lint filter clogged",
+  "l2": "🧤 Clean the filter",
+  "l3": "💧 Water drains",
+  "sv": "💶 Saves the technician",
+  "end": [
+   "You stay on the *beach*.",
+   null
+  ],
+  "tags": {
+   "bad": "💧 Puddle",
+   "van": "🚐💸 Technician coming",
+   "cancel": "✅ Call-out cancelled",
+   "cause": "🧺 Lint filter clogged",
+   "s1": "① Open the flap",
+   "s2": "② Clean the filter",
+   "ok": "✨ Water drains",
+   "sl": "🏝️ You stay on the beach"
+  }
+ },
+ "pre": [
+  [
+   "night",
+   [
+    "Wasser",
+    "Water"
+   ]
+  ],
+  [
+   "write",
+   [
+    "schreibt",
+    "writes"
+   ]
+  ]
+ ],
+ "post": [
+  [
+   "ans",
+   [
+    "antwortet",
+    "answers"
+   ]
+  ],
+  [
+   "cause",
+   [
+    "Flusensieb",
+    "lint"
+   ]
+  ],
+  [
+   "step1",
+   [
+    "Klappe",
+    "Open"
+   ]
+  ],
+  [
+   "step2",
+   [
+    "reinigen",
+    "clean"
+   ]
+  ],
+  [
+   "fix",
+   [
+    "läuft",
+    "drains"
+   ]
+  ],
+  [
+   "sleep",
+   [
+    "Strand",
+    "beach"
+   ]
+  ],
+  [
+   "save",
+   [
+    "spart",
+    "saves"
+   ]
+  ],
+  [
+   "cta",
+   [
+    "Jetzt",
+    "Join"
+   ]
+  ]
+ ],
+ "hook": {
+  "out": [
+   "write",
+   -0.15
+  ]
+ },
+ "chat": {
+  "in1": [
+   "write",
+   -0.12
+  ],
+  "in2": [
+   "ans",
+   0.08
+  ],
+  "out1": [
+   "cause",
+   -0.5
+  ],
+  "out2": [
+   "cause",
+   -0.44
+  ]
+ },
+ "card": {
+  "t": [
+   "cause",
+   -0.3
+  ],
+  "lines": [
+   [
+    "cause",
+    0.1
+   ],
+   [
+    "step1",
+    0
+   ],
+   [
+    "fix",
+    0
+   ]
+  ],
+  "out": [
+   "save",
+   -0.12
+  ]
+ },
+ "tags": [
+  {
+   "k": "bad",
+   "cls": "warn",
+   "anchor": "focus2",
+   "dy": -210,
+   "in": [
+    "write",
+    0.3
+   ],
+   "out": [
+    "turn",
+    0.5
+   ]
+  },
+  {
+   "k": "van",
+   "cls": "warn",
+   "anchor": "van",
+   "dy": -90,
+   "in": [
+    "write",
+    0.5
+   ],
+   "out": [
+    "ans",
+    0.2
+   ]
+  },
+  {
+   "k": "cancel",
+   "cls": "ok",
+   "anchor": "van",
+   "dy": -90,
+   "in": [
+    "ans",
+    0.5
+   ],
+   "out": [
+    "ans",
+    2.2
+   ]
+  },
+  {
+   "k": "cause",
+   "cls": "warn",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "cause",
+    0.05
+   ],
+   "out": [
+    "step1",
+    -0.15
+   ]
+  },
+  {
+   "k": "s1",
+   "cls": "step",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "step1",
+    -0.05
+   ],
+   "out": [
+    "step2",
+    -0.15
+   ]
+  },
+  {
+   "k": "s2",
+   "cls": "step",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "step2",
+    -0.05
+   ],
+   "out": [
+    "fix",
+    -0.25
+   ]
+  },
+  {
+   "k": "ok",
+   "cls": "ok",
+   "anchor": "focus2",
+   "dy": -190,
+   "in": [
+    "fix",
+    0.05
+   ],
+   "out": [
+    "sleep",
+    -0.4
+   ]
+  },
+  {
+   "k": "sl",
+   "cls": "ok",
+   "anchor": "ll",
+   "dy": -170,
+   "in": [
+    "sleep",
+    0.2
+   ],
+   "out": [
+    "save",
+    -0.1
+   ]
+  }
+ ],
+ "save": [
+  "save",
+  0.05
+ ],
+ "sfx": [
+  [
+   "buzz",
+   "night",
+   0.1,
+   -10
+  ],
+  [
+   "send",
+   "write",
+   -0.1,
+   -13
+  ],
+  [
+   "pop",
+   "ans",
+   0.1,
+   -12
+  ],
+  [
+   "chime",
+   "fix",
+   0.3,
+   -11
+  ],
+  [
+   "kaching",
+   "save",
+   0.1,
+   -12
+  ],
+  [
+   "unscrew",
+   "step1",
+   0.1,
+   -9
+  ],
+  [
+   "drain",
+   "fix",
+   -0.1,
+   -9
+  ]
+ ],
+ "gr": [
+  [
+   4,
+   3,
+   3,
+   2,
+   3,
+   2,
+   4,
+   2,
+   2,
+   3,
+   2,
+   3,
+   2,
+   4,
+   4
+  ],
+  [
+   4,
+   3,
+   3,
+   3,
+   3,
+   2,
+   3,
+   2,
+   3,
+   3,
+   4,
+   3,
+   3,
+   4,
+   3
+  ]
+ ]
+}

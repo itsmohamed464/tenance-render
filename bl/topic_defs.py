@@ -125,3 +125,20 @@ TOPICS['X109'] = dict(scene='thermostat', names={'de': 'kiheizkoerper15-de', 'en
   en=dict(hook='One radiator stays cold. 🥶', chip='🕗 7:50 pm · Apt 4C', who='Tenant · Apt 4C', m1='Only one radiator stays cold, the others are warm 😕', m2='Valve pin stuck. Cap off, free the pin ✓', ttl='Radiator cold · Apt 4C', l1='📌 Cause: valve pin stuck', l2='🪙 Free the pin with a coin', l3='🔥 Radiator warms up',
           bad='🥶 Cold', van='🚐💸 Handyman coming', cancel='✅ Call-out cancelled', cause='📌 Valve pin stuck', s1='① Unscrew the cap', s2='② Free the pin with a coin', ok='🔥 Radiator warm', sl='😴 You keep sleeping', sv='💶 Saves the handyman', end=['You *keep sleeping*.', None]),
   sfx=[['unscrew', 'step1', 0.1, -9], ['heater', 'fix', -0.1, -10]])
+
+# ---- R variants: same VO/words, new openers + varied landlord-focused hooks (re-render of upcoming videos) ----
+import copy
+HOOKS = {
+ 'X100': ('Vermieter: Mieter im Dunkeln. 22:40. 💡', 'Landlord: tenant in the dark. 10:40 pm. 💡'),
+ 'X101': ('Du schläfst. Dein Mieter duscht eiskalt. 🥶', 'You sleep. Your tenant showers ice cold. 🥶'),
+ 'X102': ('Dein Urlaub. Sein Wasserschaden? 🌊', 'Your holiday. His flood? 🌊'),
+ 'X103': ('Wasser überall. Dein Telefon klingelt. 💧', 'Water everywhere. Your phone rings. 💧'),
+ 'X104': ('2 Uhr: Mieter ausgesperrt. Wer zahlt? 🔑', '2 am: tenant locked out. Who pays? 🔑'),
+ 'X105': ('Kalte Heizung. Dein Telefon glüht. 📞', 'Cold radiator. Your phone is on fire. 📞'),
+ 'X106': ('Mieter meldet Schimmel. Du am Strand. 🌴', 'Tenant reports mold. You, on the beach. 🌴'),
+ 'X107': ('Vermieter-Alarm: Balkon ist ein Teich 🌧️', 'Landlord alert: balcony is a pond 🌧️'),
+ 'X108': ('Wasserhahn spritzt. Installateur? Nein. 💦', 'Tap sprays. Plumber? Not needed. 💦'),
+ 'X109': ('Ein Heizkörper kalt, Mieter sauer. 🥶', 'One radiator cold, tenant furious. 🥶'),
+}
+for _k, (_hd, _he) in HOOKS.items():
+    _t = copy.deepcopy(TOPICS[_k]); _t['job'] = _k + 'R'; _t['names'] = {l: n[:-3] + 'r' + n[-3:] for l, n in _t['names'].items()}; _t['de']['hook'] = _hd; _t['en']['hook'] = _he; TOPICS[_k + 'R'] = _t

@@ -3,7 +3,7 @@ import bpy, math
 from shell import Shell
 
 def build(L, K, T, lang):
-    sh = Shell(L, K, T, 'night'); M, B, sph = sh.M, sh.B, sh.sph; sh.living()
+    sh = Shell(L, K, T, 'night', wall='#e6ecf5', van='orange', vprop='bolt'); M, B, sph = sh.M, sh.B, sh.sph; sh.living()
     B('box', (0.62, 0.1, 0.8), (0.45, 1.7, 1.35), M('fbox', '#cfd3d8', 0.4), 0.02); B('door', (0.56, 0.02, 0.74), (0.45, 1.64, 1.35), M('fdoor', '#e8ebee', 0.4), 0.01)
     brk = []; tripped = M('trip', '#d33a2c', 0.4, emit='#d33a2c', es=0.0)
     for i in range(5): brk.append(B('sw%d' % i, (0.06, 0.04, 0.16), (0.3 + i * 0.1, 1.62, 1.4), M('swm%d' % i, '#2a2f38', 0.4), 0.006))
@@ -21,4 +21,4 @@ def build(L, K, T, lang):
     def act(t, ph):
         s1, s2, fx = ph['s1'], ph['s2'], ph['fx']
         flip = eio(seg(t, s2, 0.3)); t_sw.location = (0.2, 1.62, lerp(1.32, 1.4, flip))
-    return sh.finish(spot=(-0.25, 0.85), spot_yaw=2.27, reach=1.9, focus=((1.4, -2.4, 1.6), (0.3, 1.6, 1.4), 30), anchors={'focus': fb, 'focus2': fa}, act=act, shiver=0.0, dark=dk)
+    return sh.finish(spot=(-0.25, 0.85), spot_yaw=2.27, reach=1.9, focus=((1.4, -2.4, 1.6), (0.3, 1.6, 1.4), 30), anchors={'focus': fb, 'focus2': fa}, act=act, opener='face', shiver=0.0, dark=dk)

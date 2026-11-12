@@ -4,11 +4,11 @@ import bpy, math
 from mathutils import Vector
 
 class Shell:
-    def __init__(s, L, K, T, mode='night'):
-        s.L, s.K, s.T, s.mode = L, K, T, mode; s.sc = sc = bpy.context.scene; s.cx = L.Ctx(sc); s.UZ = UZ = 2.85
+    def __init__(s, L, K, T, mode='night', wall=None, van='yellow', vprop=None, sofa=None, rug=None):
+        s.L, s.K, s.T, s.mode = L, K, T, mode; s.kw = dict(sofa=sofa, rug=rug); vcol = van; s.sc = sc = bpy.context.scene; s.cx = L.Ctx(sc); s.UZ = UZ = 2.85
         s.M, s.B, s.sph, s.A = L.mat, L.box, L.sph, L.area; M, B, sph, A = s.M, s.B, s.sph, s.A; night = mode == 'night'
         L.world(sc, '#080d1c' if night else '#9fd0ff', 0.3 if night else 1.1)
-        s.wall, s.trim, s.slab = M('wall', '#efe3d0', 0.9), M('trim', '#f7f3ec', 0.5), M('slab', '#262a36', 0.8)
+        s.wall, s.trim, s.slab = M('wall', wall or '#efe3d0', 0.9), M('trim', '#f7f3ec', 0.5), M('slab', '#262a36', 0.8)
         s.wood, s.woodU = M('wood', '#b98a5e', 0.5), M('woodU', '#9c7752', 0.5); s.white, s.steel, s.teal = M('white', '#f4f4f0', 0.35), M('steel', '#cfd6dd', 0.25, 1.0), M('teal', '#2f6b73', 0.8)
         wallU = M('wallU', '#cfd8ea' if night else '#8fd0ff', 0.9); floorU = s.woodU if night else M('sand', '#e6cf9b', 0.95)
         B('road', (14, 1.6, 0.1), (0, -2.75, -0.05), M('road', '#23252d', 0.9)); B('walk', (14, 0.5, 0.12), (0, -1.9, -0.04), M('walk', '#6d7080', 0.8))
@@ -57,12 +57,19 @@ class Shell:
         mas = s.mas = L.empty('mas', (0, 0, -9)); mm = M('masM', '#1d4734', 0.22, emit='#2fb06a', es=0.9); mg = M('masG', '#ffd27a', 0.2, emit='#ffcf6a', es=8.0)
         sph('masB', 0.17, (0, 0, 0), mm, (1, 1, 1), mas); s.meyes = [sph('masE%d' % i, 0.03, (x, -0.155, 0.04), mg, (1, 0.5, 1.2), mas) for i, x in enumerate((-0.06, 0.06))]
         s.mring = L.torus('masR', 0.25, 0.018, (0, 0, 0), mg, (1.0, 0, 0), mas); s.mlight = L.point('masL', (0, 0, 0), 0, '#ffd27a', 0.1); s.mlight.parent = mas
-        van = s.van = L.empty('van', (6.5, -2.75, 0.0)); vy = M('vanY', '#f2c230', 0.45); vk = M('vanK', '#141414', 0.5); s.wheels = []
+        van = s.van = L.empty('van', (6.5, -2.75, 0.0)); vy = M('vanY', {'yellow': '#f2c230', 'blue': '#2f6fd0', 'red': '#d33a2c', 'green': '#2f8a5a', 'orange': '#f08a24', 'white': '#eceff2', 'purple': '#7a4fd0'}.get(vcol, vcol), 0.45); vk = M('vanK', '#141414', 0.5); s.wheels = []
         B('vb', (0.95, 0.45, 0.4), (0.12, 0, 0.36), vy, 0.04, parent=van); B('vc', (0.34, 0.43, 0.3), (-0.52, 0, 0.31), vy, 0.04, parent=van); B('vw', (0.2, 0.02, 0.15), (-0.52, -0.215, 0.38), M('vwin', '#2a3a55', 0.1), 0.01, parent=van)
         B('vs', (0.9, 0.02, 0.07), (0.12, -0.226, 0.3), M('vstr', '#d33a2c', 0.5), 0.005, parent=van); s.vl = M('vlight', '#ff9a1a', 0.3, emit='#ff9a1a', es=0.0); B('vlb', (0.22, 0.07, 0.05), (-0.45, 0, 0.6), s.vl, 0.01, parent=van)
         B('vh', (0.03, 0.3, 0.06), (-0.7, 0, 0.24), M('vhead', '#fff4c0', 0.2, emit='#fff4c0', es=6.0), 0, parent=van)
         for wx in (-0.5, 0.45):
             for wy in (-0.21, 0.21): s.wheels.append(L.cyl('wh', 0.1, 0.07, (wx, wy, 0.1), vk, (math.pi / 2, 0, 0), 24, parent=van))
+        gold = M('vpg', '#e6b422', 0.25, 1.0); em = lambda c, e: M('vpe', c, 0.3, emit=c, es=e)
+        if vprop == 'bolt':
+            for i, (dx, dz, r) in enumerate(((0.05, 0.74, 0.5), (0.0, 0.66, -0.5), (0.05, 0.58, 0.5))): B('pb%d' % i, (0.04, 0.03, 0.14), (dx, 0, dz), em('#ffe14a', 4.0), 0.005, rot=(0, r, 0), parent=van)
+        elif vprop == 'key': L.torus('pk', 0.07, 0.018, (0.1, 0, 0.8), gold, (math.pi / 2, 0, 0), van); B('pk2', (0.22, 0.03, 0.03), (0.28, 0, 0.8), gold, 0.005, parent=van); B('pk3', (0.03, 0.03, 0.07), (0.34, 0, 0.75), gold, 0.003, parent=van)
+        elif vprop == 'wrench': L.cyl('pw', 0.018, 0.34, (0.1, 0, 0.78), M('pws', '#c9ced6', 0.3, 1.0), (0, math.pi / 2, 0), 10, parent=van); L.torus('pw2', 0.05, 0.016, (-0.08, 0, 0.78), M('pws', '#c9ced6', 0.3, 1.0), (math.pi / 2, 0, 0), van)
+        elif vprop == 'flame': bpy.ops.mesh.primitive_cone_add(radius1=0.1, radius2=0.0, depth=0.3, location=(0.1, 0, 0.8)); fo = bpy.context.active_object; fo.parent = van; fo.data.materials.append(em('#ff7a1a', 5.0))
+        elif vprop == 'drop': sph('pd', 0.09, (0.1, 0, 0.72), em('#5ab4ff', 3.0), (1, 0.6, 1.1), van); bpy.ops.mesh.primitive_cone_add(radius1=0.06, radius2=0.0, depth=0.14, location=(0.1, 0, 0.86)); do = bpy.context.active_object; do.parent = van; do.data.materials.append(em('#5ab4ff', 3.0))
         s.vanA = L.empty('vanA', (0, 0, 0.85), van)
         orbM = M('orb', '#ffd27a', 0.2, emit='#ffcf6a', es=12.0); s.orbs = [sph('orb%d' % i, 0.05 - 0.01 * i, (0, 0, -9), orbM) for i in range(4)]
         s.rings = [L.torus('ring%d' % i, 0.1, 0.006, s.phU_pos, M('ringM', '#9fd0ff', 0.2, emit='#9fd0ff', es=2.2)) for i in range(3)]
@@ -75,8 +82,8 @@ class Shell:
         s.lights = [s.kU, s.kL, s.fl, s.moonL, s.street, s.phoneL, s.vlL, s.mlight]
         s.cam = L.camera(sc, 34); s.bs = lambda m: m.node_tree.nodes['Principled BSDF'].inputs
     def living(s, radiator=False):
-        L, M, B, sph = s.L, s.M, s.B, s.sph; sofaM = M('sofa', '#2f5a44', 0.85)
-        L.cyl('rug', 0.8, 0.012, (-0.2, 0.3, 0.055), M('rug', '#d9b48a', 0.95)); L.cyl('rug2', 0.55, 0.014, (-0.2, 0.3, 0.056), M('rug2', '#b5533c', 0.95))
+        L, M, B, sph = s.L, s.M, s.B, s.sph; sofaM = M('sofa', s.kw.get('sofa') or '#2f5a44', 0.85)
+        L.cyl('rug', 0.8, 0.012, (-0.2, 0.3, 0.055), M('rug', '#d9b48a', 0.95)); L.cyl('rug2', 0.55, 0.014, (-0.2, 0.3, 0.056), M('rug2', s.kw.get('rug') or '#b5533c', 0.95))
         B('sofa', (1.15, 0.65, 0.32), (-1.3, 1.3, 0.21), sofaM, 0.04); B('sofab', (1.15, 0.16, 0.5), (-1.3, 1.62, 0.5), sofaM, 0.05); B('sofal', (0.14, 0.65, 0.5), (-1.84, 1.3, 0.33), sofaM, 0.04); B('sofar', (0.14, 0.65, 0.5), (-0.76, 1.3, 0.33), sofaM, 0.04)
         B('cush', (0.3, 0.12, 0.3), (-1.0, 1.45, 0.55), M('cush', '#e09b6b', 0.8), 0.05, rot=(0.2, 0, 0.3)); B('table', (0.55, 0.4, 0.16), (-0.3, 0.55, 0.13), M('tbl', '#c9a27a', 0.5), 0.015)
         for i, (px, pz, c) in enumerate(((-1.4, 1.9, '#e09b6b'), (-0.8, 1.7, '#7fa9d8'), (-1.1, 1.45, '#5aa84a'))): B('pic%d' % i, (0.3, 0.02, 0.38), (px, 1.76, pz), M('pc%d' % i, c, 0.6), 0.01); B('pf%d' % i, (0.34, 0.015, 0.42), (px, 1.768, pz), M('pfr', '#2b2b2b', 0.5), 0.005)
@@ -88,7 +95,7 @@ class Shell:
             lt = L.point(nm, loc, en, col, 0.12); lt.data.use_shadow = False; lt.data.keyframe_insert('energy', frame=0) if False else None; s.llights.append((lt, en)); s.cx.prop(lt.data, 'energy')
         for q in s.lamp_socks: s.cx.prop(q, 'default_value')
     # ---- topic hooks -------------------------------------------------------------------------------------------------
-    def finish(s, spot, spot_yaw, reach, focus, anchors, act, shiver=1.0, tenant_pos=(-0.2, 0.2), spot_z=0.05, work_lean=0.12, dark=None):
+    def finish(s, spot, spot_yaw, reach, focus, anchors, act, shiver=1.0, tenant_pos=(-0.2, 0.2), spot_z=0.05, work_lean=0.12, dark=None, opener='phone'):
         """spot: tenant (x,y) while working; reach: arm raise while working; focus: camera pose ((loc),(tgt),fov) for the topic close-up; act(t, ph): topic prop animation"""
         L, K, T, cx, UZ, sc = s.L, s.K, s.T, s.cx, s.UZ, s.sc; lerp, seg, eio, eout, sp = L.lerp, L.seg, L.eio, L.eout, L.spring; LL, TN, bs, night = s.LL, s.TN, s.bs, s.mode == 'night'
         n_, w_, tu, an, ca, s1, s2, fx, sl, sv = [K[x] for x in ('night', 'write', 'turn', 'ans', 'cause', 'step1', 'step2', 'fix', 'sleep', 'save')]
@@ -100,7 +107,11 @@ class Shell:
         cx.anch.update(dict(anchors, ll=LL.head, tn=TN.head, van=s.vanA, mas=s.mas))
         WIDE = ((0, -12.4, 2.65), (0, 0.4, 2.55), 34); UP = ((-0.45, -5.6, 4.1), (-0.65, 1.0, 3.8), 31); LO = ((0.45, -5.8, 1.5), (0.0, 0.9, 1.1), 30); MID = ((0.4, -7.5, 1.7), (0.0, 0.9, 1.45), 31); UP2 = ((-0.9, -4.6, 4.0), (-0.8, 1.2, 3.6), 30)
         px, py, pz = s.phU_pos; OPEN = ((px - 0.1, py - 0.67, pz + 0.14), (px, py, pz + 0.02), 21); P = lambda t, p: (t, p[0], p[1], p[2])
-        camf = L.track([P(0, OPEN), P(n_ + 0.5, OPEN), P(n_ + 1.2, UP), P(w_ - 0.1, UP), P(w_ + 0.5, LO), P(tu - 0.3, LO), P(tu + 0.6, WIDE), P(ca - 0.3, WIDE), P(ca + 0.5, focus), P(s2 + 0.9, focus), P(fx + 0.1, MID), P(sl - 0.3, MID), P(sl + 0.7, UP2), P(sv + 0.1, UP2), P(sv + 0.9, WIDE), P(T + 1, WIDE)])
+        LF = ((0.1, 0.8, UZ + 1.0), (-1.2, 1.5, UZ + 0.74), 34) if night else ((-0.5, -1.5, UZ + 1.6), (-1.0, 0.4, UZ + 1.2), 30)
+        OPN = {'phone': (OPEN, OPEN, 0.5, 1.2), 'hero': (focus, focus, 0.7, 1.3), 'face': (((-0.2, -1.9, 1.3), (-0.2, 0.2, 1.2), 38), ((-0.2, -1.9, 1.3), (-0.2, 0.2, 1.2), 38), 0.7, 1.3),
+               'wide': (((1.1, -13.4, 3.15), (0, 0.4, 2.55), 32), ((0.5, -11.2, 2.9), (0, 0.5, 2.55), 34), 0.2, 1.4), 'landlord': (LF, LF, 1.0, 1.7)}
+        O0, O1, oh, ol = OPN[opener]
+        camf = L.track([P(0, O0), P(n_ + oh, O1), P(n_ + ol, UP), P(w_ - 0.1, UP), P(w_ + 0.5, LO), P(tu - 0.3, LO), P(tu + 0.6, WIDE), P(ca - 0.3, WIDE), P(ca + 0.5, focus), P(s2 + 0.9, focus), P(fx + 0.1, MID), P(sl - 0.3, MID), P(sl + 0.7, UP2), P(sv + 0.1, UP2), P(sv + 0.9, WIDE), P(T + 1, WIDE)])
         LP, TP, RP = (-0.9, 0.9, UZ + 1.0), (-0.1, 0.0, 1.55), (focus[1][0] + 0.7, focus[1][1] - 0.4, focus[1][2] + 0.5)
         mf = L.track([(0, (0, 0, -9), (0, 0, -9), 0), (tu - 0.01, LP, LP, 0), (tu + 0.35, LP, LP, 1), (tu + 1.0, (-1.0, 1.1, 2.4), (0, 0, 0), 1), (an, TP, TP, 1), (ca - 0.1, TP, TP, 1), (ca + 0.5, RP, RP, 1), (fx - 0.2, RP, RP, 1),
                       (fx + 0.5, (0.55, 0.8, 2.0), (0, 0, 0), 1), (sl - 0.4, (0.0, 0.6, 2.4), (0, 0, 0), 1), (sl + 0.6, (-0.9, 1.1, UZ + 1.55), (0, 0, 0), 1), (T + 1, (-0.9, 1.1, UZ + 1.55), (0, 0, 0), 1)])

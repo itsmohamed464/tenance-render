@@ -3,7 +3,7 @@ import bpy, math
 from shell import Shell
 
 def build(L, K, T, lang):
-    sh = Shell(L, K, T, 'night'); M, B, sph = sh.M, sh.B, sh.sph; sh.living(); X = 0.2; fy = 1.62 - 0.14; lerp = L.lerp; seg = L.seg; eio = L.eio
+    sh = Shell(L, K, T, 'night', wall='#f3e4d6', van='red', vprop='flame'); M, B, sph = sh.M, sh.B, sh.sph; sh.living(); X = 0.2; fy = 1.62 - 0.14; lerp = L.lerp; seg = L.seg; eio = L.eio
     B('tbox', (0.55, 0.28, 0.8), (X, 1.62, 1.3), M('therm', '#f1f2f4', 0.3), 0.03); B('tpan', (0.4, 0.01, 0.2), (X, fy - 0.003, 1.5), M('tpanM', '#22262e', 0.4), 0.004)
     ledM = M('led', '#ff2a2a', 0.2, emit='#ff2a2a', es=6.0); B('tdisp', (0.14, 0.01, 0.07), (X - 0.08, fy - 0.01, 1.52), ledM, 0.003); sph('tled', 0.014, (X + 0.12, fy - 0.012, 1.52), ledM)
     btnM = M('tbtn', '#d93a2c', 0.3, emit='#d93a2c', es=2.0); btn = L.cyl('tbutton', 0.04, 0.02, (X, fy - 0.01, 1.3), btnM, (math.pi / 2, 0, 0), 20)
@@ -21,4 +21,4 @@ def build(L, K, T, lang):
         sc = (0.35 + 0.6 * h, 0.55 + 0.1 * h, 1.0 - 0.7 * h, 1); bsd(strM)['Base Color'].default_value = sc; bsd(strM)['Emission Color'].default_value = sc; glow.data.energy = 30 * h * (1 if t < fx + 3 else 1)
         for i, st in enumerate(steam):
             u = (t - fx - 0.3 - i * 0.25) / 1.1; st.location = (1.0 + 0.03 * math.sin(i * 2), 1.45, 1.1 + 0.35 * u) if 0 < u < 1 else (0, 0, -9); st.scale = ((0.5 + 1.2 * u) * math.sin(math.pi * u),) * 3 if 0 < u < 1 else (0.001,) * 3
-    return sh.finish(spot=(-0.45, 1.0), spot_yaw=2.2, reach=2.4, focus=((1.0, -2.5, 1.5), (0.15, 1.5, 1.25), 30), anchors={'focus': fa, 'focus2': fb}, act=act, shiver=0.0, work_lean=0.15)
+    return sh.finish(spot=(-0.45, 1.0), spot_yaw=2.2, reach=2.4, focus=((1.0, -2.5, 1.5), (0.15, 1.5, 1.25), 30), anchors={'focus': fa, 'focus2': fb}, act=act, opener='landlord', shiver=0.0, work_lean=0.15)

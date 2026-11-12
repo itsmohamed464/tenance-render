@@ -3,7 +3,7 @@ import bpy, math
 from shell import Shell
 
 def build(L, K, T, lang):
-    sh = Shell(L, K, T, 'night'); M, B, sph = sh.M, sh.B, sh.sph; sh.living(); X = 0.5; lerp = L.lerp; seg = L.seg; eio = L.eio
+    sh = Shell(L, K, T, 'night', wall='#f3e9e0', van='blue', vprop='drop'); M, B, sph = sh.M, sh.B, sh.sph; sh.living(); X = 0.5; lerp = L.lerp; seg = L.seg; eio = L.eio
     B('cab', (0.9, 0.5, 0.85), (X, 1.5, 0.43), M('cabM', '#c9b79a', 0.6), 0.02); B('top', (0.94, 0.54, 0.04), (X, 1.5, 0.87), M('topM', '#e9e4d8', 0.4), 0.01); B('basin', (0.55, 0.34, 0.012), (X, 1.5, 0.895), sh.steel, 0.004)
     L.cyl('neck', 0.026, 0.26, (X, 1.7, 1.02), sh.steel, verts=12); L.cyl('spout', 0.022, 0.22, (X, 1.6, 1.15), sh.steel, (math.pi / 2, 0, 0), 12); L.cyl('tapH', 0.012, 0.1, (X + 0.08, 1.7, 0.95), sh.steel, (0, math.pi / 2, 0), 10)
     aer = L.empty('aer', (X, 1.49, 1.15)); L.cyl('aerc', 0.03, 0.035, (0, 0, 0), M('aerM', '#b9bec6', 0.3, 1.0), verts=16, parent=aer); lim = L.empty('lime', (0, 0, 0), aer)
@@ -17,4 +17,4 @@ def build(L, K, T, lang):
         g = eio(seg(t, s2, 0.8)); back = eio(seg(t, fx - 0.5, 0.5)); pos = (lerp(X, X + 0.32, g), lerp(1.49, 1.42, g), lerp(1.15, 1.01, g)) if t < fx - 0.5 else (lerp(X + 0.32, X, back), lerp(1.42, 1.49, back), lerp(1.01, 1.15, back))
         aer.location = (X - 0.1 * out, 1.49 - 0.12 * out, 1.15 + 0.03 * out) if t < s2 else pos; lim.scale = (1, 1, 1) if t < s2 + 0.9 else (0.001,) * 3
         for i, s in enumerate(sp): u = (t * 2.2 + i / 8.0) % 1.0; on = t < s1 + 0.3; s.location = (X + 0.15 * u + 0.02 * math.sin(i), 1.5, 1.12 - 0.3 * u * u) if on else (0, 0, -9)
-    return sh.finish(spot=(-0.45, 1.0), spot_yaw=2.2, reach=2.0, focus=((1.1, -2.5, 1.4), (0.3, 1.55, 1.05), 50), anchors={'focus': fa, 'focus2': fb}, act=act, shiver=0.0, work_lean=0.15)
+    return sh.finish(spot=(-0.45, 1.0), spot_yaw=2.2, reach=2.0, focus=((1.1, -2.5, 1.4), (0.3, 1.55, 1.05), 50), anchors={'focus': fa, 'focus2': fb}, act=act, opener='hero', shiver=0.0, work_lean=0.15)

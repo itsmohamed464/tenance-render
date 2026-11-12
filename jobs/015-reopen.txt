@@ -1,0 +1,21 @@
+# Re-render of upcoming videos with new openers + varied hooks, in posting order (X100R is for Thu 19:30)
+X100R-de
+X100R-en
+X101R-de
+X101R-en
+X102R-de
+X102R-en
+X103R-de
+X103R-en
+X104R-de
+X104R-en
+X105R-de
+X105R-en
+X106R-de
+X106R-en
+X107R-de
+X107R-en
+X108R-de
+X108R-en
+X109R-de
+X109R-en

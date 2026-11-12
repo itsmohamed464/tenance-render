@@ -1,0 +1,374 @@
+{
+ "scene": "fridge",
+ "fps": 30,
+ "de": {
+  "hook": "Wasser überall. Dein Telefon klingelt. 💧",
+  "chip": "🕘 21:15 · Whg 3B",
+  "who": "Mieter · Whg 3B",
+  "m1": "Der Kühlschrank läuft aus, überall Wasser 😱",
+  "m2": "Abtauloch verstopft. Tür auf, durchstoßen ✓",
+  "ttl": "Kühlschrank undicht · Whg 3B",
+  "l1": "🧊 Ursache: Abtauloch verstopft",
+  "l2": "🧹 Mit Wattestäbchen durchstoßen",
+  "l3": "💧 Wasser läuft ab",
+  "sv": "💶 Spart den Kundendienst",
+  "end": [
+   "Du *schläfst* weiter.",
+   null
+  ],
+  "tags": {
+   "bad": "💧 Pfütze",
+   "van": "🚐💸 Kundendienst unterwegs",
+   "cancel": "✅ Einsatz abgesagt",
+   "cause": "🧊 Abtauloch verstopft",
+   "s1": "① Tür öffnen",
+   "s2": "② Loch durchstoßen",
+   "ok": "✨ Wasser läuft ab",
+   "sl": "😴 Du schläfst weiter"
+  }
+ },
+ "en": {
+  "hook": "Water everywhere. Your phone rings. 💧",
+  "chip": "🕘 9:15 pm · Apt 3B",
+  "who": "Tenant · Apt 3B",
+  "m1": "The fridge is leaking, water everywhere 😱",
+  "m2": "Defrost drain blocked. Open the door, poke it clear ✓",
+  "ttl": "Fridge leaking · Apt 3B",
+  "l1": "🧊 Cause: defrost drain blocked",
+  "l2": "🧹 Poke clear with a cotton swab",
+  "l3": "💧 Water drains",
+  "sv": "💶 Saves the service call",
+  "end": [
+   "You *keep sleeping*.",
+   null
+  ],
+  "tags": {
+   "bad": "💧 Puddle",
+   "van": "🚐💸 Service call coming",
+   "cancel": "✅ Call-out cancelled",
+   "cause": "🧊 Defrost drain blocked",
+   "s1": "① Open the door",
+   "s2": "② Poke the hole clear",
+   "ok": "✨ Water drains",
+   "sl": "😴 You keep sleeping"
+  }
+ },
+ "pre": [
+  [
+   "night",
+   [
+    "Pfütze",
+    "Puddle"
+   ]
+  ],
+  [
+   "write",
+   [
+    "schreibt",
+    "writes"
+   ]
+  ]
+ ],
+ "post": [
+  [
+   "ans",
+   [
+    "antwortet",
+    "answers"
+   ]
+  ],
+  [
+   "cause",
+   [
+    "Abtauloch",
+    "defrost"
+   ]
+  ],
+  [
+   "step1",
+   [
+    "Tür",
+    "door"
+   ]
+  ],
+  [
+   "step2",
+   [
+    "Wattestäbchen",
+    "swab"
+   ]
+  ],
+  [
+   "fix",
+   [
+    "läuft",
+    "drains"
+   ]
+  ],
+  [
+   "sleep",
+   [
+    "schläfst",
+    "sleeping"
+   ]
+  ],
+  [
+   "save",
+   [
+    "spart",
+    "saves"
+   ]
+  ],
+  [
+   "cta",
+   [
+    "Jetzt",
+    "Join"
+   ]
+  ]
+ ],
+ "hook": {
+  "out": [
+   "write",
+   -0.15
+  ]
+ },
+ "chat": {
+  "in1": [
+   "write",
+   -0.12
+  ],
+  "in2": [
+   "ans",
+   0.08
+  ],
+  "out1": [
+   "cause",
+   -0.5
+  ],
+  "out2": [
+   "cause",
+   -0.44
+  ]
+ },
+ "card": {
+  "t": [
+   "cause",
+   -0.3
+  ],
+  "lines": [
+   [
+    "cause",
+    0.1
+   ],
+   [
+    "step1",
+    0
+   ],
+   [
+    "fix",
+    0
+   ]
+  ],
+  "out": [
+   "save",
+   -0.12
+  ]
+ },
+ "tags": [
+  {
+   "k": "bad",
+   "cls": "warn",
+   "anchor": "focus2",
+   "dy": -210,
+   "in": [
+    "write",
+    0.3
+   ],
+   "out": [
+    "turn",
+    0.5
+   ]
+  },
+  {
+   "k": "van",
+   "cls": "warn",
+   "anchor": "van",
+   "dy": -90,
+   "in": [
+    "write",
+    0.5
+   ],
+   "out": [
+    "ans",
+    0.2
+   ]
+  },
+  {
+   "k": "cancel",
+   "cls": "ok",
+   "anchor": "van",
+   "dy": -90,
+   "in": [
+    "ans",
+    0.5
+   ],
+   "out": [
+    "ans",
+    2.2
+   ]
+  },
+  {
+   "k": "cause",
+   "cls": "warn",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "cause",
+    0.05
+   ],
+   "out": [
+    "step1",
+    -0.15
+   ]
+  },
+  {
+   "k": "s1",
+   "cls": "step",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "step1",
+    -0.05
+   ],
+   "out": [
+    "step2",
+    -0.15
+   ]
+  },
+  {
+   "k": "s2",
+   "cls": "step",
+   "anchor": "focus",
+   "dy": -200,
+   "in": [
+    "step2",
+    -0.05
+   ],
+   "out": [
+    "fix",
+    -0.25
+   ]
+  },
+  {
+   "k": "ok",
+   "cls": "ok",
+   "anchor": "focus2",
+   "dy": -190,
+   "in": [
+    "fix",
+    0.05
+   ],
+   "out": [
+    "sleep",
+    -0.4
+   ]
+  },
+  {
+   "k": "sl",
+   "cls": "ok",
+   "anchor": "ll",
+   "dy": -170,
+   "in": [
+    "sleep",
+    0.2
+   ],
+   "out": [
+    "save",
+    -0.1
+   ]
+  }
+ ],
+ "save": [
+  "save",
+  0.05
+ ],
+ "sfx": [
+  [
+   "buzz",
+   "night",
+   0.1,
+   -10
+  ],
+  [
+   "send",
+   "write",
+   -0.1,
+   -13
+  ],
+  [
+   "pop",
+   "ans",
+   0.1,
+   -12
+  ],
+  [
+   "chime",
+   "fix",
+   0.3,
+   -11
+  ],
+  [
+   "kaching",
+   "save",
+   0.1,
+   -12
+  ],
+  [
+   "click",
+   "step1",
+   0.1,
+   -9
+  ],
+  [
+   "drain",
+   "fix",
+   -0.1,
+   -9
+  ]
+ ],
+ "gr": [
+  [
+   4,
+   3,
+   4,
+   3,
+   2,
+   4,
+   2,
+   4,
+   3,
+   2,
+   4,
+   4,
+   4
+  ],
+  [
+   4,
+   3,
+   4,
+   3,
+   2,
+   3,
+   2,
+   3,
+   4,
+   3,
+   4,
+   4,
+   3,
+   2,
+   3
+  ]
+ ]
+}

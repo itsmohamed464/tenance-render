@@ -3,7 +3,7 @@ import bpy, math, random
 from shell import Shell
 
 def build(L, K, T, lang):
-    sh = Shell(L, K, T, 'night'); M, B, sph = sh.M, sh.B, sh.sph; lerp = L.lerp; seg = L.seg; eio = L.eio; rnd = random.Random(11)
+    sh = Shell(L, K, T, 'night', wall='#dfe6ee', van='orange', vprop='wrench'); M, B, sph = sh.M, sh.B, sh.sph; lerp = L.lerp; seg = L.seg; eio = L.eio; rnd = random.Random(11)
     B('btile', (3.8, 3.4, 0.02), (0, 0.0, 0.058), M('btileM', '#8c929c', 0.7), 0.004)
     L.cyl('pot', 0.14, 0.26, (1.5, 0.9, 0.2), M('potM', '#b8643c', 0.7)); sph('plant', 0.18, (1.5, 0.9, 0.5), M('plantM', '#2f8f4a', 0.8)); L.cyl('dgr', 0.07, 0.01, (-1.1, 0.95, 0.075), M('dgrM', '#1a1c20', 0.4), verts=24)
     for i in range(6): B('dsl', (0.12, 0.012, 0.01), (-1.1, 0.95 - 0.04 + 0.016 * i, 0.082), sh.steel, 0.002)
@@ -19,4 +19,4 @@ def build(L, K, T, lang):
         o = eio(seg(t, s1, 0.6)); gr.location = (-1.1 + 0.25 * o, 0.95 - 0.1 * o, 0.09 + 0.07 * math.sin(math.pi * min(1, o * 1.3)) * (1 - o)); gr.rotation_euler = (0.3 * o, 0, 0.6 * o)
         pull = eio(seg(t, s2, 0.9)); lv.location = (-1.1 + 0.1 * pull, 0.95 - 0.35 * pull, 0.11 + 0.5 * math.sin(math.pi * 0.5 * pull)) if pull < 1 else (0, 0, -9); lv.scale = (1, 1, 1) if t < s2 + 1.0 else (0.001,) * 3
         g = eio(seg(t, 0.4, 3.0)); d = eio(seg(t, fx - 0.2, 1.4)); pud.scale = (max(0.001, (0.45 + 0.55 * g) * (1 - d)),) * 2 + (1,)
-    return sh.finish(spot=(-0.45, 0.95), spot_yaw=4.71, reach=0.25, focus=((-1.6, -3.4, 1.5), (-0.8, 0.95, 0.45), 30), anchors={'focus': fb, 'focus2': fa}, act=act, shiver=0.0, work_lean=0.6)
+    return sh.finish(spot=(-0.45, 0.95), spot_yaw=4.71, reach=0.25, focus=((-1.6, -3.4, 1.5), (-0.8, 0.95, 0.45), 30), anchors={'focus': fb, 'focus2': fa}, act=act, opener='wide', shiver=0.0, work_lean=0.6)

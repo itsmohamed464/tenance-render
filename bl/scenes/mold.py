@@ -3,7 +3,7 @@ import bpy, math, random
 from shell import Shell
 
 def build(L, K, T, lang):
-    sh = Shell(L, K, T, 'beach'); M, B, sph = sh.M, sh.B, sh.sph; sh.living(); lerp = L.lerp; seg = L.seg; eio = L.eio; rnd = random.Random(7)
+    sh = Shell(L, K, T, 'beach', wall='#f5eed8', van='green'); M, B, sph = sh.M, sh.B, sh.sph; sh.living(); lerp = L.lerp; seg = L.seg; eio = L.eio; rnd = random.Random(7)
     mm = M('moldM', '#1c1f1a', 0.9); spots = []; sc0 = []
     for i in range(14): a = rnd.uniform(0, 6.28); r = rnd.uniform(0.0, 0.32); sc0.append((rnd.uniform(0.9, 1.6), 0.25, rnd.uniform(0.6, 1.1))); spots.append(sph('mold%d' % i, rnd.uniform(0.035, 0.085), (-0.2 + r * math.cos(a) * 1.3, 1.755, 1.75 + r * math.sin(a) * 0.8), mm, sc0[-1]))
     dm = M('dropM', '#9fd0ff', 0.05, emit='#7fb8f0', es=0.5, alpha=0.8); drops = [sph('drop%d' % i, 0.014, (-0.9 + 0.1 * i, 1.75, 1.45 + 0.07 * (i % 3)), dm, (1, 0.5, 1.6)) for i in range(10)]
@@ -21,4 +21,4 @@ def build(L, K, T, lang):
         for i, w in enumerate(wind):
             u = ((t - s1 - 0.5) * 0.7 + i / 6.0) % 1.0; on = s1 + 0.4 < t < fx + 0.5; w.location = (lerp(0.8, -1.4, u), 1.5, 1.2 + 0.18 * i) if on else (0, 0, -9)
         on2 = s2 - 0.2 < t < fx + 0.3; cl.scale = (1, 1, 1) if on2 else (0.001,) * 3; w2 = ph['work']; cl.location = (0.0, -0.1 - 0.15 * w2, 0.0 + 0.0); cl.rotation_euler = (0, 0, 0.8 * math.sin((t - s2) * 11) * w2)
-    return sh.finish(spot=(0.35, 1.0), spot_yaw=3.95, reach=2.4, focus=((-0.7, -2.5, 1.5), (0.0, 1.7, 1.7), 30), anchors={'focus': fa, 'focus2': fb}, act=act, shiver=0.0, work_lean=0.12)
+    return sh.finish(spot=(0.35, 1.0), spot_yaw=3.95, reach=2.4, focus=((-0.7, -2.5, 1.5), (0.0, 1.7, 1.7), 30), anchors={'focus': fa, 'focus2': fb}, act=act, opener='landlord', shiver=0.0, work_lean=0.12)
