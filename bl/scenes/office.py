@@ -4,10 +4,11 @@
 import bpy, math
 
 def build(L, K, T, lang, topic='neben'):
+    STY = {'neben': ('calendar', '#9dbca9'), 'anlagev': ('rows', '#d9c7a3'), 'miete': ('rows', '#a9bfd6'), 'index': ('bars', '#cdb694')}; style, wcol = STY[topic]
     sc = bpy.context.scene; cx = L.Ctx(sc); M, B, sph = L.mat, L.box, L.sph; lerp, seg, eio, eout, sp = L.lerp, L.seg, L.eio, L.eout, L.spring
     kk = lambda n, d: K.get(n, d); turn, ans, step1, step2, fix, sleep_, save = kk('turn', 3.9), kk('ans', 4.9), kk('step1', 7.0), kk('step2', 8.2), kk('fix', 9.4), kk('sleep', 10.5), kk('save', 11.9)
     L.world(sc, '#dfeaff', 1.0)
-    wall, trim, wood, woodD = M('wall', '#9dbca9', 0.9), M('trim', '#faf6ee', 0.5), M('wood', '#b58a5c', 0.5), M('woodD', '#7d5e3c', 0.5)
+    wall, trim, wood, woodD = M('wall', wcol, 0.9), M('trim', '#faf6ee', 0.5), M('wood', '#b58a5c', 0.5), M('woodD', '#7d5e3c', 0.5)
     green, gold, steel, dark = M('green', '#1f5a42', 0.55), M('gold', '#e6b422', 0.25, 1.0), M('steel', '#cfd6dd', 0.25, 1.0), M('dark', '#1b1f27', 0.4)
     paperM, red = M('paper', '#fbf8ef', 0.85), M('red', '#d33a2c', 0.5, emit='#d33a2c', es=0.4)
     B('floor', (7, 5, 0.1), (0, 0.4, -0.05), wood, 0.004); B('bw', (7, 0.15, 3.4), (0, 2.1, 1.7), wall); B('lw', (0.15, 5, 3.4), (-2.7, 0.4, 1.7), wall); B('skirt', (7, 0.03, 0.12), (0, 2.01, 0.06), trim, 0.004)
@@ -38,8 +39,17 @@ def build(L, K, T, lang, topic='neben'):
     B('tray', (0.46, 0.34, 0.05), (0.75, 1.3, 0.82), M('tray', '#1f5a42', 0.5), 0.012); L.cyl('jar', 0.09, 0.15, (0.55, 1.0, 0.87), M('jarM', '#2f6b55', 0.4)); stack = L.cyl('jarcoins', 0.07, 0.24, (0.55, 1.0, 0.95), gold, verts=24)
     # wall calendar (topic prop); red ring = the missed deadline
     cal = L.empty('cal', (0.2, 1.99, 1.95)); B('calb', (0.78, 0.04, 0.95), (0, 0, 0), paperM, 0.01, parent=cal); B('calh', (0.78, 0.05, 0.2), (0, -0.005, 0.37), red if topic != 'miete' else green, 0.01, parent=cal)
-    for r in range(4):
-        for c in range(5): B('cd', (0.1, 0.008, 0.08), (-0.28 + c * 0.14, -0.025, 0.14 - r * 0.14), M('cdm', '#d8dde6', 0.6), 0, parent=cal)
+    rows, bars = [], []
+    if style == 'calendar':
+        for r in range(4):
+            for c in range(5): B('cd', (0.1, 0.008, 0.08), (-0.28 + c * 0.14, -0.025, 0.14 - r * 0.14), M('cdm', '#d8dde6', 0.6), 0, parent=cal)
+    elif style == 'rows':
+        for r in range(6):
+            B('rb', (0.4, 0.012, 0.045), (0.07, -0.025, 0.25 - r * 0.13), M('rbm', '#cfd6e2', 0.6), 0, parent=cal)
+            rd = B('rr', (0.08, 0.014, 0.08), (-0.28, -0.03, 0.25 - r * 0.13), M('rrm', '#d33a2c', 0.5, emit='#d33a2c', es=1.0), 0.01, parent=cal)
+            rg = B('rg', (0.08, 0.014, 0.08), (-0.28, -0.032, 0.25 - r * 0.13), M('rgm', '#2fb06a', 0.5, emit='#2fb06a', es=1.0), 0.01, parent=cal); rows.append((rd, rg))
+    else:
+        for i in range(5): bars.append(B('bar', (0.1, 0.02, 0.5), (-0.28 + i * 0.14, -0.03, -0.2), M('barm', '#e6b422' if i > 1 else '#cfd6e2', 0.5), 0.008, parent=cal))
     ring = L.torus('ring', 0.1, 0.012, (0.0, -0.03, -0.14), red, (math.pi / 2, 0, 0), cal)
     c1 = B('ck1', (0.09, 0.012, 0.03), (-0.04, -0.035, -0.17), M('ok', '#2fb06a', 0.4, emit='#2fb06a', es=1.2), 0.004, rot=(0, -0.8, 0), parent=cal); c2 = B('ck2', (0.18, 0.012, 0.03), (0.04, -0.035, -0.12), M('ok2', '#2fb06a', 0.4, emit='#2fb06a', es=1.2), 0.004, rot=(0, 0.8, 0), parent=cal)
     # papers (chaos -> tidy stack in the tray)
@@ -61,7 +71,7 @@ def build(L, K, T, lang, topic='neben'):
     kU = L.area('kU', (0.5, -3.0, 3.0), (0.3, 1.4, 0.9), 3.4, 620, '#fff0d8', 'RECTANGLE', 2.2); fl = L.area('fill', (-2.5, -3.5, 2.0), (0, 1.5, 1.0), 5.0, 260, '#dbe6ff', 'RECTANGLE', 5.0)
     sun = L.point('sun', (2.2, 0.8, 2.4), 260, '#ffe9c4', 0.6); lamp = L.point('lampL', (0.2, 1.1, 1.3), 30, '#ffffff', 0.3); lamp.data.use_shadow = False
     cam = L.camera(sc, 34); cx.key(cam); cx.prop(cam.data, 'lens'); cx.prop(cam.data.dof, 'focus_distance'); cx.prop(cam.data.dof, 'aperture_fstop')
-    cx.key(hinge, ring, c1, c2, stack, mas, mring, *pap, *coins, *LL.objs()); cx.prop(mlight.data, 'energy'); cx.prop(lamp.data, 'energy')
+    cx.key(hinge, ring, c1, c2, *[o for r_ in rows for o in r_], *bars, stack, mas, mring, *pap, *coins, *LL.objs()); cx.prop(mlight.data, 'energy'); cx.prop(lamp.data, 'energy')
     a_f, a_f2, a_ll, a_van = L.empty('a_f', (0.2, 1.57, 1.45)), L.empty('a_f2', (0.2, 1.9, 2.5)), L.empty('a_ll', (0, 0, 0), LL.head), L.empty('a_van', (0.7, 0.6, 0.55))
     a_ll.location = (0, 0, 0.5); cx.anch.update(focus=a_f, focus2=a_f2, ll=a_ll, van=a_van)
     P = lambda t, loc, tgt, fov: (t, loc, tgt, fov); WIDE = ((0.3, -2.3, 1.45), (0.1, 1.4, 1.2), 41)
@@ -96,7 +106,11 @@ def build(L, K, T, lang, topic='neben'):
         h = eio(seg(t, step2, 0.8)); blink = 0.5 + 0.5 * math.sin(t * 9.0); col = (lerp(0.83, 0.1, h), lerp(0.23, 0.7, h), lerp(0.17, 0.35, h), 1.0)
         bsd(errM)['Base Color'].default_value = col; bsd(errM)['Emission Color'].default_value = col; bsd(errM)['Emission Strength'].default_value = (2.0 + 4.0 * blink * (1 - h)) if t < turn + 4.0 or h > 0 else 3.0
         # calendar: pulsing red ring -> green check
-        pulse = 1.0 + 0.12 * math.sin(t * 7.0) * (1 - h); ring.scale = (pulse * (1 - hz) + 0.001,) * 3; ck = sp(t, fix + 0.1, 2.4, 0.4); c1.scale = c2.scale = (max(0.001, ck),) * 3
+        pulse = 1.0 + 0.12 * math.sin(t * 7.0) * (1 - h); ring.scale = ((pulse * (1 - hz) + 0.001) if style == 'calendar' else 0.001,) * 3; ck = sp(t, fix + 0.1, 2.4, 0.4); c1.scale = c2.scale = (max(0.001, ck),) * 3
+        for r, (rd, rg) in enumerate(rows):
+            u = eio(seg(t, step1 + r * 0.35, 0.5)); rd.scale = (max(0.001, (1 + 0.2 * math.sin(t * 6 + r)) * (1 - u)),) * 3; rg.scale = (max(0.001, u),) * 3
+        for i, b in enumerate(bars):
+            hh = lerp(0.12 + 0.08 * i, 0.3, hz) * (1 + (0.25 * math.sin(t * 3.0 + i * 1.3)) * (1 - hz)) + 0.02; b.scale = (1, 1, hh / 0.5); b.location = (-0.28 + i * 0.14, -0.03, -0.42 + hh / 2)
         # landlord: worried at the screen, relaxed and smiling after the fix
         w = 1 - hz; sit = 0.5 + 0.5 * math.sin(t * 2.2); joy = eio(seg(t, fix, 0.3)) * (1 - eio(seg(t, fix + 0.9, 0.6)))
         LL.pose(pos=(-0.45, 1.4, 0.28), yaw=math.pi / 2 - 0.35, lean=lerp(-0.14, 0.2, w) + 0.03 * sit * w, nod=0.05 * w, turn=0.2 * math.sin(t * 1.1) * w, armL=lerp(0.25, 1.1 + 0.15 * sit, w) + 2.6 * joy,
