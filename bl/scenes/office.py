@@ -72,7 +72,7 @@ def build(L, K, T, lang, topic='neben'):
     sun = L.point('sun', (2.2, 0.8, 2.4), 260, '#ffe9c4', 0.6); lamp = L.point('lampL', (0.2, 1.1, 1.3), 30, '#ffffff', 0.3); lamp.data.use_shadow = False
     cam = L.camera(sc, 34); cx.key(cam); cx.prop(cam.data, 'lens'); cx.prop(cam.data.dof, 'focus_distance'); cx.prop(cam.data.dof, 'aperture_fstop')
     cx.key(hinge, ring, c1, c2, *[o for r_ in rows for o in r_], *bars, stack, mas, mring, *pap, *coins, *LL.objs()); cx.prop(mlight.data, 'energy'); cx.prop(lamp.data, 'energy')
-    a_f, a_f2, a_ll, a_van = L.empty('a_f', (0.2, 1.57, 1.45)), L.empty('a_f2', (0.2, 1.9, 2.5)), L.empty('a_ll', (0, 0, 0), LL.head), L.empty('a_van', (0.7, 0.6, 0.55))
+    a_f, a_f2, a_ll, a_van = L.empty('a_f', (0.2, 1.57, 1.45)), L.empty('a_f2', (0.2, 1.9, 2.5)), L.empty('a_ll', (0, 0, 0), LL.head), L.empty('a_van', (0.75, 1.3, 1.25))
     a_ll.location = (0, 0, 0.5); cx.anch.update(focus=a_f, focus2=a_f2, ll=a_ll, van=a_van)
     P = lambda t, loc, tgt, fov: (t, loc, tgt, fov); WIDE = ((0.3, -2.3, 1.45), (0.1, 1.4, 1.2), 41)
     camf = L.track([P(0, (0.3, -1.9, 1.4), (0.05, 1.4, 1.2), 42), P(max(1.0, turn - 1.2), (0.25, -1.3, 1.3), (0.1, 1.5, 1.1), 36), P(turn + 0.4, (0.25, -1.0, 1.25), (0.2, 1.5, 1.05), 31), P(step1, (0.5, -1.4, 1.3), (0.45, 1.4, 0.95), 35),
