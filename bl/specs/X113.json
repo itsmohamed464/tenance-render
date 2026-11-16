@@ -7,7 +7,7 @@
   "who": "Mieter · Whg 2B",
   "m1": "Wird meine Miete erhöht? 🤔",
   "m2": "Frist geprüft. Neue Miete berechnet ✓",
-  "ttl": "Indexmiete · Whg 2B",
+  "ttl": "Indexmiete",
   "l1": "📅 Frist geprüft",
   "l2": "🧮 Neue Miete berechnet",
   "l3": "✅ Erklärung bereit",
@@ -122,8 +122,8 @@
    -0.5
   ],
   "out2": [
-   "cause",
-   -0.44
+   "step1",
+   -0.3
   ]
  },
  "card": {

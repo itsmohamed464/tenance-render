@@ -7,7 +7,7 @@
   "who": "Bank",
   "m1": "Neue Zahlung eingegangen 💶",
   "m2": "Zugeordnet: Whg 2B ✓",
-  "ttl": "Mieteingang · November",
+  "ttl": "Mieteingang",
   "l1": "🏦 Zahlungen abgeglichen",
   "l2": "👥 Mietern zugeordnet",
   "l3": "✅ Offene Posten sichtbar",
@@ -122,8 +122,8 @@
    -0.5
   ],
   "out2": [
-   "cause",
-   -0.44
+   "step1",
+   -0.3
   ]
  },
  "card": {

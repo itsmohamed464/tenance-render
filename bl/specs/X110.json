@@ -7,7 +7,7 @@
   "who": "Mieter · Whg 2B",
   "m1": "Wo bleibt meine Abrechnung? 🤔",
   "m2": "Frist im Blick. Belege sortiert ✓",
-  "ttl": "Abrechnung 2025 · Whg 2B",
+  "ttl": "Nebenkosten 2025",
   "l1": "📅 Frist erinnert",
   "l2": "🧾 Belege sortiert",
   "l3": "✅ Nachforderung gesichert",
@@ -122,8 +122,8 @@
    -0.5
   ],
   "out2": [
-   "cause",
-   -0.44
+   "step1",
+   -0.3
   ]
  },
  "card": {
