@@ -142,3 +142,11 @@ HOOKS = {
 }
 for _k, (_hd, _he) in HOOKS.items():
     _t = copy.deepcopy(TOPICS[_k]); _t['job'] = _k + 'R'; _t['names'] = {l: n[:-3] + 'r' + n[-3:] for l, n in _t['names'].items()}; _t['de']['hook'] = _hd; _t['en']['hook'] = _he; TOPICS[_k + 'R'] = _t
+
+# ---- Sie-form landlord admin series (calm tone, German only, one video a day). Scene: office (Vermieter-Buero).
+TOPICS['X110'] = dict(scene='nebenkosten', names={'de': 'kinebenkosten16-de'}, job='X110',
+  vo={'de': "Nebenkosten noch in Excel? Ein verpasster Stichtag kostet Sie bares Geld. Zwölf Monate nach Abrechnungsende ist Schluss, dann entfällt in der Regel jede Nachforderung. Tenance KI erinnert Sie rechtzeitig und sortiert Ihre Belege automatisch. Schon ist die Frist gesichert, und Sie bleiben entspannt. Das spart Geld und Nerven. Jetzt auf die Warteliste."},
+  cues=dict(night=['Nebenkosten', 'Nebenkosten'], write=['Stichtag', 'Stichtag'], ans=['erinnert', 'erinnert'], cause=['rechtzeitig', 'rechtzeitig'], step1=['sortiert', 'sortiert'], step2=['automatisch', 'automatisch'], fix=['gesichert', 'gesichert'], sleep=['entspannt', 'entspannt'], save=['spart', 'spart'], cta=['Jetzt', 'Jetzt']),
+  de=dict(hook='Nebenkosten in Excel? Das kostet bares Geld 💶', chip='📅 Nebenkosten: Frist 12 Monate', who='Mieter · Whg 2B', m1='Wo bleibt meine Abrechnung? 🤔', m2='Frist im Blick. Belege sortiert ✓', ttl='Abrechnung 2025 · Whg 2B', l1='📅 Frist erinnert', l2='🧾 Belege sortiert', l3='✅ Nachforderung gesichert',
+          bad='📅 Stichtag verpasst?', van='💸 Nachforderung weg', cancel='✅ Frist im Blick', cause='📅 Frist: 12 Monate', s1='① Frist-Erinnerung', s2='② Belege sortiert', ok='✅ Frist gesichert', sl='😌 Sie bleiben entspannt', sv='💶 Spart Geld und Nerven', end=['Ihre Nachforderung *bleibt sicher*.', None]),
+  sfx=[['click', 'step1', 0.1, -9]])

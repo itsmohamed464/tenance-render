@@ -27,15 +27,15 @@ def spec(t):
             dict(k='ok', cls='ok', anchor='focus2', dy=-190, **{'in': ['fix', 0.05], 'out': ['sleep', -0.4]}), dict(k='sl', cls='ok', anchor='ll', dy=-170, **{'in': ['sleep', 0.2], 'out': ['save', -0.1]})]
     sfx = [['buzz', 'night', 0.1, -10], ['send', 'write', -0.1, -13], ['pop', 'ans', 0.1, -12], ['chime', 'fix', 0.3, -11], ['kaching', 'save', 0.1, -12]] + t.get('sfx', [])
     def S(x): return {k: v for k, v in x.items() if k not in ('bad', 'van', 'cancel', 'cause', 's1', 's2', 'ok', 'sl')} | {'tags': {k: x[k] for k in ('bad', 'van', 'cancel', 'cause', 's1', 's2', 'ok', 'sl')}}
-    return dict(scene=t['scene'], fps=30, de=S(t['de']), en=S(t['en']), pre=pre, post=post, hook={'out': ['write', -0.15]}, chat={'in1': ['write', -0.12], 'in2': ['ans', 0.08], 'out1': ['cause', -0.5], 'out2': ['cause', -0.44]},
+    return dict(scene=t['scene'], fps=30, de=S(t['de']), en=S(t['en']) if 'en' in t else None, pre=pre, post=post, hook={'out': ['write', -0.15]}, chat={'in1': ['write', -0.12], 'in2': ['ans', 0.08], 'out1': ['cause', -0.5], 'out2': ['cause', -0.44]},
                 card={'t': ['cause', -0.3], 'lines': [['cause', 0.1], ['step1', 0], ['fix', 0]], 'out': ['save', -0.12]}, tags=tags, save=['save', 0.05], sfx=sfx)
 MUSIC = "{ f: 'm3E3.mp3', segs: [{ f: 'm2A2.mp3', src: 0, at: 0, db: -4 }, { src: 6.0, at: 'turn', lead: -0.05 }], db: -16, boost: 0.9 }"
 def write(id_, t):
-    s = spec(t); s['gr'] = [groups(id_, 'de'), groups(id_, 'en')]; json.dump(s, open(f'{HERE}/specs/{id_}.json', 'w'), ensure_ascii=False, indent=1)
+    s = spec(t); s['gr'] = [groups(id_, 'de'), groups(id_, 'en') if 'en' in t else []]; json.dump(s, open(f'{HERE}/specs/{id_}.json', 'w'), ensure_ascii=False, indent=1)
 def addv(id_, t, jobid):
     p = V + 'r2.mjs'; r = open(p).read()
     if f"  {id_}: {{ f:" not in r: j = r.index('\n', r.index('  X71: { f:')); r = r[:j + 1] + f"  {id_}: {MUSIC},\n" + r[j + 1:]
-    for l in ('de', 'en'):
+    for l in [x for x in ('de', 'en') if x in t['names']]:
         key = f"  '{jobid}-{l}': {{"
         if key not in r: j = r.index('\n', r.index("  'X71-en': {")); r = r[:j + 1] + f"{key} name: '{t['names'][l]}', concept: '{id_}', lang: '{l}', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: '{t['scene']}', fps: 30 }},\n" + r[j + 1:]
     open(p, 'w').write(r)
