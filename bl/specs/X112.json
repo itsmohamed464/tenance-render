@@ -24,7 +24,7 @@
    "s1": "① Automatisch abgeglichen",
    "s2": "② Mietern zugeordnet",
    "ok": "✅ Auf einen Blick",
-   "sl": "👀 Offene Posten sichtbar"
+   "sl": "👀 Offene Posten"
   }
  },
  "en": null,
@@ -55,8 +55,8 @@
   [
    "cause",
    [
-    "jede",
-    "jede"
+    "Zahlung",
+    "Zahlung"
    ]
   ],
   [
@@ -122,8 +122,8 @@
    -0.5
   ],
   "out2": [
-   "step1",
-   -0.3
+   "cause",
+   -0.1
   ]
  },
  "card": {
