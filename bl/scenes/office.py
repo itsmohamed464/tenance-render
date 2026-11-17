@@ -4,7 +4,7 @@
 import bpy, math
 
 def build(L, K, T, lang, topic='neben'):
-    STY = {'neben': ('calendar', '#9dbca9'), 'anlagev': ('rows', '#d9c7a3'), 'miete': ('rows', '#a9bfd6'), 'index': ('bars', '#cdb694')}; style, wcol = STY[topic]
+    STY = {'neben': ('calendar', '#9dbca9'), 'anlagev': ('rows', '#d9c7a3'), 'miete': ('rows', '#a9bfd6'), 'index': ('bars', '#cdb694'), 'kaution': ('rows', '#c8d3a8'), 'erhoehung': ('bars', '#d4b3b9'), 'heizkosten': ('calendar', '#a9c4cc')}; style, wcol = STY[topic]
     sc = bpy.context.scene; cx = L.Ctx(sc); M, B, sph = L.mat, L.box, L.sph; lerp, seg, eio, eout, sp = L.lerp, L.seg, L.eio, L.eout, L.spring
     kk = lambda n, d: K.get(n, d); turn, ans, step1, step2, fix, sleep_, save = kk('turn', 3.9), kk('ans', 4.9), kk('step1', 7.0), kk('step2', 8.2), kk('fix', 9.4), kk('sleep', 10.5), kk('save', 11.9)
     L.world(sc, '#dfeaff', 1.0)
