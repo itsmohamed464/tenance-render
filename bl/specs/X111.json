@@ -27,7 +27,32 @@
    "sl": "👔 Für den Steuerberater"
   }
  },
- "en": null,
+ "en": {
+  "hook": "Anlage V: receipts still in a shoebox? 📦",
+  "chip": "🧾 Anlage V · Tax year 2025",
+  "who": "Tax advisor",
+  "m1": "Please send all receipts by Friday 🙏",
+  "m2": "Receipts collected and sorted ✓",
+  "ttl": "Anlage V · Receipts",
+  "l1": "🧾 Receipts collected",
+  "l2": "🗂️ Sorted automatically",
+  "l3": "✅ Ready for the tax advisor",
+  "sv": "⏱️ Saves time and nerves",
+  "end": [
+   "Everything *ready* for your tax advisor.",
+   null
+  ],
+  "tags": {
+   "bad": "📦 Shoebox chaos",
+   "van": "💸 Deductions missed",
+   "cancel": "✅ Nothing missed",
+   "cause": "🧾 All year long",
+   "s1": "① Receipts collected",
+   "s2": "② Sorted automatically",
+   "ok": "✅ Ready",
+   "sl": "👔 For your tax advisor"
+  }
+ },
  "pre": [
   [
    "night",
@@ -40,7 +65,7 @@
    "write",
    [
     "Schuhkarton",
-    "Schuhkarton"
+    "shoebox"
    ]
   ]
  ],
@@ -49,56 +74,56 @@
    "ans",
    [
     "sammelt",
-    "sammelt"
+    "collects"
    ]
   ],
   [
    "cause",
    [
     "Jahr",
-    "Jahr"
+    "year"
    ]
   ],
   [
    "step1",
    [
     "ordnet",
-    "ordnet"
+    "sorts"
    ]
   ],
   [
    "step2",
    [
     "automatisch",
-    "automatisch"
+    "automatically"
    ]
   ],
   [
    "fix",
    [
     "bereit",
-    "bereit"
+    "ready"
    ]
   ],
   [
    "sleep",
    [
     "Steuerberater",
-    "Steuerberater"
+    "advisor"
    ]
   ],
   [
    "save",
    [
     "spart",
-    "spart"
+    "saves"
    ]
   ],
   [
    "cta",
    [
     "Jetzt",
-    "Jetzt"
+    "Join"
    ]
   ]
  ],
@@ -324,6 +349,26 @@
    2,
    4
   ],
-  []
+  [
+   2,
+   3,
+   2,
+   3,
+   3,
+   3,
+   1,
+   3,
+   3,
+   4,
+   3,
+   3,
+   3,
+   2,
+   4,
+   4,
+   3,
+   2,
+   3
+  ]
  ]
 }

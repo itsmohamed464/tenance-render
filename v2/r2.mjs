@@ -306,6 +306,7 @@ const V = {
   'X70-en': { name: 'aifridge02-en', concept: 'X70', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-de': { name: 'kirauchmelder04-de', concept: 'X71', lang: 'de', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
   'X71-en': { name: 'aismoke04-en', concept: 'X71', lang: 'en', tempo: 1.07, off: 0.15, mb: 32, pr: 2, crf: 14 },
+  'X111-en': { name: 'aianlagev17-en', concept: 'X111', lang: 'en', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'anlagev', fps: 30 },
   'X113-de': { name: 'kiindexmiete19-de', concept: 'X113', lang: 'de', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'indexmiete', fps: 30 },
   'X112-de': { name: 'kimieteingang18-de', concept: 'X112', lang: 'de', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'mieteingang', fps: 30 },
   'X112b-de': { name: 'kimieteingang18b-de', concept: 'X112', lang: 'de', tempo: 1.07, off: 0.15, mb: 1, pr: 1, crf: 16, bl: 'mieteingang', fps: 30 },
