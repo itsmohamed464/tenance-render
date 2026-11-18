@@ -27,20 +27,45 @@
    "sl": "👀 Offene Posten"
   }
  },
- "en": null,
+ "en": {
+  "hook": "Matching bank statements every month? 🏦",
+  "chip": "🏦 Rent collection · November",
+  "who": "Bank",
+  "m1": "New payment received 💶",
+  "m2": "Matched: Apt 2B ✓",
+  "ttl": "Rent collection",
+  "l1": "🏦 Payments matched",
+  "l2": "👥 Assigned to tenants",
+  "l3": "✅ Open items visible",
+  "sv": "⏱️ Saves time and nerves",
+  "end": [
+   "Rent collection *at a glance*.",
+   null
+  ],
+  "tags": {
+   "bad": "⏱️ Hours every year",
+   "van": "❓ Who paid?",
+   "cancel": "✅ All matched",
+   "cause": "🏦 Every payment",
+   "s1": "① Matched automatically",
+   "s2": "② Tenants assigned",
+   "ok": "✅ At a glance",
+   "sl": "👀 Open items"
+  }
+ },
  "pre": [
   [
    "night",
    [
     "Jeden",
-    "Jeden"
+    "Matching"
    ]
   ],
   [
    "write",
    [
     "Stunden",
-    "Stunden"
+    "hours"
    ]
   ]
  ],
@@ -49,56 +74,56 @@
    "ans",
    [
     "gleicht",
-    "gleicht"
+    "matches"
    ]
   ],
   [
    "cause",
    [
     "Zahlung",
-    "Zahlung"
+    "payment"
    ]
   ],
   [
    "step1",
    [
     "automatisch",
-    "automatisch"
+    "automatically"
    ]
   ],
   [
    "step2",
    [
     "Mietern",
-    "Mietern"
+    "Soon"
    ]
   ],
   [
    "fix",
    [
     "Blick",
-    "Blick"
+    "glance"
    ]
   ],
   [
    "sleep",
    [
     "offen",
-    "offen"
+    "open"
    ]
   ],
   [
    "save",
    [
     "spart",
-    "spart"
+    "saves"
    ]
   ],
   [
    "cta",
    [
     "Jetzt",
-    "Jetzt"
+    "Join"
    ]
   ]
  ],
@@ -325,6 +350,24 @@
    2,
    4
   ],
-  []
+  [
+   3,
+   3,
+   3,
+   2,
+   2,
+   3,
+   3,
+   3,
+   3,
+   3,
+   2,
+   3,
+   3,
+   4,
+   3,
+   2,
+   3
+  ]
  ]
 }

@@ -27,20 +27,45 @@
    "sl": "😌 Vermögen getrennt"
   }
  },
- "en": null,
+ "en": {
+  "hook": "Rent deposit: how much may you ask? 🔑",
+  "chip": "🔑 Deposit · max. 3 months",
+  "who": "Tenant · Apt 2B",
+  "m1": "How high may the deposit be? 🤔",
+  "m2": "Max. 3 months. Documented ✓",
+  "ttl": "Deposit",
+  "l1": "🔑 Amount checked",
+  "l2": "🗂️ Documented automatically",
+  "l3": "✅ Kept apart",
+  "sv": "⏱️ Saves time and nerves",
+  "end": [
+   "Every deposit *in view*.",
+   null
+  ],
+  "tags": {
+   "bad": "⚠️ Set too high?",
+   "van": "💸 Dispute looms",
+   "cancel": "✅ Amount in view",
+   "cause": "🔑 Every deposit",
+   "s1": "① Documented",
+   "s2": "② Automatically",
+   "ok": "✅ Neatly kept apart",
+   "sl": "😌 Assets separated"
+  }
+ },
  "pre": [
   [
    "night",
    [
     "Kaution",
-    "Kaution"
+    "Rent"
    ]
   ],
   [
    "write",
    [
     "Monatsmieten",
-    "Monatsmieten"
+    "three"
    ]
   ]
  ],
@@ -49,56 +74,56 @@
    "ans",
    [
     "behält",
-    "behält"
+    "keeps"
    ]
   ],
   [
    "cause",
    [
     "Wohnung",
-    "Wohnung"
+    "view"
    ]
   ],
   [
    "step1",
    [
     "dokumentiert",
-    "dokumentiert"
+    "documents"
    ]
   ],
   [
    "step2",
    [
     "automatisch",
-    "automatisch"
+    "automatically"
    ]
   ],
   [
    "fix",
    [
     "sauber",
-    "sauber"
+    "neatly"
    ]
   ],
   [
    "sleep",
    [
     "Vermögen",
-    "Vermögen"
+    "assets"
    ]
   ],
   [
    "save",
    [
     "spart",
-    "spart"
+    "saves"
    ]
   ],
   [
    "cta",
    [
     "Jetzt",
-    "Jetzt"
+    "Join"
    ]
   ]
  ],
@@ -324,6 +349,24 @@
    2,
    4
   ],
-  []
+  [
+   4,
+   3,
+   3,
+   3,
+   2,
+   3,
+   3,
+   3,
+   3,
+   2,
+   3,
+   3,
+   3,
+   2,
+   3,
+   2,
+   3
+  ]
  ]
 }

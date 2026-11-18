@@ -27,20 +27,45 @@
    "sl": "😌 Ärger erspart"
   }
  },
- "en": null,
+ "en": {
+  "hook": "Heating costs not billed by use? 🔥",
+  "chip": "🔥 Heating bill",
+  "who": "Tenant · Apt 2B",
+  "m1": "May I cut my share? 🤔",
+  "m2": "Bill checked before sending ✓",
+  "ttl": "Heating costs",
+  "l1": "🔥 Bill checked",
+  "l2": "📏 By consumption",
+  "l3": "✅ Ready to send",
+  "sv": "💶 Saves money and nerves",
+  "end": [
+   "Trouble *spared*.",
+   null
+  ],
+  "tags": {
+   "bad": "⚠️ Not by consumption?",
+   "van": "💸 15% cut",
+   "cancel": "✅ By consumption",
+   "cause": "📨 Before sending",
+   "s1": "① Bill checked",
+   "s2": "② By consumption",
+   "ok": "✅ Correct",
+   "sl": "😌 Trouble spared"
+  }
+ },
  "pre": [
   [
    "night",
    [
     "Heizkosten",
-    "Heizkosten"
+    "Heating"
    ]
   ],
   [
    "write",
    [
     "Verbrauch",
-    "Verbrauch"
+    "consumption"
    ]
   ]
  ],
@@ -49,56 +74,56 @@
    "ans",
    [
     "prüft",
-    "prüft"
+    "checks"
    ]
   ],
   [
    "cause",
    [
     "Versand",
-    "Versand"
+    "bill"
    ]
   ],
   [
    "step1",
    [
     "Schon",
-    "Schon"
+    "before"
    ]
   ],
   [
    "step2",
    [
     "korrekt",
-    "korrekt"
+    "Soon"
    ]
   ],
   [
    "fix",
    [
     "Ihnen",
-    "Ihnen"
+    "correct"
    ]
   ],
   [
    "sleep",
    [
     "erspart",
-    "erspart"
+    "spared"
    ]
   ],
   [
    "save",
    [
     "spart",
-    "spart"
+    "saves"
    ]
   ],
   [
    "cta",
    [
     "Jetzt",
-    "Jetzt"
+    "Join"
    ]
   ]
  ],
@@ -322,6 +347,21 @@
    2,
    4
   ],
-  []
+  [
+   3,
+   3,
+   3,
+   3,
+   4,
+   3,
+   3,
+   4,
+   4,
+   3,
+   3,
+   3,
+   2,
+   3
+  ]
  ]
 }

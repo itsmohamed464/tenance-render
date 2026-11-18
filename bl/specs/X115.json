@@ -27,20 +27,45 @@
    "sl": "😌 Ohne Ärger"
   }
  },
- "en": null,
+ "en": {
+  "hook": "Rent increase to the rent index? 📊",
+  "chip": "📊 Cap: 20% in 3 years",
+  "who": "Tenant · Apt 2B",
+  "m1": "How much increase is allowed? 🤔",
+  "m2": "Cap and deadlines checked ✓",
+  "ttl": "Rent increase",
+  "l1": "📊 Cap checked",
+  "l2": "📅 Deadlines checked",
+  "l3": "✅ New rent correct",
+  "sv": "💶 Saves money and nerves",
+  "end": [
+   "The new rent *is right*.",
+   null
+  ],
+  "tags": {
+   "bad": "⚠️ Cap exceeded?",
+   "van": "💸 Trouble looms",
+   "cancel": "✅ Cap respected",
+   "cause": "📅 Deadlines in view",
+   "s1": "① Cap checked",
+   "s2": "② New rent correct",
+   "ok": "✅ Correct",
+   "sl": "😌 No trouble"
+  }
+ },
  "pre": [
   [
    "night",
    [
     "Mieterhöhung",
-    "Mieterhöhung"
+    "Rent"
    ]
   ],
   [
    "write",
    [
     "Kappungsgrenze",
-    "Kappungsgrenze"
+    "cap"
    ]
   ]
  ],
@@ -49,56 +74,56 @@
    "ans",
    [
     "prüft",
-    "prüft"
+    "checks"
    ]
   ],
   [
    "cause",
    [
     "Fristen",
-    "Fristen"
+    "deadlines"
    ]
   ],
   [
    "step1",
    [
     "Schon",
-    "Schon"
+    "Soon"
    ]
   ],
   [
    "step2",
    [
     "korrekte",
-    "korrekte"
+    "correct"
    ]
   ],
   [
    "fix",
    [
     "Miete",
-    "Miete"
+    "rent"
    ]
   ],
   [
    "sleep",
    [
     "fest",
-    "fest"
+    "set"
    ]
   ],
   [
    "save",
    [
     "spart",
-    "spart"
+    "saves"
    ]
   ],
   [
    "cta",
    [
     "Jetzt",
-    "Jetzt"
+    "Join"
    ]
   ]
  ],
@@ -322,6 +347,22 @@
    2,
    4
   ],
-  []
+  [
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   4,
+   4,
+   3,
+   3,
+   2,
+   3
+  ]
  ]
 }

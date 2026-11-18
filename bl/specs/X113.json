@@ -27,20 +27,45 @@
    "sl": "😌 Ohne Rechenfehler"
   }
  },
- "en": null,
+ "en": {
+  "hook": "Index-linked rent: can you raise it? 📈",
+  "chip": "📈 Index rent · 1 year rule",
+  "who": "Tenant · Apt 2B",
+  "m1": "Is my rent going up? 🤔",
+  "m2": "Deadline checked. New rent calculated ✓",
+  "ttl": "Index rent",
+  "l1": "📅 Deadline checked",
+  "l2": "🧮 New rent calculated",
+  "l3": "✅ Notice ready",
+  "sv": "💶 Saves money and nerves",
+  "end": [
+   "Increase *without errors*.",
+   null
+  ],
+  "tags": {
+   "bad": "⚠️ Deadline unclear?",
+   "van": "🧮 Errors loom",
+   "cancel": "✅ Deadline checked",
+   "cause": "📅 At least 1 year",
+   "s1": "① Index applied",
+   "s2": "② Notice ready",
+   "ok": "✅ Notice ready",
+   "sl": "😌 No calculation errors"
+  }
+ },
  "pre": [
   [
    "night",
    [
     "Indexmiete",
-    "Indexmiete"
+    "rent"
    ]
   ],
   [
    "write",
    [
     "Erhöhung",
-    "Erhöhung"
+    "unchanged"
    ]
   ]
  ],
@@ -49,56 +74,56 @@
    "ans",
    [
     "prüft",
-    "prüft"
+    "checks"
    ]
   ],
   [
    "cause",
    [
     "Frist",
-    "Frist"
+    "calculates"
    ]
   ],
   [
    "step1",
    [
     "berechnet",
-    "berechnet"
+    "index"
    ]
   ],
   [
    "step2",
    [
     "Index",
-    "Index"
+    "Soon"
    ]
   ],
   [
    "fix",
    [
     "Erklärung",
-    "Erklärung"
+    "ready"
    ]
   ],
   [
    "sleep",
    [
     "Rechenfehler",
-    "Rechenfehler"
+    "errors"
    ]
   ],
   [
    "save",
    [
     "spart",
-    "spart"
+    "saves"
    ]
   ],
   [
    "cta",
    [
     "Jetzt",
-    "Jetzt"
+    "Join"
    ]
   ]
  ],
@@ -327,6 +352,25 @@
    2,
    4
   ],
-  []
+  [
+   4,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   4,
+   3,
+   3,
+   3,
+   4,
+   3,
+   2,
+   3,
+   3,
+   2,
+   3
+  ]
  ]
 }
